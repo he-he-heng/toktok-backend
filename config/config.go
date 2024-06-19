@@ -1,6 +1,10 @@
 package config
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/spf13/viper"
+)
 
 var (
 	once   sync.Once
@@ -20,4 +24,24 @@ type Database struct {
 	Type     string `json:"type"`
 	MaxOpen  int    `json:"maxOpen"`
 	MaxIdle  int    `json:"maxIdle"`
+}
+
+func LoadConfig(filename string) *Config {
+	once.Do(func() {
+		viper.SetConfigType("yaml")
+		viper.SetConfigFile(filename)
+
+		err := viper.ReadInConfig()
+		if err != nil {
+			panic(err)
+		}
+
+		err = viper.Unmarshal(&config)
+		if err != nil {
+			panic(err)
+		}
+
+	})
+
+	return config
 }
