@@ -15,43 +15,43 @@ const (
 )
 
 type Database struct {
-	db *gorm.DB
+	*gorm.DB
 }
 
-func NewDatabse(c *config.Config) *Database {
+func NewDatabse(c *config.Config) (*Database, error) {
 	db, err := gorm.Open(dialector(c.Database), nil)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	pool, err := db.DB()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	if c.Database.MaxOpen <= 0 {
-		c.Database.MaxOpen = DefaultMaxOpenConns
+	if c.Database.Mysql.MaxOpen <= 0 {
+		c.Database.Mysql.MaxOpen = DefaultMaxOpenConns
 	}
-	if c.Database.MaxIdle <= 0 {
-		c.Database.MaxIdle = DefaultMaxIdleConns
+	if c.Database.Mysql.MaxIdle <= 0 {
+		c.Database.Mysql.MaxIdle = DefaultMaxIdleConns
 	}
 
-	pool.SetMaxOpenConns(c.Database.MaxOpen)
-	pool.SetMaxIdleConns(c.Database.MaxIdle)
+	pool.SetMaxOpenConns(c.Database.Mysql.MaxOpen)
+	pool.SetMaxIdleConns(c.Database.Mysql.MaxIdle)
 	pool.SetConnMaxLifetime(5 * time.Second)
 
 	return &Database{
-		db: db,
-	}
+		DB: db,
+	}, nil
 }
 
 func dialector(c config.Database) gorm.Dialector {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		c.User,
-		c.Password,
-		c.Host,
-		c.Port,
-		c.Database,
+		c.Mysql.User,
+		c.Mysql.Password,
+		c.Mysql.Host,
+		c.Mysql.Port,
+		c.Mysql.Database,
 	)
 
 	return mysql.New(mysql.Config{

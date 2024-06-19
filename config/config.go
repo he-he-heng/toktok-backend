@@ -16,6 +16,10 @@ type Config struct {
 }
 
 type Database struct {
+	Mysql Mysql `json:"mysql"`
+}
+
+type Mysql struct {
 	Host     string `json:"host"`
 	Port     string `json:"port"`
 	User     string `json:"user"`
