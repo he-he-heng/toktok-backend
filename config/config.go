@@ -35,7 +35,7 @@ type Bolt struct {
 	Mode int    `json:"mode"`
 }
 
-func LoadConfig(filename string) *Config {
+func NewConfig(filename string) *Config {
 	once.Do(func() {
 		viper.SetConfigType("yaml")
 		viper.SetConfigFile(filename)
