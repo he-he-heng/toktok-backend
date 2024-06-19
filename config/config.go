@@ -12,11 +12,12 @@ var (
 )
 
 type Config struct {
-	Database `json:"database"`
+	Database Database `json:"database"`
 }
 
 type Database struct {
 	Mysql Mysql `json:"mysql"`
+	Bolt  Bolt  `json:"bolt"`
 }
 
 type Mysql struct {
@@ -27,6 +28,11 @@ type Mysql struct {
 	Password string `json:"password"`
 	MaxOpen  int    `json:"maxOpen"`
 	MaxIdle  int    `json:"maxIdle"`
+}
+
+type Bolt struct {
+	Path string `json:"path"`
+	Mode int    `json:"mode"`
 }
 
 func LoadConfig(filename string) *Config {
