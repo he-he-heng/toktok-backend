@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	StatusBucket string = "statusBucket"
+	PnumStatusBucket string = "pnumStatusBucket"
 )
 
 type Database struct {
@@ -22,7 +22,7 @@ func NewDatabase(c *config.Config) (*bolt.DB, error) {
 		return nil, err
 	}
 	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(StatusBucket))
+		_, err := tx.CreateBucketIfNotExists([]byte(PnumStatusBucket))
 		if err != nil {
 			return err
 		}
