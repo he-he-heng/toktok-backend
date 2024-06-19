@@ -16,7 +16,7 @@ type Database struct {
 	*bolt.DB
 }
 
-func NewDatabase(c *config.Config) (*bolt.DB, error) {
+func NewDatabase(c *config.Config) (*Database, error) {
 	db, err := bolt.Open(c.Database.Bolt.Path, fs.FileMode(c.Database.Bolt.Mode), &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, err
@@ -33,7 +33,9 @@ func NewDatabase(c *config.Config) (*bolt.DB, error) {
 		return nil, err
 	}
 
-	return db, err
+	return &Database{
+		DB: db,
+	}, err
 }
 
 func (d *Database) Close() error {
