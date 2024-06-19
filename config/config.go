@@ -21,7 +21,6 @@ type Database struct {
 	User     string `json:"user"`
 	Database string `json:"database"`
 	Password string `json:"password"`
-	Type     string `json:"type"`
 	MaxOpen  int    `json:"maxOpen"`
 	MaxIdle  int    `json:"maxIdle"`
 }
