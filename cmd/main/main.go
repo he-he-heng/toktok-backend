@@ -1,18 +1,20 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/he-he-heng/toktok-backend/config"
-	database "github.com/he-he-heng/toktok-backend/config/database/mysql"
+	"github.com/he-he-heng/toktok-backend/config/database/bolt"
+	"github.com/he-he-heng/toktok-backend/config/database/mysql"
+	"github.com/he-he-heng/toktok-backend/interval/model"
+	"github.com/he-he-heng/toktok-backend/pkg/utils"
 )
 
 func main() {
-	cfg := config.LoadConfig(".env.yaml")
-	fmt.Printf("%+v", cfg)
+	config := utils.Must(config.NewConfig("./env.yaml"))
 
-	_, err := database.NewDatabse(cfg)
-	if err != nil {
-		panic(err)
-	}
+	db := utils.Must(mysql.NewDatabse(config))
+	bolt := utils.Must(bolt.NewDatabase(config))
+
+	utils.Check(db.AutoMigrate(&model.User{}))
+
+	_ = bolt
 }

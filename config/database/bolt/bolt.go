@@ -16,8 +16,8 @@ type Database struct {
 	*bolt.DB
 }
 
-func NewDatabase(c *config.Database) (*bolt.DB, error) {
-	db, err := bolt.Open(c.Bolt.Path, fs.FileMode(c.Bolt.Mode), &bolt.Options{Timeout: 1 * time.Second})
+func NewDatabase(c *config.Config) (*bolt.DB, error) {
+	db, err := bolt.Open(c.Database.Bolt.Path, fs.FileMode(c.Database.Bolt.Mode), &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, err
 	}
