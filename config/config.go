@@ -1,14 +1,7 @@
 package config
 
 import (
-	"sync"
-
 	"github.com/spf13/viper"
-)
-
-var (
-	once   sync.Once
-	config *Config
 )
 
 type Config struct {
@@ -35,22 +28,20 @@ type Bolt struct {
 	Mode int    `json:"mode"`
 }
 
-func NewConfig(filename string) *Config {
-	once.Do(func() {
-		viper.SetConfigType("yaml")
-		viper.SetConfigFile(filename)
+func NewConfig(filename string) (*Config, error) {
+	viper.SetConfigType("yaml")
+	viper.SetConfigFile(filename)
 
-		err := viper.ReadInConfig()
-		if err != nil {
-			panic(err)
-		}
+	err := viper.ReadInConfig()
+	if err != nil {
+		return nil, err
+	}
 
-		err = viper.Unmarshal(&config)
-		if err != nil {
-			panic(err)
-		}
+	config := &Config{}
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		return nil, err
+	}
 
-	})
-
-	return config
+	return config, nil
 }
