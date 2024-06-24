@@ -11,6 +11,8 @@ var (
 	// AttemptsColumns holds the columns for the "attempts" table.
 	AttemptsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "phone", Type: field.TypeString, Unique: true},
+		{Name: "authcode", Type: field.TypeInt},
 		{Name: "cnt", Type: field.TypeInt, Default: 0},
 		{Name: "break", Type: field.TypeBool, Default: false},
 		{Name: "timestamp", Type: field.TypeTime},

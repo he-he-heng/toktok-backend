@@ -17,6 +17,10 @@ type Attempt struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// Phone holds the value of the "phone" field.
+	Phone string `json:"phone,omitempty"`
+	// Authcode holds the value of the "authcode" field.
+	Authcode int `json:"authcode,omitempty"`
 	// Cnt holds the value of the "cnt" field.
 	Cnt int `json:"cnt,omitempty"`
 	// Break holds the value of the "break" field.
@@ -33,8 +37,10 @@ func (*Attempt) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case attempt.FieldBreak:
 			values[i] = new(sql.NullBool)
-		case attempt.FieldID, attempt.FieldCnt:
+		case attempt.FieldID, attempt.FieldAuthcode, attempt.FieldCnt:
 			values[i] = new(sql.NullInt64)
+		case attempt.FieldPhone:
+			values[i] = new(sql.NullString)
 		case attempt.FieldTimestamp:
 			values[i] = new(sql.NullTime)
 		default:
@@ -58,6 +64,18 @@ func (a *Attempt) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			a.ID = int(value.Int64)
+		case attempt.FieldPhone:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field phone", values[i])
+			} else if value.Valid {
+				a.Phone = value.String
+			}
+		case attempt.FieldAuthcode:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field authcode", values[i])
+			} else if value.Valid {
+				a.Authcode = int(value.Int64)
+			}
 		case attempt.FieldCnt:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field cnt", values[i])
@@ -112,6 +130,12 @@ func (a *Attempt) String() string {
 	var builder strings.Builder
 	builder.WriteString("Attempt(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
+	builder.WriteString("phone=")
+	builder.WriteString(a.Phone)
+	builder.WriteString(", ")
+	builder.WriteString("authcode=")
+	builder.WriteString(fmt.Sprintf("%v", a.Authcode))
+	builder.WriteString(", ")
 	builder.WriteString("cnt=")
 	builder.WriteString(fmt.Sprintf("%v", a.Cnt))
 	builder.WriteString(", ")

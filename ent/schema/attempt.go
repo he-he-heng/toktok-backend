@@ -15,6 +15,8 @@ type Attempt struct {
 // Fields of the Attempt.
 func (Attempt) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("phone").Unique(),
+		field.Int("authcode"),
 		field.Int("cnt").Default(0),
 		field.Bool("break").Default(false),
 		field.Time("timestamp").Default(time.Now),

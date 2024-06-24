@@ -13,6 +13,10 @@ const (
 	Label = "attempt"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldPhone holds the string denoting the phone field in the database.
+	FieldPhone = "phone"
+	// FieldAuthcode holds the string denoting the authcode field in the database.
+	FieldAuthcode = "authcode"
 	// FieldCnt holds the string denoting the cnt field in the database.
 	FieldCnt = "cnt"
 	// FieldBreak holds the string denoting the break field in the database.
@@ -26,6 +30,8 @@ const (
 // Columns holds all SQL columns for attempt fields.
 var Columns = []string{
 	FieldID,
+	FieldPhone,
+	FieldAuthcode,
 	FieldCnt,
 	FieldBreak,
 	FieldTimestamp,
@@ -56,6 +62,16 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByPhone orders the results by the phone field.
+func ByPhone(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPhone, opts...).ToFunc()
+}
+
+// ByAuthcode orders the results by the authcode field.
+func ByAuthcode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAuthcode, opts...).ToFunc()
 }
 
 // ByCnt orders the results by the cnt field.

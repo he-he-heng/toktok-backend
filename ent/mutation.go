@@ -35,6 +35,9 @@ type AttemptMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	phone         *string
+	authcode      *int
+	addauthcode   *int
 	cnt           *int
 	addcnt        *int
 	_break        *bool
@@ -141,6 +144,98 @@ func (m *AttemptMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetPhone sets the "phone" field.
+func (m *AttemptMutation) SetPhone(s string) {
+	m.phone = &s
+}
+
+// Phone returns the value of the "phone" field in the mutation.
+func (m *AttemptMutation) Phone() (r string, exists bool) {
+	v := m.phone
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPhone returns the old "phone" field's value of the Attempt entity.
+// If the Attempt object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AttemptMutation) OldPhone(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPhone is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPhone requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPhone: %w", err)
+	}
+	return oldValue.Phone, nil
+}
+
+// ResetPhone resets all changes to the "phone" field.
+func (m *AttemptMutation) ResetPhone() {
+	m.phone = nil
+}
+
+// SetAuthcode sets the "authcode" field.
+func (m *AttemptMutation) SetAuthcode(i int) {
+	m.authcode = &i
+	m.addauthcode = nil
+}
+
+// Authcode returns the value of the "authcode" field in the mutation.
+func (m *AttemptMutation) Authcode() (r int, exists bool) {
+	v := m.authcode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAuthcode returns the old "authcode" field's value of the Attempt entity.
+// If the Attempt object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AttemptMutation) OldAuthcode(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAuthcode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAuthcode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAuthcode: %w", err)
+	}
+	return oldValue.Authcode, nil
+}
+
+// AddAuthcode adds i to the "authcode" field.
+func (m *AttemptMutation) AddAuthcode(i int) {
+	if m.addauthcode != nil {
+		*m.addauthcode += i
+	} else {
+		m.addauthcode = &i
+	}
+}
+
+// AddedAuthcode returns the value that was added to the "authcode" field in this mutation.
+func (m *AttemptMutation) AddedAuthcode() (r int, exists bool) {
+	v := m.addauthcode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAuthcode resets all changes to the "authcode" field.
+func (m *AttemptMutation) ResetAuthcode() {
+	m.authcode = nil
+	m.addauthcode = nil
 }
 
 // SetCnt sets the "cnt" field.
@@ -305,7 +400,13 @@ func (m *AttemptMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AttemptMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 5)
+	if m.phone != nil {
+		fields = append(fields, attempt.FieldPhone)
+	}
+	if m.authcode != nil {
+		fields = append(fields, attempt.FieldAuthcode)
+	}
 	if m.cnt != nil {
 		fields = append(fields, attempt.FieldCnt)
 	}
@@ -323,6 +424,10 @@ func (m *AttemptMutation) Fields() []string {
 // schema.
 func (m *AttemptMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case attempt.FieldPhone:
+		return m.Phone()
+	case attempt.FieldAuthcode:
+		return m.Authcode()
 	case attempt.FieldCnt:
 		return m.Cnt()
 	case attempt.FieldBreak:
@@ -338,6 +443,10 @@ func (m *AttemptMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *AttemptMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case attempt.FieldPhone:
+		return m.OldPhone(ctx)
+	case attempt.FieldAuthcode:
+		return m.OldAuthcode(ctx)
 	case attempt.FieldCnt:
 		return m.OldCnt(ctx)
 	case attempt.FieldBreak:
@@ -353,6 +462,20 @@ func (m *AttemptMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *AttemptMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case attempt.FieldPhone:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPhone(v)
+		return nil
+	case attempt.FieldAuthcode:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAuthcode(v)
+		return nil
 	case attempt.FieldCnt:
 		v, ok := value.(int)
 		if !ok {
@@ -382,6 +505,9 @@ func (m *AttemptMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *AttemptMutation) AddedFields() []string {
 	var fields []string
+	if m.addauthcode != nil {
+		fields = append(fields, attempt.FieldAuthcode)
+	}
 	if m.addcnt != nil {
 		fields = append(fields, attempt.FieldCnt)
 	}
@@ -393,6 +519,8 @@ func (m *AttemptMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *AttemptMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case attempt.FieldAuthcode:
+		return m.AddedAuthcode()
 	case attempt.FieldCnt:
 		return m.AddedCnt()
 	}
@@ -404,6 +532,13 @@ func (m *AttemptMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *AttemptMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case attempt.FieldAuthcode:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAuthcode(v)
+		return nil
 	case attempt.FieldCnt:
 		v, ok := value.(int)
 		if !ok {
@@ -438,6 +573,12 @@ func (m *AttemptMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *AttemptMutation) ResetField(name string) error {
 	switch name {
+	case attempt.FieldPhone:
+		m.ResetPhone()
+		return nil
+	case attempt.FieldAuthcode:
+		m.ResetAuthcode()
+		return nil
 	case attempt.FieldCnt:
 		m.ResetCnt()
 		return nil

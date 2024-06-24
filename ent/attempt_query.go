@@ -261,12 +261,12 @@ func (aq *AttemptQuery) Clone() *AttemptQuery {
 // Example:
 //
 //	var v []struct {
-//		Cnt int `json:"cnt,omitempty"`
+//		Phone string `json:"phone,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Attempt.Query().
-//		GroupBy(attempt.FieldCnt).
+//		GroupBy(attempt.FieldPhone).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (aq *AttemptQuery) GroupBy(field string, fields ...string) *AttemptGroupBy {
@@ -284,11 +284,11 @@ func (aq *AttemptQuery) GroupBy(field string, fields ...string) *AttemptGroupBy 
 // Example:
 //
 //	var v []struct {
-//		Cnt int `json:"cnt,omitempty"`
+//		Phone string `json:"phone,omitempty"`
 //	}
 //
 //	client.Attempt.Query().
-//		Select(attempt.FieldCnt).
+//		Select(attempt.FieldPhone).
 //		Scan(ctx, &v)
 func (aq *AttemptQuery) Select(fields ...string) *AttemptSelect {
 	aq.ctx.Fields = append(aq.ctx.Fields, fields...)

@@ -54,6 +54,16 @@ func IDLTE(id int) predicate.Attempt {
 	return predicate.Attempt(sql.FieldLTE(FieldID, id))
 }
 
+// Phone applies equality check predicate on the "phone" field. It's identical to PhoneEQ.
+func Phone(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldEQ(FieldPhone, v))
+}
+
+// Authcode applies equality check predicate on the "authcode" field. It's identical to AuthcodeEQ.
+func Authcode(v int) predicate.Attempt {
+	return predicate.Attempt(sql.FieldEQ(FieldAuthcode, v))
+}
+
 // Cnt applies equality check predicate on the "cnt" field. It's identical to CntEQ.
 func Cnt(v int) predicate.Attempt {
 	return predicate.Attempt(sql.FieldEQ(FieldCnt, v))
@@ -67,6 +77,111 @@ func Break(v bool) predicate.Attempt {
 // Timestamp applies equality check predicate on the "timestamp" field. It's identical to TimestampEQ.
 func Timestamp(v time.Time) predicate.Attempt {
 	return predicate.Attempt(sql.FieldEQ(FieldTimestamp, v))
+}
+
+// PhoneEQ applies the EQ predicate on the "phone" field.
+func PhoneEQ(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldEQ(FieldPhone, v))
+}
+
+// PhoneNEQ applies the NEQ predicate on the "phone" field.
+func PhoneNEQ(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldNEQ(FieldPhone, v))
+}
+
+// PhoneIn applies the In predicate on the "phone" field.
+func PhoneIn(vs ...string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldIn(FieldPhone, vs...))
+}
+
+// PhoneNotIn applies the NotIn predicate on the "phone" field.
+func PhoneNotIn(vs ...string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldNotIn(FieldPhone, vs...))
+}
+
+// PhoneGT applies the GT predicate on the "phone" field.
+func PhoneGT(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldGT(FieldPhone, v))
+}
+
+// PhoneGTE applies the GTE predicate on the "phone" field.
+func PhoneGTE(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldGTE(FieldPhone, v))
+}
+
+// PhoneLT applies the LT predicate on the "phone" field.
+func PhoneLT(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldLT(FieldPhone, v))
+}
+
+// PhoneLTE applies the LTE predicate on the "phone" field.
+func PhoneLTE(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldLTE(FieldPhone, v))
+}
+
+// PhoneContains applies the Contains predicate on the "phone" field.
+func PhoneContains(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldContains(FieldPhone, v))
+}
+
+// PhoneHasPrefix applies the HasPrefix predicate on the "phone" field.
+func PhoneHasPrefix(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldHasPrefix(FieldPhone, v))
+}
+
+// PhoneHasSuffix applies the HasSuffix predicate on the "phone" field.
+func PhoneHasSuffix(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldHasSuffix(FieldPhone, v))
+}
+
+// PhoneEqualFold applies the EqualFold predicate on the "phone" field.
+func PhoneEqualFold(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldEqualFold(FieldPhone, v))
+}
+
+// PhoneContainsFold applies the ContainsFold predicate on the "phone" field.
+func PhoneContainsFold(v string) predicate.Attempt {
+	return predicate.Attempt(sql.FieldContainsFold(FieldPhone, v))
+}
+
+// AuthcodeEQ applies the EQ predicate on the "authcode" field.
+func AuthcodeEQ(v int) predicate.Attempt {
+	return predicate.Attempt(sql.FieldEQ(FieldAuthcode, v))
+}
+
+// AuthcodeNEQ applies the NEQ predicate on the "authcode" field.
+func AuthcodeNEQ(v int) predicate.Attempt {
+	return predicate.Attempt(sql.FieldNEQ(FieldAuthcode, v))
+}
+
+// AuthcodeIn applies the In predicate on the "authcode" field.
+func AuthcodeIn(vs ...int) predicate.Attempt {
+	return predicate.Attempt(sql.FieldIn(FieldAuthcode, vs...))
+}
+
+// AuthcodeNotIn applies the NotIn predicate on the "authcode" field.
+func AuthcodeNotIn(vs ...int) predicate.Attempt {
+	return predicate.Attempt(sql.FieldNotIn(FieldAuthcode, vs...))
+}
+
+// AuthcodeGT applies the GT predicate on the "authcode" field.
+func AuthcodeGT(v int) predicate.Attempt {
+	return predicate.Attempt(sql.FieldGT(FieldAuthcode, v))
+}
+
+// AuthcodeGTE applies the GTE predicate on the "authcode" field.
+func AuthcodeGTE(v int) predicate.Attempt {
+	return predicate.Attempt(sql.FieldGTE(FieldAuthcode, v))
+}
+
+// AuthcodeLT applies the LT predicate on the "authcode" field.
+func AuthcodeLT(v int) predicate.Attempt {
+	return predicate.Attempt(sql.FieldLT(FieldAuthcode, v))
+}
+
+// AuthcodeLTE applies the LTE predicate on the "authcode" field.
+func AuthcodeLTE(v int) predicate.Attempt {
+	return predicate.Attempt(sql.FieldLTE(FieldAuthcode, v))
 }
 
 // CntEQ applies the EQ predicate on the "cnt" field.

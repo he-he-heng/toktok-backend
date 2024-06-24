@@ -20,6 +20,18 @@ type AttemptCreate struct {
 	hooks    []Hook
 }
 
+// SetPhone sets the "phone" field.
+func (ac *AttemptCreate) SetPhone(s string) *AttemptCreate {
+	ac.mutation.SetPhone(s)
+	return ac
+}
+
+// SetAuthcode sets the "authcode" field.
+func (ac *AttemptCreate) SetAuthcode(i int) *AttemptCreate {
+	ac.mutation.SetAuthcode(i)
+	return ac
+}
+
 // SetCnt sets the "cnt" field.
 func (ac *AttemptCreate) SetCnt(i int) *AttemptCreate {
 	ac.mutation.SetCnt(i)
@@ -113,6 +125,12 @@ func (ac *AttemptCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (ac *AttemptCreate) check() error {
+	if _, ok := ac.mutation.Phone(); !ok {
+		return &ValidationError{Name: "phone", err: errors.New(`ent: missing required field "Attempt.phone"`)}
+	}
+	if _, ok := ac.mutation.Authcode(); !ok {
+		return &ValidationError{Name: "authcode", err: errors.New(`ent: missing required field "Attempt.authcode"`)}
+	}
 	if _, ok := ac.mutation.Cnt(); !ok {
 		return &ValidationError{Name: "cnt", err: errors.New(`ent: missing required field "Attempt.cnt"`)}
 	}
@@ -148,6 +166,14 @@ func (ac *AttemptCreate) createSpec() (*Attempt, *sqlgraph.CreateSpec) {
 		_node = &Attempt{config: ac.config}
 		_spec = sqlgraph.NewCreateSpec(attempt.Table, sqlgraph.NewFieldSpec(attempt.FieldID, field.TypeInt))
 	)
+	if value, ok := ac.mutation.Phone(); ok {
+		_spec.SetField(attempt.FieldPhone, field.TypeString, value)
+		_node.Phone = value
+	}
+	if value, ok := ac.mutation.Authcode(); ok {
+		_spec.SetField(attempt.FieldAuthcode, field.TypeInt, value)
+		_node.Authcode = value
+	}
 	if value, ok := ac.mutation.Cnt(); ok {
 		_spec.SetField(attempt.FieldCnt, field.TypeInt, value)
 		_node.Cnt = value

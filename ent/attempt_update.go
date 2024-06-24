@@ -28,6 +28,41 @@ func (au *AttemptUpdate) Where(ps ...predicate.Attempt) *AttemptUpdate {
 	return au
 }
 
+// SetPhone sets the "phone" field.
+func (au *AttemptUpdate) SetPhone(s string) *AttemptUpdate {
+	au.mutation.SetPhone(s)
+	return au
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (au *AttemptUpdate) SetNillablePhone(s *string) *AttemptUpdate {
+	if s != nil {
+		au.SetPhone(*s)
+	}
+	return au
+}
+
+// SetAuthcode sets the "authcode" field.
+func (au *AttemptUpdate) SetAuthcode(i int) *AttemptUpdate {
+	au.mutation.ResetAuthcode()
+	au.mutation.SetAuthcode(i)
+	return au
+}
+
+// SetNillableAuthcode sets the "authcode" field if the given value is not nil.
+func (au *AttemptUpdate) SetNillableAuthcode(i *int) *AttemptUpdate {
+	if i != nil {
+		au.SetAuthcode(*i)
+	}
+	return au
+}
+
+// AddAuthcode adds i to the "authcode" field.
+func (au *AttemptUpdate) AddAuthcode(i int) *AttemptUpdate {
+	au.mutation.AddAuthcode(i)
+	return au
+}
+
 // SetCnt sets the "cnt" field.
 func (au *AttemptUpdate) SetCnt(i int) *AttemptUpdate {
 	au.mutation.ResetCnt()
@@ -118,6 +153,15 @@ func (au *AttemptUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := au.mutation.Phone(); ok {
+		_spec.SetField(attempt.FieldPhone, field.TypeString, value)
+	}
+	if value, ok := au.mutation.Authcode(); ok {
+		_spec.SetField(attempt.FieldAuthcode, field.TypeInt, value)
+	}
+	if value, ok := au.mutation.AddedAuthcode(); ok {
+		_spec.AddField(attempt.FieldAuthcode, field.TypeInt, value)
+	}
 	if value, ok := au.mutation.Cnt(); ok {
 		_spec.SetField(attempt.FieldCnt, field.TypeInt, value)
 	}
@@ -148,6 +192,41 @@ type AttemptUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *AttemptMutation
+}
+
+// SetPhone sets the "phone" field.
+func (auo *AttemptUpdateOne) SetPhone(s string) *AttemptUpdateOne {
+	auo.mutation.SetPhone(s)
+	return auo
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (auo *AttemptUpdateOne) SetNillablePhone(s *string) *AttemptUpdateOne {
+	if s != nil {
+		auo.SetPhone(*s)
+	}
+	return auo
+}
+
+// SetAuthcode sets the "authcode" field.
+func (auo *AttemptUpdateOne) SetAuthcode(i int) *AttemptUpdateOne {
+	auo.mutation.ResetAuthcode()
+	auo.mutation.SetAuthcode(i)
+	return auo
+}
+
+// SetNillableAuthcode sets the "authcode" field if the given value is not nil.
+func (auo *AttemptUpdateOne) SetNillableAuthcode(i *int) *AttemptUpdateOne {
+	if i != nil {
+		auo.SetAuthcode(*i)
+	}
+	return auo
+}
+
+// AddAuthcode adds i to the "authcode" field.
+func (auo *AttemptUpdateOne) AddAuthcode(i int) *AttemptUpdateOne {
+	auo.mutation.AddAuthcode(i)
+	return auo
 }
 
 // SetCnt sets the "cnt" field.
@@ -269,6 +348,15 @@ func (auo *AttemptUpdateOne) sqlSave(ctx context.Context) (_node *Attempt, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := auo.mutation.Phone(); ok {
+		_spec.SetField(attempt.FieldPhone, field.TypeString, value)
+	}
+	if value, ok := auo.mutation.Authcode(); ok {
+		_spec.SetField(attempt.FieldAuthcode, field.TypeInt, value)
+	}
+	if value, ok := auo.mutation.AddedAuthcode(); ok {
+		_spec.AddField(attempt.FieldAuthcode, field.TypeInt, value)
 	}
 	if value, ok := auo.mutation.Cnt(); ok {
 		_spec.SetField(attempt.FieldCnt, field.TypeInt, value)
