@@ -9,12 +9,12 @@ import (
 )
 
 type UserService struct {
-	repository port.UserRepository
+	userRepository port.UserRepository
 }
 
 func NewUserService(userRepository port.UserRepository) *UserService {
 	return &UserService{
-		repository: userRepository,
+		userRepository: userRepository,
 	}
 }
 
@@ -27,7 +27,7 @@ func (s *UserService) Register(ctx context.Context, user *domain.User) (*domain.
 
 	user.Password = hashedPassword
 
-	user, err = s.repository.CreateUser(ctx, user)
+	user, err = s.userRepository.CreateUser(ctx, user)
 	if err != nil {
 		return nil, domain.ErrInternal
 	}
@@ -37,7 +37,7 @@ func (s *UserService) Register(ctx context.Context, user *domain.User) (*domain.
 
 // GetUser returns a user by id
 func (s *UserService) GetUser(ctx context.Context, id int) (*domain.User, error) {
-	user, err := s.repository.GetUserByID(ctx, id)
+	user, err := s.userRepository.GetUserByID(ctx, id)
 	if err != nil {
 		if errors.Is(domain.ErrDataNotFound, err) {
 			return nil, err
@@ -51,7 +51,7 @@ func (s *UserService) GetUser(ctx context.Context, id int) (*domain.User, error)
 
 // ListUsers returns a list of users with pagination
 func (s *UserService) ListUsers(ctx context.Context, skip, limit int) ([]domain.User, error) {
-	users, err := s.repository.ListUsers(ctx, skip, limit)
+	users, err := s.userRepository.ListUsers(ctx, skip, limit)
 	if err != nil {
 		return nil, domain.ErrInternal
 	}
@@ -61,7 +61,7 @@ func (s *UserService) ListUsers(ctx context.Context, skip, limit int) ([]domain.
 
 // UpdateUser updates a user
 func (s *UserService) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
-	existUser, err := s.repository.GetUserByID(ctx, user.ID)
+	existUser, err := s.userRepository.GetUserByID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(domain.ErrDataNotFound, err) {
 			return nil, err
@@ -77,7 +77,7 @@ func (s *UserService) UpdateUser(ctx context.Context, user *domain.User) (*domai
 
 	existUser.Password = hashedPassword
 
-	user, err = s.repository.UpdateUser(ctx, existUser)
+	user, err = s.userRepository.UpdateUser(ctx, existUser)
 	if err != nil {
 		return nil, domain.ErrInternal
 	}
@@ -87,7 +87,7 @@ func (s *UserService) UpdateUser(ctx context.Context, user *domain.User) (*domai
 
 // DeleteUser deletes a user
 func (s *UserService) DeleteUser(ctx context.Context, id int) error {
-	_, err := s.repository.GetUserByID(ctx, id)
+	_, err := s.userRepository.GetUserByID(ctx, id)
 	if err != nil {
 		if errors.Is(domain.ErrDataNotFound, err) {
 			return err
@@ -96,5 +96,5 @@ func (s *UserService) DeleteUser(ctx context.Context, id int) error {
 		return domain.ErrInternal
 	}
 
-	return s.repository.DeleteUser(ctx, id)
+	return s.userRepository.DeleteUser(ctx, id)
 }

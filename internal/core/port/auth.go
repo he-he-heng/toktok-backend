@@ -6,10 +6,10 @@ import (
 )
 
 type TokenServicde interface {
-	CreateToken(user *domain.User) (string, error)
+	CreateToken(tokenType domain.TokenType, user *domain.User) (string, error)
 	VerifyToken(token string) (*domain.TokenPlayload, error)
 }
 
 type AuthService interface {
-	Login(ctx context.Context, id, password string) (string, error)
+	Login(ctx context.Context, uid, password string) (accessToken string, refreshToken string, err error)
 }
