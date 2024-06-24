@@ -11,8 +11,8 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user *domain.User) (*domain.User, error)
 	// GetUserByID selects a user by id
 	GetUserByID(ctx context.Context, id int) (*domain.User, error)
-	// GetUserByEmail selects a user by email
-	GetUserByUID(ctx context.Context, email string) (*domain.User, error)
+	// GetUserByEmail selects a user by uid
+	GetUserByUID(ctx context.Context, uid string) (*domain.User, error)
 	// ListUsers selects a list of users with pagination
 	ListUsers(ctx context.Context, skip, limit int) ([]domain.User, error)
 	// UpdateUser updates a user
