@@ -14,4 +14,13 @@ var (
 
 	// ErrTokenCreation is an error for when the token creation fails
 	ErrTokenCreation = errors.New("error creating token")
+
+	// ErrExpiredToken is an error for when the access token is expired
+	ErrExpiredToken = errors.New("token has expired")
+
+	// ErrInvalidToken is an error for when the access token is invalid
+	ErrInvalidToken = errors.New("token is invalid")
+
+	// ErrTokenDuration is an error for when the token duration format is invalid
+	ErrTokenDuration = errors.New("invalid token duration format")
 )

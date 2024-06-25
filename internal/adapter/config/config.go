@@ -16,6 +16,7 @@ type Config struct {
 	}
 
 	Token struct {
+		Key             []byte
 		AccessDuration  string
 		RefreshDuration string
 	}

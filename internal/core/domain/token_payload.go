@@ -1,7 +1,5 @@
 package domain
 
-import "time"
-
 type TokenType string
 
 const (
@@ -14,10 +12,10 @@ type TokenPlayload struct {
 	Role RoleType
 
 	// Expiration Time (토큰 만료 시간)
-	Exp time.Time
+	Exp int64
 
 	// Issued At (토큰 발급 시간)
-	Ita time.Time
+	Ita int64
 
 	TokenType TokenType
 }
