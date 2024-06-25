@@ -28,7 +28,7 @@ func New(config *config.Config) (*Token, error) {
 	}
 
 	return &Token{
-		key:             config.Token.Key,
+		key:             []byte(config.Token.Key),
 		accessDuration:  accessDuration,
 		refreshDuration: refreshDuration,
 	}, nil

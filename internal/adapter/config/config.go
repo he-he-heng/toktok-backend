@@ -16,7 +16,7 @@ type Config struct {
 	}
 
 	Token struct {
-		Key             []byte
+		Key             string
 		AccessDuration  string
 		RefreshDuration string
 	}
@@ -29,6 +29,7 @@ func New(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 
 	err = toml.NewDecoder(file).Decode(config)
 	if err != nil {
