@@ -23,4 +23,13 @@ var (
 
 	// ErrTokenDuration is an error for when the token duration format is invalid
 	ErrTokenDuration = errors.New("invalid token duration format")
+
+	// ErrEmptyAuthorizationHeader is an error for when the authorization header is empty
+	ErrEmptyAuthorizationHeader = errors.New("authorization header is not provided")
+
+	// ErrInvalidAuthorizationHeader is an error for when the authorization header is invalid
+	ErrInvalidAuthorizationHeader = errors.New("authorization header format is invalid")
+
+	//
+	ErrNotAccessToken = errors.New("requested token is not an accedss token")
 )

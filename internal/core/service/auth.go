@@ -10,10 +10,10 @@ import (
 
 type AuthService struct {
 	userRepository port.UserRepository
-	tokenService   port.TokenServicde
+	tokenService   port.TokenService
 }
 
-func NewAuthService(userRepository port.UserRepository, tokenService port.TokenServicde) *AuthService {
+func NewAuthService(userRepository port.UserRepository, tokenService port.TokenService) *AuthService {
 	return &AuthService{
 		userRepository: userRepository,
 		tokenService:   tokenService,
