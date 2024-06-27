@@ -88,6 +88,6 @@ func (d TimeMixin) Hooks() []ent.Hook {
 // P adds a storage-level predicate to the queries and mutations.
 func (d TimeMixin) P(w interface{ WhereP(...func(*sql.Selector)) }) {
 	w.WhereP(
-		sql.FieldIsNull(d.Fields()[0].Descriptor().Name),
+		sql.FieldIsNull(d.Fields()[2].Descriptor().Name),
 	)
 }

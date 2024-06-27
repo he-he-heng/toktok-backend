@@ -47,3 +47,26 @@ func (s *AuthService) Login(ctx context.Context, uid, password string) (accessTo
 
 	return accessToken, refreshToken, nil
 }
+
+func (s *AuthService) ReissueToken(ctx context.Context, token string) (accessToekn string, err error) {
+	tokenPayload, err := s.tokenService.VerifyToken(token)
+	if err != nil {
+		return "", err
+	}
+
+	if !(tokenPayload.TokenType == domain.RefreshToken) {
+		return "", domain.ErrNotRefreshToken
+	}
+
+	user := domain.User{
+		ID:   tokenPayload.ID,
+		Role: tokenPayload.Role,
+	}
+
+	accessToken, err := s.tokenService.CreateToken(domain.AccessToken, &user)
+	if err != nil {
+		return "", err
+	}
+
+	return accessToken, nil
+}

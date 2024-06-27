@@ -8,7 +8,7 @@ const (
 )
 
 type TokenPlayload struct {
-	UID  int
+	ID   int
 	Role RoleType
 
 	// Expiration Time (토큰 만료 시간)

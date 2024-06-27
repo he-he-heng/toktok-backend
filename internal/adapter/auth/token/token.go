@@ -1,4 +1,4 @@
-package jwt
+package token
 
 import (
 	"fmt"
@@ -45,7 +45,7 @@ func (t *Token) CreateToken(tokenType domain.TokenType, user *domain.User) (stri
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"uid":       user.UID,
+		"id":        user.ID,
 		"role":      user.Role,
 		"exp":       time.Now().Add(d).Unix(),
 		"ita":       time.Now().Unix(),
@@ -83,7 +83,7 @@ func (t *Token) VerifyToken(tokenString string) (*domain.TokenPlayload, error) {
 	}
 
 	return &domain.TokenPlayload{
-		UID:       claims["uid"].(int),
+		ID:        claims["id"].(int),
 		Role:      claims["role"].(domain.RoleType),
 		Exp:       claims["exp"].(int64),
 		Ita:       claims["ita"].(int64),

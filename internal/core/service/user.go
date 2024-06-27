@@ -26,9 +26,18 @@ func (s *UserService) Register(ctx context.Context, user *domain.User) (*domain.
 	}
 
 	user.Password = hashedPassword
+	user.Role = domain.RoleUser
 
 	user, err = s.userRepository.CreateUser(ctx, user)
 	if err != nil {
+		if errors.Is(domain.ErrConstraint, err) {
+			return nil, err
+		}
+
+		if errors.Is(domain.ErrValidation, err) {
+			return nil, err
+		}
+
 		return nil, domain.ErrInternal
 	}
 
@@ -43,6 +52,14 @@ func (s *UserService) GetUser(ctx context.Context, id int) (*domain.User, error)
 			return nil, err
 		}
 
+		if errors.Is(domain.ErrConstraint, err) {
+			return nil, err
+		}
+
+		if errors.Is(domain.ErrValidation, err) {
+			return nil, err
+		}
+
 		return nil, domain.ErrInternal
 	}
 
@@ -53,6 +70,14 @@ func (s *UserService) GetUser(ctx context.Context, id int) (*domain.User, error)
 func (s *UserService) ListUsers(ctx context.Context, skip, limit int) ([]domain.User, error) {
 	users, err := s.userRepository.ListUsers(ctx, skip, limit)
 	if err != nil {
+		if errors.Is(domain.ErrConstraint, err) {
+			return nil, err
+		}
+
+		if errors.Is(domain.ErrValidation, err) {
+			return nil, err
+		}
+
 		return nil, domain.ErrInternal
 	}
 
@@ -64,6 +89,14 @@ func (s *UserService) UpdateUser(ctx context.Context, user *domain.User) (*domai
 	existUser, err := s.userRepository.GetUserByID(ctx, user.ID)
 	if err != nil {
 		if errors.Is(domain.ErrDataNotFound, err) {
+			return nil, err
+		}
+
+		if errors.Is(domain.ErrConstraint, err) {
+			return nil, err
+		}
+
+		if errors.Is(domain.ErrValidation, err) {
 			return nil, err
 		}
 
@@ -90,6 +123,14 @@ func (s *UserService) DeleteUser(ctx context.Context, id int) error {
 	_, err := s.userRepository.GetUserByID(ctx, id)
 	if err != nil {
 		if errors.Is(domain.ErrDataNotFound, err) {
+			return err
+		}
+
+		if errors.Is(domain.ErrConstraint, err) {
+			return err
+		}
+
+		if errors.Is(domain.ErrValidation, err) {
 			return err
 		}
 

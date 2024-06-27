@@ -1,8 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
+	"toktok-backend/internal/adapter/auth/token"
 	"toktok-backend/internal/adapter/config"
+	"toktok-backend/internal/adapter/handler/http"
+	"toktok-backend/internal/adapter/persistence/mysql"
+	"toktok-backend/internal/adapter/persistence/mysql/repository"
+	"toktok-backend/internal/core/service"
 )
 
 func main() {
@@ -10,5 +17,36 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(config)
+
+	db, err := mysql.New(config)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	ctx := context.Background()
+	err = db.AutoMigration(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	tokenService, err := token.New(config)
+	if err != nil {
+		panic(err)
+	}
+
+	userRepository := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepository)
+	userHandler := http.NewUserHandler(userService)
+
+	authService := service.NewAuthService(userRepository, tokenService)
+	authHandler := http.NewAuthHandler(authService)
+
+	router, err := http.NewRouter(config, tokenService, *userHandler, *authHandler)
+	if err != nil {
+		panic(err)
+	}
+
+	addr := fmt.Sprintf(":%s", config.Handler.Port)
+	log.Fatal(router.Listen(addr))
 }

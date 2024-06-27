@@ -3,8 +3,6 @@ package domain
 import "errors"
 
 var (
-	// ErrDataNotFound is an error for when requested data is not found
-	ErrDataNotFound = errors.New("data not found")
 
 	// ErrInternal is an error for when an internal service fails to process the request
 	ErrInternal = errors.New("internal error")
@@ -30,6 +28,16 @@ var (
 	// ErrInvalidAuthorizationHeader is an error for when the authorization header is invalid
 	ErrInvalidAuthorizationHeader = errors.New("authorization header format is invalid")
 
-	//
 	ErrNotAccessToken = errors.New("requested token is not an accedss token")
+
+	ErrNotRefreshToken = errors.New("requested token is not an refersh token")
+
+	// --- database ---
+
+	// ErrDataNotFound is an error for when requested data is not found
+	ErrDataNotFound = errors.New("data not found")
+
+	ErrValidation = errors.New("data not valid form")
+
+	ErrConstraint = errors.New("constraint failed")
 )

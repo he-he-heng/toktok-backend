@@ -26,25 +26,25 @@ func authMiddleware(t port.TokenService) gin.HandlerFunc {
 		authorizationHader := ctx.GetHeader(authorizationHeaderKey)
 
 		if len(authorizationHader) == 0 {
-			util.HandleAbort(ctx, domain.ErrEmptyAuthorizationHeader)
+			util.HandleErr(ctx, domain.ErrEmptyAuthorizationHeader)
 			return
 		}
 
 		fileds := strings.Fields(authorizationHader)
 		if !(len(fileds) == 2) {
-			util.HandleAbort(ctx, domain.ErrInvalidAuthorizationHeader)
+			util.HandleErr(ctx, domain.ErrInvalidAuthorizationHeader)
 			return
 		}
 
 		tokenString := fileds[1]
 		payload, err := t.VerifyToken(tokenString)
 		if err != nil {
-			util.HandleAbort(ctx, err)
+			util.HandleErr(ctx, err)
 			return
 		}
 
 		if payload.TokenType == domain.RefreshToken {
-			util.HandleAbort(ctx, err)
+			util.HandleErr(ctx, err)
 			return
 		}
 

@@ -20,6 +20,9 @@ func NewUserRepository(db *mysql.Database) *UserRepository {
 
 // CreateUser inserts a new user into the database
 func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+	// fmt.Printf("user : %+v\n", user)
+	// fmt.Println("userRole: ", user.Role)
+	// fmt.Println("casted userRole: ", entuser.Role(user.Role))
 	_, err := r.db.User.
 		Create().
 		SetUID(user.UID).
@@ -27,12 +30,14 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*do
 		SetRole(entuser.Role(user.Role)).
 		Save(ctx)
 
-	if ent.IsValidationError(err) {
+	// fmt.Println("err: ", err, "error type: ", reflect.TypeOf(err))
 
+	if ent.IsValidationError(err) {
+		return nil, domain.ErrValidation
 	}
 
 	if ent.IsConstraintError(err) {
-
+		return nil, domain.ErrConstraint
 	}
 
 	return user, nil
@@ -61,13 +66,22 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id int) (*domain.User,
 
 // GetUserByUID selects a user by uid
 func (r *UserRepository) GetUserByUID(ctx context.Context, uid string) (*domain.User, error) {
+
 	user, err := r.db.User.
 		Query().
-		Where(entuser.UIDEQ(uid)).
+		Where(entuser.UID(uid)).
 		Only(ctx)
 
 	if ent.IsNotFound(err) {
 		return nil, domain.ErrDataNotFound
+	}
+
+	if ent.IsValidationError(err) {
+		return nil, domain.ErrValidation
+	}
+
+	if ent.IsConstraintError(err) {
+		return nil, domain.ErrConstraint
 	}
 
 	return &domain.User{
@@ -93,6 +107,14 @@ func (r *UserRepository) ListUsers(ctx context.Context, skip, limit int) ([]doma
 
 	if ent.IsNotFound(err) {
 		return nil, domain.ErrDataNotFound
+	}
+
+	if ent.IsValidationError(err) {
+		return nil, domain.ErrValidation
+	}
+
+	if ent.IsConstraintError(err) {
+		return nil, domain.ErrConstraint
 	}
 
 	var domainUsers = make([]domain.User, 0)
@@ -122,8 +144,12 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*do
 		SetRole(entuser.Role(user.Role)).
 		Save(ctx)
 
-	if ent.IsConstraintError(err) {
+	if ent.IsValidationError(err) {
+		return nil, domain.ErrValidation
+	}
 
+	if ent.IsConstraintError(err) {
+		return nil, domain.ErrConstraint
 	}
 
 	return user, err
@@ -135,8 +161,12 @@ func (r *UserRepository) DeleteUser(ctx context.Context, id int) error {
 		DeleteOneID(id).
 		Exec(ctx)
 
-	if ent.IsConstraintError(err) {
+	if ent.IsValidationError(err) {
+		return domain.ErrValidation
+	}
 
+	if ent.IsConstraintError(err) {
+		return domain.ErrConstraint
 	}
 
 	return nil

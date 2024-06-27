@@ -16,7 +16,7 @@ func (d *Database) Close() error {
 	return d.Client.Close()
 }
 
-func NewDatabase(config *config.Config) (*Database, error) {
+func New(config *config.Config) (*Database, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		config.Database.User,
 		config.Database.Password,

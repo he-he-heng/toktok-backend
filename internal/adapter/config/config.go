@@ -20,6 +20,12 @@ type Config struct {
 		AccessDuration  string
 		RefreshDuration string
 	}
+
+	Handler struct {
+		Mode string
+
+		Port string
+	}
 }
 
 func New(path string) (*Config, error) {

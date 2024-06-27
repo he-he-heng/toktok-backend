@@ -10,26 +10,30 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var errStatusMap = map[error]int{
-	domain.ErrInternal:     http.StatusInternalServerError,
-	domain.ErrDataNotFound: http.StatusNotFound,
+var errStatusMap = map[string]int{
+	domain.ErrInternal.Error():     http.StatusInternalServerError,
+	domain.ErrDataNotFound.Error(): http.StatusNotFound,
 	// domain.ErrConflictingData:            http.StatusConflict,
-	domain.ErrInvalidCredentials: http.StatusUnauthorized,
+	domain.ErrInvalidCredentials.Error(): http.StatusUnauthorized,
 	// domain.ErrUnauthorized:               http.StatusUnauthorized,
-	domain.ErrEmptyAuthorizationHeader:   http.StatusUnauthorized,
-	domain.ErrInvalidAuthorizationHeader: http.StatusUnauthorized,
-	domain.ErrNotAccessToken:             http.StatusUnauthorized,
+	domain.ErrEmptyAuthorizationHeader.Error():   http.StatusUnauthorized,
+	domain.ErrInvalidAuthorizationHeader.Error(): http.StatusUnauthorized,
+	domain.ErrNotAccessToken.Error():             http.StatusUnauthorized,
+	domain.ErrNotRefreshToken.Error():            http.StatusUnauthorized,
 	// domain.ErrInvalidAuthorizationType:   http.StatusUnauthorized,
-	domain.ErrInvalidToken: http.StatusUnauthorized,
-	domain.ErrExpiredToken: http.StatusUnauthorized,
+	domain.ErrInvalidToken.Error(): http.StatusUnauthorized,
+	domain.ErrExpiredToken.Error(): http.StatusUnauthorized,
 	// domain.ErrForbidden:                  http.StatusForbidden,
 	// domain.ErrNoUpdatedData:              http.StatusBadRequest,
 	// domain.ErrInsufficientStock:          http.StatusBadRequest,
 	// domain.ErrInsufficientPayment:        http.StatusBadRequest,
+
+	domain.ErrConstraint.Error(): http.StatusBadRequest,
+	domain.ErrValidation.Error(): http.StatusBadRequest,
 }
 
 func status(err error) int {
-	statusCode, ok := errStatusMap[err]
+	statusCode, ok := errStatusMap[err.Error()]
 	if !ok {
 		statusCode = http.StatusInternalServerError
 	}
