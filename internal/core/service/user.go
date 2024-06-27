@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
-	"errors"
+
 	"toktok-backend/internal/core/domain"
 	"toktok-backend/internal/core/port"
 	"toktok-backend/internal/core/util"
+
+	"toktok-backend/pkg/errors"
 )
 
 type UserService struct {
@@ -22,7 +24,7 @@ func NewUserService(userRepository port.UserRepository) *UserService {
 func (s *UserService) Register(ctx context.Context, user *domain.User) (*domain.User, error) {
 	hashedPassword, err := util.HashPassword(user.Password)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, errors.Wrap(domain.ErrInternal, err)
 	}
 
 	user.Password = hashedPassword
@@ -30,15 +32,7 @@ func (s *UserService) Register(ctx context.Context, user *domain.User) (*domain.
 
 	user, err = s.userRepository.CreateUser(ctx, user)
 	if err != nil {
-		if errors.Is(domain.ErrConstraint, err) {
-			return nil, err
-		}
-
-		if errors.Is(domain.ErrValidation, err) {
-			return nil, err
-		}
-
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	return user, nil
@@ -48,19 +42,7 @@ func (s *UserService) Register(ctx context.Context, user *domain.User) (*domain.
 func (s *UserService) GetUser(ctx context.Context, id int) (*domain.User, error) {
 	user, err := s.userRepository.GetUserByID(ctx, id)
 	if err != nil {
-		if errors.Is(domain.ErrDataNotFound, err) {
-			return nil, err
-		}
-
-		if errors.Is(domain.ErrConstraint, err) {
-			return nil, err
-		}
-
-		if errors.Is(domain.ErrValidation, err) {
-			return nil, err
-		}
-
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	return user, nil
@@ -70,15 +52,7 @@ func (s *UserService) GetUser(ctx context.Context, id int) (*domain.User, error)
 func (s *UserService) ListUsers(ctx context.Context, skip, limit int) ([]domain.User, error) {
 	users, err := s.userRepository.ListUsers(ctx, skip, limit)
 	if err != nil {
-		if errors.Is(domain.ErrConstraint, err) {
-			return nil, err
-		}
-
-		if errors.Is(domain.ErrValidation, err) {
-			return nil, err
-		}
-
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	return users, err
@@ -88,31 +62,19 @@ func (s *UserService) ListUsers(ctx context.Context, skip, limit int) ([]domain.
 func (s *UserService) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
 	existUser, err := s.userRepository.GetUserByID(ctx, user.ID)
 	if err != nil {
-		if errors.Is(domain.ErrDataNotFound, err) {
-			return nil, err
-		}
-
-		if errors.Is(domain.ErrConstraint, err) {
-			return nil, err
-		}
-
-		if errors.Is(domain.ErrValidation, err) {
-			return nil, err
-		}
-
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	hashedPassword, err := util.HashPassword(user.Password)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, errors.Wrap(domain.ErrInternal, err)
 	}
 
 	existUser.Password = hashedPassword
 
 	user, err = s.userRepository.UpdateUser(ctx, existUser)
 	if err != nil {
-		return nil, domain.ErrInternal
+		return nil, err
 	}
 
 	return user, nil
@@ -122,19 +84,7 @@ func (s *UserService) UpdateUser(ctx context.Context, user *domain.User) (*domai
 func (s *UserService) DeleteUser(ctx context.Context, id int) error {
 	_, err := s.userRepository.GetUserByID(ctx, id)
 	if err != nil {
-		if errors.Is(domain.ErrDataNotFound, err) {
-			return err
-		}
-
-		if errors.Is(domain.ErrConstraint, err) {
-			return err
-		}
-
-		if errors.Is(domain.ErrValidation, err) {
-			return err
-		}
-
-		return domain.ErrInternal
+		return err
 	}
 
 	return s.userRepository.DeleteUser(ctx, id)

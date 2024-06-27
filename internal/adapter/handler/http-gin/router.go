@@ -1,7 +1,10 @@
 package http
 
 import (
+	"errors"
+	"net/http"
 	"toktok-backend/internal/adapter/config"
+	"toktok-backend/internal/adapter/handler/http/util"
 	"toktok-backend/internal/core/port"
 
 	"github.com/gin-gonic/gin"
@@ -37,6 +40,16 @@ func NewRouter(config *config.Config, token port.TokenService, userHandler UserH
 
 	api := router.Group("/api")
 	{
+		api.POST("/test/validation", authMiddleware(token), func(ctx *gin.Context) {
+			payload, ok := ctx.Get(authorizationPayloadKey)
+			if ok {
+				util.HandleErr(ctx, errors.New("패이로드를 찾을 수 없음"))
+				return
+			}
+
+			ctx.JSON(http.StatusOK, payload)
+		})
+
 		v1 := api.Group("/v1")
 		{
 			users := v1.Group("/users")

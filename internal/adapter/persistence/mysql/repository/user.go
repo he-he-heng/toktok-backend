@@ -7,8 +7,6 @@ import (
 	entuser "toktok-backend/internal/adapter/persistence/mysql/ent/user"
 	"toktok-backend/internal/adapter/persistence/mysql/utils"
 	"toktok-backend/internal/core/domain"
-
-	"github.com/pkg/errors"
 )
 
 type UserRepository struct {
@@ -30,12 +28,8 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*do
 		SetRole(entuser.Role(user.Role)).
 		Save(ctx)
 
-	if ent.IsValidationError(err) {
-		return nil, errors.Wrap(domain.ErrValidation, err.Error())
-	}
-
-	if ent.IsConstraintError(err) {
-		return nil, errors.Wrap(domain.ErrConstraint, err.Error())
+	if err != nil {
+		return nil, utils.ErrWrap(err)
 	}
 
 	return user, nil
@@ -46,8 +40,8 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id int) (*domain.User,
 	user, err := r.db.User.
 		Get(ctx, id)
 
-	if ent.IsNotFound(err) {
-		return nil, errors.Wrap(domain.ErrNotFound, err.Error())
+	if err != nil {
+		return nil, utils.ErrWrap(err)
 	}
 
 	return &domain.User{

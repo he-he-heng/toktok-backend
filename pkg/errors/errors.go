@@ -15,6 +15,7 @@ type withMessage struct {
 }
 
 func Wrap(err error, help any) error {
+
 	var msg string
 	switch v := help.(type) {
 	case string:

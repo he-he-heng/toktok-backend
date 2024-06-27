@@ -6,6 +6,8 @@ import (
 	"toktok-backend/internal/adapter/config"
 	"toktok-backend/internal/core/domain"
 
+	"toktok-backend/pkg/errors"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -19,12 +21,12 @@ type Token struct {
 func New(config *config.Config) (*Token, error) {
 	accessDuration, err := time.ParseDuration(config.Token.AccessDuration)
 	if err != nil {
-		return nil, domain.ErrTokenDuration
+		return nil, errors.Wrap(domain.ErrTokenDuration, err)
 	}
 
 	refreshDuration, err := time.ParseDuration(config.Token.RefreshDuration)
 	if err != nil {
-		return nil, domain.ErrTokenDuration
+		return nil, errors.Wrap(domain.ErrTokenDuration, err)
 	}
 
 	return &Token{
@@ -64,13 +66,14 @@ func (t *Token) VerifyToken(tokenString string) (*domain.TokenPlayload, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			err := fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, errors.Wrap(domain.ErrInvalidTokenSignMethod, err)
 		}
 
 		return t.key, nil
 	})
 	if err != nil {
-		return nil, domain.ErrInvalidToken
+		return nil, errors.Wrap(domain.ErrInvalidToken, err)
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)

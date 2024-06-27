@@ -11,7 +11,7 @@ import (
 
 const (
 	// authorizationHeaderKey is the key for authorization header in the request
-	authorizationHeaderKey = "authorization"
+	authorizationHeaderKey = "Authorization"
 
 	// authorizationType is the accepted authorization type
 	authorizationType = "bearer"
@@ -33,6 +33,13 @@ func authMiddleware(t port.TokenService) gin.HandlerFunc {
 		fileds := strings.Fields(authorizationHader)
 		if !(len(fileds) == 2) {
 			util.HandleErr(ctx, domain.ErrInvalidAuthorizationHeader)
+			return
+		}
+
+		currentAuthorizationType := strings.ToLower(fileds[0])
+		if currentAuthorizationType != authorizationType {
+			err := domain.ErrInvalidAuthorizationHeader
+			util.HandleErr(ctx, err)
 			return
 		}
 

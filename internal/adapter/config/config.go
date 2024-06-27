@@ -2,6 +2,8 @@ package config
 
 import (
 	"os"
+	"toktok-backend/internal/core/domain"
+	"toktok-backend/pkg/errors"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -33,13 +35,13 @@ func New(path string) (*Config, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(domain.ErrInternal, err)
 	}
 	defer file.Close()
 
 	err = toml.NewDecoder(file).Decode(config)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(domain.ErrInternal, err)
 	}
 
 	return config, nil

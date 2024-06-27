@@ -1,6 +1,6 @@
 package dto
 
-type RegisterReqeust struct {
-	UID      string `json:"uid" binding:"required,regexp=^[A-Za-z0-9]+$"`
-	Password string `json:"password" binding:"required,regexp=^^[A-Za-z0-9!@#$%^&*]+$"`
+type RegisterRequest struct {
+	UID      string `json:"uid" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }

@@ -1,42 +1,35 @@
 package http
 
 import (
-	"net/http"
 	"toktok-backend/internal/adapter/handler/http/dto"
-	"toktok-backend/internal/adapter/handler/http/util"
 	"toktok-backend/internal/core/domain"
 	"toktok-backend/internal/core/port"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 type UserHandler struct {
 	userService port.UserService
 }
 
-func NewUserHandler(userSerivce port.UserService) *UserHandler {
+func NewUserHandler(userService port.UserService) *UserHandler {
 	return &UserHandler{
-		userService: userSerivce,
+		userService: userService,
 	}
 }
 
-func (h *UserHandler) Register(ctx *gin.Context) {
-	var req dto.RegisterReqeust
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		util.HandleErr(ctx, err)
-		return
+func (h *UserHandler) Register(c *fiber.Ctx) error {
+	var req dto.RegisterRequest
+	if err := c.BodyParser(&req); err != nil {
+		return err
 	}
+
+	// TODO validation
 
 	user := domain.User{
 		UID:      req.UID,
 		Password: req.Password,
 	}
 
-	_, err := h.userService.Register(ctx, &user)
-	if err != nil {
-		util.HandleErr(ctx, err)
-		return
-	}
-
-	util.HandleSuccess(ctx, http.StatusOK, "success register")
+	h.userService.Register(c.Context(), &user)
 }
