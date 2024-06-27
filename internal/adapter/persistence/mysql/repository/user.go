@@ -5,7 +5,10 @@ import (
 	"toktok-backend/internal/adapter/persistence/mysql"
 	"toktok-backend/internal/adapter/persistence/mysql/ent"
 	entuser "toktok-backend/internal/adapter/persistence/mysql/ent/user"
+	"toktok-backend/internal/adapter/persistence/mysql/utils"
 	"toktok-backend/internal/core/domain"
+
+	"github.com/pkg/errors"
 )
 
 type UserRepository struct {
@@ -20,9 +23,6 @@ func NewUserRepository(db *mysql.Database) *UserRepository {
 
 // CreateUser inserts a new user into the database
 func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
-	// fmt.Printf("user : %+v\n", user)
-	// fmt.Println("userRole: ", user.Role)
-	// fmt.Println("casted userRole: ", entuser.Role(user.Role))
 	_, err := r.db.User.
 		Create().
 		SetUID(user.UID).
@@ -30,14 +30,12 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*do
 		SetRole(entuser.Role(user.Role)).
 		Save(ctx)
 
-	// fmt.Println("err: ", err, "error type: ", reflect.TypeOf(err))
-
 	if ent.IsValidationError(err) {
-		return nil, domain.ErrValidation
+		return nil, errors.Wrap(domain.ErrValidation, err.Error())
 	}
 
 	if ent.IsConstraintError(err) {
-		return nil, domain.ErrConstraint
+		return nil, errors.Wrap(domain.ErrConstraint, err.Error())
 	}
 
 	return user, nil
@@ -49,7 +47,7 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id int) (*domain.User,
 		Get(ctx, id)
 
 	if ent.IsNotFound(err) {
-		return nil, domain.ErrDataNotFound
+		return nil, errors.Wrap(domain.ErrNotFound, err.Error())
 	}
 
 	return &domain.User{
@@ -72,16 +70,8 @@ func (r *UserRepository) GetUserByUID(ctx context.Context, uid string) (*domain.
 		Where(entuser.UID(uid)).
 		Only(ctx)
 
-	if ent.IsNotFound(err) {
-		return nil, domain.ErrDataNotFound
-	}
-
-	if ent.IsValidationError(err) {
-		return nil, domain.ErrValidation
-	}
-
-	if ent.IsConstraintError(err) {
-		return nil, domain.ErrConstraint
+	if err != nil {
+		return nil, utils.ErrWrap(err)
 	}
 
 	return &domain.User{
@@ -105,16 +95,8 @@ func (r *UserRepository) ListUsers(ctx context.Context, skip, limit int) ([]doma
 		Offset((skip - 1) * limit).
 		All(ctx)
 
-	if ent.IsNotFound(err) {
-		return nil, domain.ErrDataNotFound
-	}
-
-	if ent.IsValidationError(err) {
-		return nil, domain.ErrValidation
-	}
-
-	if ent.IsConstraintError(err) {
-		return nil, domain.ErrConstraint
+	if err != nil {
+		return nil, utils.ErrWrap(err)
 	}
 
 	var domainUsers = make([]domain.User, 0)
@@ -144,12 +126,8 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*do
 		SetRole(entuser.Role(user.Role)).
 		Save(ctx)
 
-	if ent.IsValidationError(err) {
-		return nil, domain.ErrValidation
-	}
-
-	if ent.IsConstraintError(err) {
-		return nil, domain.ErrConstraint
+	if err != nil {
+		return nil, utils.ErrWrap(err)
 	}
 
 	return user, err
@@ -161,12 +139,8 @@ func (r *UserRepository) DeleteUser(ctx context.Context, id int) error {
 		DeleteOneID(id).
 		Exec(ctx)
 
-	if ent.IsValidationError(err) {
-		return domain.ErrValidation
-	}
-
-	if ent.IsConstraintError(err) {
-		return domain.ErrConstraint
+	if err != nil {
+		return utils.ErrWrap(err)
 	}
 
 	return nil
