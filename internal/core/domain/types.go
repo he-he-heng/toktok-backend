@@ -35,6 +35,8 @@ var (
 
 	ErrInvalidTokenSignMethod = errors.New("요청한 토큰의 sign 메소드가 일치하지 않습니다")
 
+	ErrInvalidBodyParsing = errors.New("요청된 값을 파싱하는데 실패했습니다")
+
 	// --- 데이터베이스 ---
 
 	// ErrDataNotFound는 요청한 데이터를 찾을 수 없을 때 발생하는 오류입니다.

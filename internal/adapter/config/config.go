@@ -24,8 +24,6 @@ type Config struct {
 	}
 
 	Handler struct {
-		Mode string
-
 		Port string
 	}
 }

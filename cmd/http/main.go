@@ -7,6 +7,7 @@ import (
 	"toktok-backend/internal/adapter/auth/token"
 	"toktok-backend/internal/adapter/config"
 	"toktok-backend/internal/adapter/handler/http"
+	"toktok-backend/internal/adapter/handler/http/router"
 	"toktok-backend/internal/adapter/persistence/mysql"
 	"toktok-backend/internal/adapter/persistence/mysql/repository"
 	"toktok-backend/internal/core/service"
@@ -42,10 +43,7 @@ func main() {
 	authService := service.NewAuthService(userRepository, tokenService)
 	authHandler := http.NewAuthHandler(authService)
 
-	router, err := http.NewRouter(config, tokenService, *userHandler, *authHandler)
-	if err != nil {
-		panic(err)
-	}
+	router := router.New(userHandler, authHandler, tokenService)
 
 	addr := fmt.Sprintf(":%s", config.Handler.Port)
 	log.Fatal(router.Listen(addr))

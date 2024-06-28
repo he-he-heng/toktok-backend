@@ -81,15 +81,15 @@ func (t *Token) VerifyToken(tokenString string) (*domain.TokenPlayload, error) {
 		return nil, domain.ErrInvalidToken
 	}
 
-	if time.Now().Unix() > claims["exp"].(int64) {
+	if float64(time.Now().Unix()) > claims["exp"].(float64) {
 		return nil, domain.ErrExpiredToken
 	}
 
 	return &domain.TokenPlayload{
-		ID:        claims["id"].(int),
-		Role:      claims["role"].(domain.RoleType),
-		Exp:       claims["exp"].(int64),
-		Ita:       claims["ita"].(int64),
-		TokenType: claims["tokenType"].(domain.TokenType),
+		ID:        int(claims["id"].(float64)),
+		Role:      domain.RoleType(claims["role"].(string)),
+		Exp:       int64(claims["exp"].(float64)),
+		Ita:       int64(claims["ita"].(float64)),
+		TokenType: domain.TokenType(claims["tokenType"].(string)),
 	}, nil
 }
