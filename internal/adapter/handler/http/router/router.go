@@ -4,6 +4,7 @@ import (
 	"toktok-backend/internal/adapter/handler/http"
 	"toktok-backend/internal/adapter/handler/http/dto"
 	"toktok-backend/internal/adapter/handler/http/middleware"
+	"toktok-backend/internal/adapter/handler/http/myerror"
 	"toktok-backend/internal/core/port"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,8 +15,9 @@ type Router struct {
 }
 
 func New(userHandler *http.UserHandler, authHandler *http.AuthHandler, tokenService port.TokenService) *Router {
+
 	app := fiber.New(fiber.Config{
-		// ReadBufferSize: 8192,
+		ErrorHandler: myerror.Handler,
 	})
 
 	// app.Use()

@@ -24,7 +24,6 @@ func New(tokenService port.TokenService) *Middleware {
 }
 
 func (m *Middleware) ValidateToken(c *fiber.Ctx) error {
-
 	header := utils.CopyString(c.Get("Authorization"))
 
 	// Authorization 헤더의 필드값이 있는가?
