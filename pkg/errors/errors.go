@@ -35,3 +35,27 @@ func Wrap(err error, help any) error {
 func (w *withMessage) Error() string { return w.msg + ": " + w.cause.Error() }
 func (w *withMessage) Cause() error  { return w.cause }
 func (w *withMessage) Unwrap() error { return w.cause }
+
+func Cause(err error) error {
+	type causer interface {
+		Cause() error
+	}
+
+	for err != nil {
+		cause, ok := err.(causer)
+		if !ok {
+			break
+		}
+		err = cause.Cause()
+	}
+	return err
+}
+
+// Eample
+//
+//	if Equal(err, domain.InvalidTokenErr) {
+//	    fmt.Println("It's Equal!")
+//	}
+func Equal(err error, target error) bool {
+	return Is(Cause(err), target)
+}
