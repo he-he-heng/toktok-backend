@@ -5,7 +5,7 @@ import (
 
 	"toktok-backend/internal/core/domain"
 	"toktok-backend/internal/core/port"
-	"toktok-backend/internal/core/util"
+	"toktok-backend/internal/core/utils"
 
 	"toktok-backend/pkg/errors"
 )
@@ -22,7 +22,7 @@ func NewUserService(userRepository port.UserRepository) *UserService {
 
 // Register registers a new user
 func (s *UserService) Register(ctx context.Context, user *domain.User) (*domain.User, error) {
-	hashedPassword, err := util.HashPassword(user.Password)
+	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		return nil, errors.Wrap(domain.ErrInternal, err)
 	}
@@ -65,7 +65,7 @@ func (s *UserService) UpdateUser(ctx context.Context, user *domain.User) (*domai
 		return nil, err
 	}
 
-	hashedPassword, err := util.HashPassword(user.Password)
+	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		return nil, errors.Wrap(domain.ErrInternal, err)
 	}
