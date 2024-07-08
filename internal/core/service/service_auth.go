@@ -4,7 +4,7 @@ import (
 	"context"
 	"toktok-backend/internal/core/domain"
 	"toktok-backend/internal/core/port"
-	"toktok-backend/internal/core/util"
+	"toktok-backend/internal/core/utils"
 
 	"toktok-backend/pkg/errors"
 )
@@ -27,7 +27,7 @@ func (s *AuthService) Login(ctx context.Context, uid, password string) (accessTo
 		return "", "", err
 	}
 
-	err = util.ComparePassword(password, user.Password)
+	err = utils.ComparePassword(password, user.Password)
 	if err != nil {
 		return "", "", errors.Wrap(domain.ErrInvalidCredentials, err)
 	}
