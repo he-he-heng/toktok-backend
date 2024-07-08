@@ -26,6 +26,10 @@ type Config struct {
 	Handler struct {
 		Port string
 	}
+
+	App struct {
+		Environment string
+	}
 }
 
 func New(path string) (*Config, error) {
