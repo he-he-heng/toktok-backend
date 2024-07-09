@@ -25,6 +25,8 @@ const (
 	FieldUID = "uid"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
 	// Table holds the table name of the user in the database.
@@ -39,6 +41,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldUID,
 	FieldPassword,
+	FieldEmail,
 	FieldRole,
 }
 
@@ -70,6 +73,8 @@ var (
 	UIDValidator func(string) error
 	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	PasswordValidator func(string) error
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
 )
 
 // Role defines the type for the "role" enum field.
@@ -129,6 +134,11 @@ func ByUID(opts ...sql.OrderTermOption) OrderOption {
 // ByPassword orders the results by the password field.
 func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
 // ByRole orders the results by the role field.

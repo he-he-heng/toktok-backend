@@ -16,6 +16,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "uid", Type: field.TypeString, Unique: true, Size: 20},
 		{Name: "password", Type: field.TypeString},
+		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true, Size: 300},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"admin", "user"}, Default: "user"},
 	}
 	// UsersTable holds the schema information for the "users" table.

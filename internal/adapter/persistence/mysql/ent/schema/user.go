@@ -28,6 +28,7 @@ func (User) Fields() []ent.Field {
 			NotEmpty(),
 		field.String("email").
 			MaxLen(300).
+			Unique().
 			Nillable().
 			Optional().
 			Match(regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)),
