@@ -21,13 +21,17 @@ func NewUserRepository(db *mysql.Database) *UserRepository {
 
 // CreateUser inserts a new user into the database
 func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
-	_, err := r.db.User.
+	creator := r.db.User.
 		Create().
 		SetUID(user.UID).
 		SetPassword(user.Password).
-		SetRole(entuser.Role(user.Role)).
-		Save(ctx)
+		SetRole(entuser.Role(user.Role))
 
+	if user.Email != nil {
+		creator.SetEmail(*user.Email)
+	}
+
+	_, err := creator.Save(ctx)
 	if err != nil {
 		return nil, utils.ErrWrap(err)
 	}
@@ -47,6 +51,7 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id int) (*domain.User,
 	return &domain.User{
 		ID:       user.ID,
 		UID:      user.UID,
+		Email:    user.Email,
 		Password: user.Password,
 		Role:     domain.RoleType(user.Role),
 
@@ -71,6 +76,7 @@ func (r *UserRepository) GetUserByUID(ctx context.Context, uid string) (*domain.
 	return &domain.User{
 		ID:       user.ID,
 		UID:      user.UID,
+		Email:    user.Email,
 		Password: user.Password,
 		Role:     domain.RoleType(user.Role),
 
@@ -99,6 +105,7 @@ func (r *UserRepository) ListUsers(ctx context.Context, skip, limit int) ([]doma
 			ID:       u.ID,
 			UID:      u.UID,
 			Password: u.Password,
+			Email:    u.Email,
 			Role:     domain.RoleType(u.Role),
 
 			CreatedAt: u.CreatedAt,
@@ -112,14 +119,18 @@ func (r *UserRepository) ListUsers(ctx context.Context, skip, limit int) ([]doma
 
 // UpdateUser updates a user
 func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
-	_, err := r.db.User.
+	updator := r.db.User.
 		Update().
 		Where(entuser.IDEQ(user.ID)).
 		SetUID(user.UID).
 		SetPassword(user.Password).
-		SetRole(entuser.Role(user.Role)).
-		Save(ctx)
+		SetRole(entuser.Role(user.Role))
 
+	if user.Email != nil {
+		updator.SetEmail(*user.Email)
+	}
+
+	_, err := updator.Save(ctx)
 	if err != nil {
 		return nil, utils.ErrWrap(err)
 	}
