@@ -20,5 +20,5 @@ type User struct {
 	UpdatedAt time.Time
 	DeletedAt *time.Time
 
-	Avatars []*Avatar
+	Avatars []Avatar
 }

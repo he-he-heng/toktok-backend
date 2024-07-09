@@ -22,5 +22,5 @@ type Avatar struct {
 	UpdatedAt time.Time
 	DeletedAt *time.Time
 
-	User *User
+	UserID int
 }
