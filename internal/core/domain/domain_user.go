@@ -12,6 +12,7 @@ const (
 type User struct {
 	ID       int
 	UID      string
+	Email    *string // nilable
 	Password string
 	Role     RoleType
 
