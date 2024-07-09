@@ -26,6 +26,11 @@ func (User) Fields() []ent.Field {
 			Match(regexp.MustCompile("^[A-Za-z0-9]+$")),
 		field.String("password").
 			NotEmpty(),
+		field.String("email").
+			MaxLen(300).
+			Nillable().
+			Optional().
+			Match(regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)),
 		field.Enum("role").
 			Values("admin", "user").
 			Default("user"),
