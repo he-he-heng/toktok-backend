@@ -8,6 +8,7 @@ import (
 	"toktok-backend/internal/core/port"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 type Router struct {
@@ -20,26 +21,41 @@ func New(userHandler *http.UserHandler, authHandler *http.AuthHandler, tokenServ
 		ErrorHandler: myerror.Handler,
 	})
 
-	// app.Use()
+	app.Use(logger.New())
+	// Or extend your config for customization
+	// Logging remote IP and Port
+	app.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
+
+	// app.Use(recover.New())
 	// recover,
 
 	m := middleware.New(tokenService)
 
 	api := app.Group("/api")
+
+	app.Post("/api/v1/auth/token-validation", m.ValidateToken, func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
+	})
+
 	{
-		users := api.Group("/users")
+		v1 := api.Group("v1")
+		users := v1.Group("/users")
 		{
 			users.Post("/", userHandler.Register)
 		}
 
-		auth := api.Group("/auth")
+		auth := v1.Group("/auth")
 		{
 			auth.Post("/login", authHandler.Login)
 
 			token := auth.Group("/token")
 			{
-				token.Post("/refresh", authHandler.Refresh)
+				token.Post("-refresh", authHandler.Refresh)
+
 			}
+
 		}
 	}
 

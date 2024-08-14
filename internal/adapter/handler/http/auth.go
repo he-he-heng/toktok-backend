@@ -30,14 +30,18 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(&dto.General{
-		Status:  fiber.StatusCreated,
-		Message: "토큰을 성공적으로 생성했습니다.",
-		Data: &dto.LoginResponse{
-			AccessToken:  accessToken,
-			RefreshToken: refreshToken,
-		},
+	return c.Status(fiber.StatusCreated).JSON(&dto.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	})
+	// return c.Status(fiber.StatusCreated).JSON(&dto.General{
+	// 	// Status:  fiber.StatusCreated,
+	// 	// // Message: "토큰을 성공적으로 생성했습니다.",
+	// 	Data: &dto.LoginResponse{
+	// 		AccessToken:  accessToken,
+	// 		RefreshToken: refreshToken,
+	// 	},
+	// })
 
 }
 
@@ -52,11 +56,15 @@ func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Status(fiber.StatusOK).JSON(&dto.General{
-		Status:  fiber.StatusOK,
-		Message: "성공적으로 재발급을 완료했습니다.",
-		Data: &dto.RefreshReponse{
-			AccessToken: accssToken,
-		},
+	// return c.Status(fiber.StatusOK).JSON(&dto.General{
+	// 	Status:  fiber.StatusOK,
+	// 	Message: "성공적으로 재발급을 완료했습니다.",
+	// 	Data: &dto.RefreshReponse{
+	// 		AccessToken: accssToken,
+	// 	},
+	// })
+
+	return c.Status(fiber.StatusOK).JSON(&dto.RefreshReponse{
+		AccessToken: accssToken,
 	})
 }
