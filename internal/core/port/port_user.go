@@ -1,0 +1,22 @@
+package port
+
+import (
+	"context"
+	"toktok-backend/internal/core/domain"
+)
+
+type UserRepository interface {
+	CreateUser(ctx context.Context, user *domain.User) (*domain.User, error)
+	GetUser(ctx context.Context, id int) (*domain.User, error)
+	ListUser(ctx context.Context, skip, limit int) ([]*domain.User, error)
+	UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error)
+	DeleteUser(ctx context.Context, id int) error
+}
+
+type UserService interface {
+	Register(ctx context.Context, user *domain.User) (*domain.User, error)
+	GetUser(ctx context.Context, id int) (*domain.User, error)
+	ListUsers(ctx context.Context, skip, limit int) ([]*domain.User, error)
+	UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error)
+	DeleteUser(ctx context.Context, id int) error
+}
