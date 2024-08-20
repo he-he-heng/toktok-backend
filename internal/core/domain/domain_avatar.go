@@ -22,16 +22,11 @@ type Avatar struct {
 	Sex       AvatarSexType
 	Birthday  string
 	Mbti      *string
+	Nickname  string
 	Picture   string
 	Introduce *string
 	IsOnline  bool
 	Status    AvatarStateType
-
-	User             *User
-	Relations        []*Relation
-	RoomAlters       []*RoomAlter
-	LastReadMessages []*LastReadMessage
-	Messages         []*Message
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

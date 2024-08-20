@@ -11,15 +11,21 @@ const (
 	Removed  RelationStateType = "removed"  // 친구 관계가 해제된 상태
 )
 
+type RelationAlertStateType string
+
+const (
+	Allow RelationAlertStateType = "allow"
+	Deny  RelationAlertStateType = "deny"
+)
+
 type Relation struct {
-	ID        int
-	State     RelationStateType
+	ID         int
+	UserID     int
+	FriendID   int
+	State      RelationStateType
+	AlertState RelationAlertStateType
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time
-
-	Avatars          []*Avatar
-	RoomAlters       []*RoomAlter
-	LastReadMessages []*LastReadMessage
-	Messages         []*Message
 }

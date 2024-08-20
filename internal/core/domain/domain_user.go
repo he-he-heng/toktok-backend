@@ -14,11 +14,9 @@ type User struct {
 	UID      string
 	Password string
 	Role     UserRoleType
+	IsBan    bool
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time
-
-	Ban    *Ban
-	Avatar *Avatar
 }
