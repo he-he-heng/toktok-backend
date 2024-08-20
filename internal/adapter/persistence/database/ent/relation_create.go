@@ -78,16 +78,16 @@ func (rc *RelationCreate) SetNillableState(r *relation.State) *RelationCreate {
 	return rc
 }
 
-// SetAlterState sets the "alterState" field.
-func (rc *RelationCreate) SetAlterState(rs relation.AlterState) *RelationCreate {
-	rc.mutation.SetAlterState(rs)
+// SetAlertState sets the "alertState" field.
+func (rc *RelationCreate) SetAlertState(rs relation.AlertState) *RelationCreate {
+	rc.mutation.SetAlertState(rs)
 	return rc
 }
 
-// SetNillableAlterState sets the "alterState" field if the given value is not nil.
-func (rc *RelationCreate) SetNillableAlterState(rs *relation.AlterState) *RelationCreate {
+// SetNillableAlertState sets the "alertState" field if the given value is not nil.
+func (rc *RelationCreate) SetNillableAlertState(rs *relation.AlertState) *RelationCreate {
 	if rs != nil {
-		rc.SetAlterState(*rs)
+		rc.SetAlertState(*rs)
 	}
 	return rc
 }
@@ -200,9 +200,9 @@ func (rc *RelationCreate) defaults() error {
 		v := relation.DefaultState
 		rc.mutation.SetState(v)
 	}
-	if _, ok := rc.mutation.AlterState(); !ok {
-		v := relation.DefaultAlterState
-		rc.mutation.SetAlterState(v)
+	if _, ok := rc.mutation.AlertState(); !ok {
+		v := relation.DefaultAlertState
+		rc.mutation.SetAlertState(v)
 	}
 	return nil
 }
@@ -223,12 +223,12 @@ func (rc *RelationCreate) check() error {
 			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Relation.state": %w`, err)}
 		}
 	}
-	if _, ok := rc.mutation.AlterState(); !ok {
-		return &ValidationError{Name: "alterState", err: errors.New(`ent: missing required field "Relation.alterState"`)}
+	if _, ok := rc.mutation.AlertState(); !ok {
+		return &ValidationError{Name: "alertState", err: errors.New(`ent: missing required field "Relation.alertState"`)}
 	}
-	if v, ok := rc.mutation.AlterState(); ok {
-		if err := relation.AlterStateValidator(v); err != nil {
-			return &ValidationError{Name: "alterState", err: fmt.Errorf(`ent: validator failed for field "Relation.alterState": %w`, err)}
+	if v, ok := rc.mutation.AlertState(); ok {
+		if err := relation.AlertStateValidator(v); err != nil {
+			return &ValidationError{Name: "alertState", err: fmt.Errorf(`ent: validator failed for field "Relation.alertState": %w`, err)}
 		}
 	}
 	return nil
@@ -273,9 +273,9 @@ func (rc *RelationCreate) createSpec() (*Relation, *sqlgraph.CreateSpec) {
 		_spec.SetField(relation.FieldState, field.TypeEnum, value)
 		_node.State = value
 	}
-	if value, ok := rc.mutation.AlterState(); ok {
-		_spec.SetField(relation.FieldAlterState, field.TypeEnum, value)
-		_node.AlterState = value
+	if value, ok := rc.mutation.AlertState(); ok {
+		_spec.SetField(relation.FieldAlertState, field.TypeEnum, value)
+		_node.AlertState = value
 	}
 	if nodes := rc.mutation.AvatarIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

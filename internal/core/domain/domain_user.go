@@ -9,13 +9,20 @@ const (
 	RoleUser  = "user"
 )
 
+type UserBanStateType string
+
+const (
+	BanStateBan   UserBanStateType = "ban"
+	BanStateUnban UserBanStateType = "unban"
+)
+
 type User struct {
 	ID       int
 	UID      string
 	Password string
 	Email    *string
 	Role     UserRoleType
-	IsBan    bool
+	BanState UserBanStateType
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

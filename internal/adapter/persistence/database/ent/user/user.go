@@ -30,8 +30,8 @@ const (
 	FieldEmail = "email"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
-	// FieldIsBan holds the string denoting the isban field in the database.
-	FieldIsBan = "is_ban"
+	// FieldBanState holds the string denoting the banstate field in the database.
+	FieldBanState = "ban_state"
 	// EdgeAvatar holds the string denoting the avatar edge name in mutations.
 	EdgeAvatar = "avatar"
 	// Table holds the table name of the user in the database.
@@ -55,7 +55,7 @@ var Columns = []string{
 	FieldPassword,
 	FieldEmail,
 	FieldRole,
-	FieldIsBan,
+	FieldBanState,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -86,8 +86,6 @@ var (
 	UIDValidator func(string) error
 	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	PasswordValidator func(string) error
-	// DefaultIsBan holds the default value on creation for the "isBan" field.
-	DefaultIsBan bool
 )
 
 // Role defines the type for the "role" enum field.
@@ -113,6 +111,32 @@ func RoleValidator(r Role) error {
 		return nil
 	default:
 		return fmt.Errorf("user: invalid enum value for role field: %q", r)
+	}
+}
+
+// BanState defines the type for the "banState" enum field.
+type BanState string
+
+// BanStateUnban is the default value of the BanState enum.
+const DefaultBanState = BanStateUnban
+
+// BanState values.
+const (
+	BanStateBan   BanState = "ban"
+	BanStateUnban BanState = "unban"
+)
+
+func (bs BanState) String() string {
+	return string(bs)
+}
+
+// BanStateValidator is a validator for the "banState" field enum values. It is called by the builders before save.
+func BanStateValidator(bs BanState) error {
+	switch bs {
+	case BanStateBan, BanStateUnban:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for banState field: %q", bs)
 	}
 }
 
@@ -159,9 +183,9 @@ func ByRole(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRole, opts...).ToFunc()
 }
 
-// ByIsBan orders the results by the isBan field.
-func ByIsBan(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsBan, opts...).ToFunc()
+// ByBanState orders the results by the banState field.
+func ByBanState(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBanState, opts...).ToFunc()
 }
 
 // ByAvatarField orders the results by avatar field.

@@ -35,8 +35,11 @@ func (User) Fields() []ent.Field {
 			).
 			Default("user"),
 
-		field.Bool("isBan").
-			Default(false),
+		field.Enum("banState").
+			Values(
+				"ban",
+				"unban",
+			).Default("unban"),
 	}
 }
 

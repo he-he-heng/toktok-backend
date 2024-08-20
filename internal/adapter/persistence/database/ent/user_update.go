@@ -117,16 +117,16 @@ func (uu *UserUpdate) SetNillableRole(u *user.Role) *UserUpdate {
 	return uu
 }
 
-// SetIsBan sets the "isBan" field.
-func (uu *UserUpdate) SetIsBan(b bool) *UserUpdate {
-	uu.mutation.SetIsBan(b)
+// SetBanState sets the "banState" field.
+func (uu *UserUpdate) SetBanState(us user.BanState) *UserUpdate {
+	uu.mutation.SetBanState(us)
 	return uu
 }
 
-// SetNillableIsBan sets the "isBan" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableIsBan(b *bool) *UserUpdate {
-	if b != nil {
-		uu.SetIsBan(*b)
+// SetNillableBanState sets the "banState" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableBanState(us *user.BanState) *UserUpdate {
+	if us != nil {
+		uu.SetBanState(*us)
 	}
 	return uu
 }
@@ -220,6 +220,11 @@ func (uu *UserUpdate) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
 		}
 	}
+	if v, ok := uu.mutation.BanState(); ok {
+		if err := user.BanStateValidator(v); err != nil {
+			return &ValidationError{Name: "banState", err: fmt.Errorf(`ent: validator failed for field "User.banState": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -259,8 +264,8 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)
 	}
-	if value, ok := uu.mutation.IsBan(); ok {
-		_spec.SetField(user.FieldIsBan, field.TypeBool, value)
+	if value, ok := uu.mutation.BanState(); ok {
+		_spec.SetField(user.FieldBanState, field.TypeEnum, value)
 	}
 	if uu.mutation.AvatarCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -399,16 +404,16 @@ func (uuo *UserUpdateOne) SetNillableRole(u *user.Role) *UserUpdateOne {
 	return uuo
 }
 
-// SetIsBan sets the "isBan" field.
-func (uuo *UserUpdateOne) SetIsBan(b bool) *UserUpdateOne {
-	uuo.mutation.SetIsBan(b)
+// SetBanState sets the "banState" field.
+func (uuo *UserUpdateOne) SetBanState(us user.BanState) *UserUpdateOne {
+	uuo.mutation.SetBanState(us)
 	return uuo
 }
 
-// SetNillableIsBan sets the "isBan" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableIsBan(b *bool) *UserUpdateOne {
-	if b != nil {
-		uuo.SetIsBan(*b)
+// SetNillableBanState sets the "banState" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableBanState(us *user.BanState) *UserUpdateOne {
+	if us != nil {
+		uuo.SetBanState(*us)
 	}
 	return uuo
 }
@@ -515,6 +520,11 @@ func (uuo *UserUpdateOne) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
 		}
 	}
+	if v, ok := uuo.mutation.BanState(); ok {
+		if err := user.BanStateValidator(v); err != nil {
+			return &ValidationError{Name: "banState", err: fmt.Errorf(`ent: validator failed for field "User.banState": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -571,8 +581,8 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if value, ok := uuo.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)
 	}
-	if value, ok := uuo.mutation.IsBan(); ok {
-		_spec.SetField(user.FieldIsBan, field.TypeBool, value)
+	if value, ok := uuo.mutation.BanState(); ok {
+		_spec.SetField(user.FieldBanState, field.TypeEnum, value)
 	}
 	if uuo.mutation.AvatarCleared() {
 		edge := &sqlgraph.EdgeSpec{

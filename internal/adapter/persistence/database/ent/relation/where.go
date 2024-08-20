@@ -220,24 +220,24 @@ func StateNotIn(vs ...State) predicate.Relation {
 	return predicate.Relation(sql.FieldNotIn(FieldState, vs...))
 }
 
-// AlterStateEQ applies the EQ predicate on the "alterState" field.
-func AlterStateEQ(v AlterState) predicate.Relation {
-	return predicate.Relation(sql.FieldEQ(FieldAlterState, v))
+// AlertStateEQ applies the EQ predicate on the "alertState" field.
+func AlertStateEQ(v AlertState) predicate.Relation {
+	return predicate.Relation(sql.FieldEQ(FieldAlertState, v))
 }
 
-// AlterStateNEQ applies the NEQ predicate on the "alterState" field.
-func AlterStateNEQ(v AlterState) predicate.Relation {
-	return predicate.Relation(sql.FieldNEQ(FieldAlterState, v))
+// AlertStateNEQ applies the NEQ predicate on the "alertState" field.
+func AlertStateNEQ(v AlertState) predicate.Relation {
+	return predicate.Relation(sql.FieldNEQ(FieldAlertState, v))
 }
 
-// AlterStateIn applies the In predicate on the "alterState" field.
-func AlterStateIn(vs ...AlterState) predicate.Relation {
-	return predicate.Relation(sql.FieldIn(FieldAlterState, vs...))
+// AlertStateIn applies the In predicate on the "alertState" field.
+func AlertStateIn(vs ...AlertState) predicate.Relation {
+	return predicate.Relation(sql.FieldIn(FieldAlertState, vs...))
 }
 
-// AlterStateNotIn applies the NotIn predicate on the "alterState" field.
-func AlterStateNotIn(vs ...AlterState) predicate.Relation {
-	return predicate.Relation(sql.FieldNotIn(FieldAlterState, vs...))
+// AlertStateNotIn applies the NotIn predicate on the "alertState" field.
+func AlertStateNotIn(vs ...AlertState) predicate.Relation {
+	return predicate.Relation(sql.FieldNotIn(FieldAlertState, vs...))
 }
 
 // HasAvatar applies the HasEdge predicate on the "avatar" edge.

@@ -20,7 +20,7 @@ const (
 
 type Relation struct {
 	ID         int
-	UserID     int
+	AvatarID   int
 	FriendID   int
 	State      RelationStateType
 	AlertState RelationAlertStateType

@@ -26,8 +26,8 @@ type Relation struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// State holds the value of the "state" field.
 	State relation.State `json:"state,omitempty"`
-	// AlterState holds the value of the "alterState" field.
-	AlterState relation.AlterState `json:"alterState,omitempty"`
+	// AlertState holds the value of the "alertState" field.
+	AlertState relation.AlertState `json:"alertState,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RelationQuery when eager-loading is set.
 	Edges                   RelationEdges `json:"edges"`
@@ -87,7 +87,7 @@ func (*Relation) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case relation.FieldID:
 			values[i] = new(sql.NullInt64)
-		case relation.FieldState, relation.FieldAlterState:
+		case relation.FieldState, relation.FieldAlertState:
 			values[i] = new(sql.NullString)
 		case relation.FieldCreatedAt, relation.FieldUpdatedAt, relation.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -141,11 +141,11 @@ func (r *Relation) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.State = relation.State(value.String)
 			}
-		case relation.FieldAlterState:
+		case relation.FieldAlertState:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field alterState", values[i])
+				return fmt.Errorf("unexpected type %T for field alertState", values[i])
 			} else if value.Valid {
-				r.AlterState = relation.AlterState(value.String)
+				r.AlertState = relation.AlertState(value.String)
 			}
 		case relation.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -226,8 +226,8 @@ func (r *Relation) String() string {
 	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", r.State))
 	builder.WriteString(", ")
-	builder.WriteString("alterState=")
-	builder.WriteString(fmt.Sprintf("%v", r.AlterState))
+	builder.WriteString("alertState=")
+	builder.WriteString(fmt.Sprintf("%v", r.AlertState))
 	builder.WriteByte(')')
 	return builder.String()
 }

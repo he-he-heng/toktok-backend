@@ -23,7 +23,7 @@ func (Relation) Fields() []ent.Field {
 			).
 			Default("pending"),
 
-		field.Enum("alterState").
+		field.Enum("alertState").
 			Values(
 				"allow",
 				"deny",

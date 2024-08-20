@@ -85,11 +85,6 @@ func Email(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldEmail, v))
 }
 
-// IsBan applies equality check predicate on the "isBan" field. It's identical to IsBanEQ.
-func IsBan(v bool) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldIsBan, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldCreatedAt, v))
@@ -445,14 +440,24 @@ func RoleNotIn(vs ...Role) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldRole, vs...))
 }
 
-// IsBanEQ applies the EQ predicate on the "isBan" field.
-func IsBanEQ(v bool) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldIsBan, v))
+// BanStateEQ applies the EQ predicate on the "banState" field.
+func BanStateEQ(v BanState) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldBanState, v))
 }
 
-// IsBanNEQ applies the NEQ predicate on the "isBan" field.
-func IsBanNEQ(v bool) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldIsBan, v))
+// BanStateNEQ applies the NEQ predicate on the "banState" field.
+func BanStateNEQ(v BanState) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldBanState, v))
+}
+
+// BanStateIn applies the In predicate on the "banState" field.
+func BanStateIn(vs ...BanState) predicate.User {
+	return predicate.User(sql.FieldIn(FieldBanState, vs...))
+}
+
+// BanStateNotIn applies the NotIn predicate on the "banState" field.
+func BanStateNotIn(vs ...BanState) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldBanState, vs...))
 }
 
 // HasAvatar applies the HasEdge predicate on the "avatar" edge.

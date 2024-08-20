@@ -24,8 +24,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldState holds the string denoting the state field in the database.
 	FieldState = "state"
-	// FieldAlterState holds the string denoting the alterstate field in the database.
-	FieldAlterState = "alter_state"
+	// FieldAlertState holds the string denoting the alertstate field in the database.
+	FieldAlertState = "alert_state"
 	// EdgeAvatar holds the string denoting the avatar edge name in mutations.
 	EdgeAvatar = "avatar"
 	// EdgeFriend holds the string denoting the friend edge name in mutations.
@@ -64,7 +64,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldState,
-	FieldAlterState,
+	FieldAlertState,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "relations"
@@ -133,29 +133,29 @@ func StateValidator(s State) error {
 	}
 }
 
-// AlterState defines the type for the "alterState" enum field.
-type AlterState string
+// AlertState defines the type for the "alertState" enum field.
+type AlertState string
 
-// AlterStateAllow is the default value of the AlterState enum.
-const DefaultAlterState = AlterStateAllow
+// AlertStateAllow is the default value of the AlertState enum.
+const DefaultAlertState = AlertStateAllow
 
-// AlterState values.
+// AlertState values.
 const (
-	AlterStateAllow AlterState = "allow"
-	AlterStateDeny  AlterState = "deny"
+	AlertStateAllow AlertState = "allow"
+	AlertStateDeny  AlertState = "deny"
 )
 
-func (as AlterState) String() string {
+func (as AlertState) String() string {
 	return string(as)
 }
 
-// AlterStateValidator is a validator for the "alterState" field enum values. It is called by the builders before save.
-func AlterStateValidator(as AlterState) error {
+// AlertStateValidator is a validator for the "alertState" field enum values. It is called by the builders before save.
+func AlertStateValidator(as AlertState) error {
 	switch as {
-	case AlterStateAllow, AlterStateDeny:
+	case AlertStateAllow, AlertStateDeny:
 		return nil
 	default:
-		return fmt.Errorf("relation: invalid enum value for alterState field: %q", as)
+		return fmt.Errorf("relation: invalid enum value for alertState field: %q", as)
 	}
 }
 
@@ -187,9 +187,9 @@ func ByState(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldState, opts...).ToFunc()
 }
 
-// ByAlterState orders the results by the alterState field.
-func ByAlterState(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAlterState, opts...).ToFunc()
+// ByAlertState orders the results by the alertState field.
+func ByAlertState(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAlertState, opts...).ToFunc()
 }
 
 // ByAvatarField orders the results by avatar field.

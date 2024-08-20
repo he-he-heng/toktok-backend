@@ -15,7 +15,7 @@ func ToDomainUser(user *ent.User) *domain.User {
 		UID:      user.UID,
 		Password: user.Password,
 		Role:     domain.UserRoleType(user.Role),
-		IsBan:    user.IsBan,
+		BanState: domain.UserBanStateType(user.BanState),
 
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
@@ -65,4 +65,33 @@ func ToDomainAvatars(avatars []*ent.Avatar) []*domain.Avatar {
 	}
 
 	return retAvatars
+}
+
+func ToDomainRelation(relation *ent.Relation) *domain.Relation {
+	if relation == nil {
+		return nil
+	}
+
+	retAvatar := domain.Relation{
+		ID:         relation.ID,
+		AvatarID:   relation.Edges.Avatar.ID,
+		FriendID:   relation.Edges.Friend.ID,
+		State:      domain.RelationStateType(relation.AlertState),
+		AlertState: domain.RelationAlertStateType(relation.AlertState),
+
+		CreatedAt: relation.CreatedAt,
+		UpdatedAt: relation.UpdatedAt,
+		DeletedAt: relation.DeletedAt,
+	}
+
+	return &retAvatar
+}
+
+func ToDomainRelations(relations []*ent.Relation) []*domain.Relation {
+	retRelations := []*domain.Relation{}
+	for _, relation := range relations {
+		retRelations = append(retRelations, ToDomainRelation(relation))
+	}
+
+	return retRelations
 }

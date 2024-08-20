@@ -24,7 +24,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*do
 	builder := r.client.User.Create().
 		SetUID(user.UID).
 		SetPassword(user.Password).
-		SetIsBan(user.IsBan).
+		SetBanState(entuser.BanState(user.BanState)).
 		SetRole(entuser.Role(user.Role))
 
 	if user.Email != nil {
@@ -72,7 +72,7 @@ func (r *UserRepository) ListUser(ctx context.Context, skip, limit int, filter, 
 	return utils.ToDomainUsers(queriedUsers), nil
 }
 
-func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User, isBanChange bool) (*domain.User, error) {
+func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
 	builder := r.client.User.UpdateOneID(user.ID)
 
 	if utils.Changeable(user.UID) {
@@ -91,8 +91,8 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User, isBa
 		builder.SetEmail(*user.Email)
 	}
 
-	if isBanChange {
-		builder.SetIsBan(user.IsBan)
+	if utils.Changeable(user.BanState) {
+		builder.SetBanState(entuser.BanState(user.BanState))
 	}
 
 	updatedUser, err := builder.Save(ctx)

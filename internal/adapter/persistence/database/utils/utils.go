@@ -7,7 +7,7 @@ import (
 )
 
 type changeable interface {
-	string | []byte | domain.UserRoleType | domain.AvatarSexType | domain.AvatarStateType
+	string | []byte | domain.UserRoleType | domain.UserBanStateType | domain.AvatarSexType | domain.AvatarStateType | domain.RelationStateType | domain.RelationAlertStateType
 }
 
 func Changeable[T changeable](arg T) bool {

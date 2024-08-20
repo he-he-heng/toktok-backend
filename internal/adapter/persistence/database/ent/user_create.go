@@ -103,16 +103,16 @@ func (uc *UserCreate) SetNillableRole(u *user.Role) *UserCreate {
 	return uc
 }
 
-// SetIsBan sets the "isBan" field.
-func (uc *UserCreate) SetIsBan(b bool) *UserCreate {
-	uc.mutation.SetIsBan(b)
+// SetBanState sets the "banState" field.
+func (uc *UserCreate) SetBanState(us user.BanState) *UserCreate {
+	uc.mutation.SetBanState(us)
 	return uc
 }
 
-// SetNillableIsBan sets the "isBan" field if the given value is not nil.
-func (uc *UserCreate) SetNillableIsBan(b *bool) *UserCreate {
-	if b != nil {
-		uc.SetIsBan(*b)
+// SetNillableBanState sets the "banState" field if the given value is not nil.
+func (uc *UserCreate) SetNillableBanState(us *user.BanState) *UserCreate {
+	if us != nil {
+		uc.SetBanState(*us)
 	}
 	return uc
 }
@@ -191,9 +191,9 @@ func (uc *UserCreate) defaults() error {
 		v := user.DefaultRole
 		uc.mutation.SetRole(v)
 	}
-	if _, ok := uc.mutation.IsBan(); !ok {
-		v := user.DefaultIsBan
-		uc.mutation.SetIsBan(v)
+	if _, ok := uc.mutation.BanState(); !ok {
+		v := user.DefaultBanState
+		uc.mutation.SetBanState(v)
 	}
 	return nil
 }
@@ -230,8 +230,13 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
 		}
 	}
-	if _, ok := uc.mutation.IsBan(); !ok {
-		return &ValidationError{Name: "isBan", err: errors.New(`ent: missing required field "User.isBan"`)}
+	if _, ok := uc.mutation.BanState(); !ok {
+		return &ValidationError{Name: "banState", err: errors.New(`ent: missing required field "User.banState"`)}
+	}
+	if v, ok := uc.mutation.BanState(); ok {
+		if err := user.BanStateValidator(v); err != nil {
+			return &ValidationError{Name: "banState", err: fmt.Errorf(`ent: validator failed for field "User.banState": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -287,9 +292,9 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)
 		_node.Role = value
 	}
-	if value, ok := uc.mutation.IsBan(); ok {
-		_spec.SetField(user.FieldIsBan, field.TypeBool, value)
-		_node.IsBan = value
+	if value, ok := uc.mutation.BanState(); ok {
+		_spec.SetField(user.FieldBanState, field.TypeEnum, value)
+		_node.BanState = value
 	}
 	if nodes := uc.mutation.AvatarIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

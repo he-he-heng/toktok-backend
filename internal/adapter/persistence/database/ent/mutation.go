@@ -1977,7 +1977,7 @@ type RelationMutation struct {
 	updated_at      *time.Time
 	deleted_at      *time.Time
 	state           *relation.State
-	alterState      *relation.AlterState
+	alertState      *relation.AlertState
 	clearedFields   map[string]struct{}
 	avatar          *int
 	clearedavatar   bool
@@ -2246,40 +2246,40 @@ func (m *RelationMutation) ResetState() {
 	m.state = nil
 }
 
-// SetAlterState sets the "alterState" field.
-func (m *RelationMutation) SetAlterState(rs relation.AlterState) {
-	m.alterState = &rs
+// SetAlertState sets the "alertState" field.
+func (m *RelationMutation) SetAlertState(rs relation.AlertState) {
+	m.alertState = &rs
 }
 
-// AlterState returns the value of the "alterState" field in the mutation.
-func (m *RelationMutation) AlterState() (r relation.AlterState, exists bool) {
-	v := m.alterState
+// AlertState returns the value of the "alertState" field in the mutation.
+func (m *RelationMutation) AlertState() (r relation.AlertState, exists bool) {
+	v := m.alertState
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldAlterState returns the old "alterState" field's value of the Relation entity.
+// OldAlertState returns the old "alertState" field's value of the Relation entity.
 // If the Relation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RelationMutation) OldAlterState(ctx context.Context) (v relation.AlterState, err error) {
+func (m *RelationMutation) OldAlertState(ctx context.Context) (v relation.AlertState, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAlterState is only allowed on UpdateOne operations")
+		return v, errors.New("OldAlertState is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAlterState requires an ID field in the mutation")
+		return v, errors.New("OldAlertState requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAlterState: %w", err)
+		return v, fmt.Errorf("querying old value for OldAlertState: %w", err)
 	}
-	return oldValue.AlterState, nil
+	return oldValue.AlertState, nil
 }
 
-// ResetAlterState resets all changes to the "alterState" field.
-func (m *RelationMutation) ResetAlterState() {
-	m.alterState = nil
+// ResetAlertState resets all changes to the "alertState" field.
+func (m *RelationMutation) ResetAlertState() {
+	m.alertState = nil
 }
 
 // SetAvatarID sets the "avatar" edge to the Avatar entity by id.
@@ -2461,8 +2461,8 @@ func (m *RelationMutation) Fields() []string {
 	if m.state != nil {
 		fields = append(fields, relation.FieldState)
 	}
-	if m.alterState != nil {
-		fields = append(fields, relation.FieldAlterState)
+	if m.alertState != nil {
+		fields = append(fields, relation.FieldAlertState)
 	}
 	return fields
 }
@@ -2480,8 +2480,8 @@ func (m *RelationMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case relation.FieldState:
 		return m.State()
-	case relation.FieldAlterState:
-		return m.AlterState()
+	case relation.FieldAlertState:
+		return m.AlertState()
 	}
 	return nil, false
 }
@@ -2499,8 +2499,8 @@ func (m *RelationMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldDeletedAt(ctx)
 	case relation.FieldState:
 		return m.OldState(ctx)
-	case relation.FieldAlterState:
-		return m.OldAlterState(ctx)
+	case relation.FieldAlertState:
+		return m.OldAlertState(ctx)
 	}
 	return nil, fmt.Errorf("unknown Relation field %s", name)
 }
@@ -2538,12 +2538,12 @@ func (m *RelationMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetState(v)
 		return nil
-	case relation.FieldAlterState:
-		v, ok := value.(relation.AlterState)
+	case relation.FieldAlertState:
+		v, ok := value.(relation.AlertState)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetAlterState(v)
+		m.SetAlertState(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Relation field %s", name)
@@ -2615,8 +2615,8 @@ func (m *RelationMutation) ResetField(name string) error {
 	case relation.FieldState:
 		m.ResetState()
 		return nil
-	case relation.FieldAlterState:
-		m.ResetAlterState()
+	case relation.FieldAlertState:
+		m.ResetAlertState()
 		return nil
 	}
 	return fmt.Errorf("unknown Relation field %s", name)
@@ -2755,7 +2755,7 @@ type UserMutation struct {
 	password      *string
 	email         *string
 	role          *user.Role
-	isBan         *bool
+	banState      *user.BanState
 	clearedFields map[string]struct{}
 	avatar        *int
 	clearedavatar bool
@@ -3140,40 +3140,40 @@ func (m *UserMutation) ResetRole() {
 	m.role = nil
 }
 
-// SetIsBan sets the "isBan" field.
-func (m *UserMutation) SetIsBan(b bool) {
-	m.isBan = &b
+// SetBanState sets the "banState" field.
+func (m *UserMutation) SetBanState(us user.BanState) {
+	m.banState = &us
 }
 
-// IsBan returns the value of the "isBan" field in the mutation.
-func (m *UserMutation) IsBan() (r bool, exists bool) {
-	v := m.isBan
+// BanState returns the value of the "banState" field in the mutation.
+func (m *UserMutation) BanState() (r user.BanState, exists bool) {
+	v := m.banState
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldIsBan returns the old "isBan" field's value of the User entity.
+// OldBanState returns the old "banState" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldIsBan(ctx context.Context) (v bool, err error) {
+func (m *UserMutation) OldBanState(ctx context.Context) (v user.BanState, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsBan is only allowed on UpdateOne operations")
+		return v, errors.New("OldBanState is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsBan requires an ID field in the mutation")
+		return v, errors.New("OldBanState requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsBan: %w", err)
+		return v, fmt.Errorf("querying old value for OldBanState: %w", err)
 	}
-	return oldValue.IsBan, nil
+	return oldValue.BanState, nil
 }
 
-// ResetIsBan resets all changes to the "isBan" field.
-func (m *UserMutation) ResetIsBan() {
-	m.isBan = nil
+// ResetBanState resets all changes to the "banState" field.
+func (m *UserMutation) ResetBanState() {
+	m.banState = nil
 }
 
 // SetAvatarID sets the "avatar" edge to the Avatar entity by id.
@@ -3271,8 +3271,8 @@ func (m *UserMutation) Fields() []string {
 	if m.role != nil {
 		fields = append(fields, user.FieldRole)
 	}
-	if m.isBan != nil {
-		fields = append(fields, user.FieldIsBan)
+	if m.banState != nil {
+		fields = append(fields, user.FieldBanState)
 	}
 	return fields
 }
@@ -3296,8 +3296,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case user.FieldRole:
 		return m.Role()
-	case user.FieldIsBan:
-		return m.IsBan()
+	case user.FieldBanState:
+		return m.BanState()
 	}
 	return nil, false
 }
@@ -3321,8 +3321,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldEmail(ctx)
 	case user.FieldRole:
 		return m.OldRole(ctx)
-	case user.FieldIsBan:
-		return m.OldIsBan(ctx)
+	case user.FieldBanState:
+		return m.OldBanState(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -3381,12 +3381,12 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRole(v)
 		return nil
-	case user.FieldIsBan:
-		v, ok := value.(bool)
+	case user.FieldBanState:
+		v, ok := value.(user.BanState)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetIsBan(v)
+		m.SetBanState(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -3473,8 +3473,8 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldRole:
 		m.ResetRole()
 		return nil
-	case user.FieldIsBan:
-		m.ResetIsBan()
+	case user.FieldBanState:
+		m.ResetBanState()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

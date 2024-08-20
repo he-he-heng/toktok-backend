@@ -76,7 +76,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "state", Type: field.TypeEnum, Enums: []string{"accepted", "pending", "declined", "removed"}, Default: "pending"},
-		{Name: "alter_state", Type: field.TypeEnum, Enums: []string{"allow", "deny"}, Default: "allow"},
+		{Name: "alert_state", Type: field.TypeEnum, Enums: []string{"allow", "deny"}, Default: "allow"},
 		{Name: "avatar_avatar_relations", Type: field.TypeInt, Nullable: true},
 		{Name: "avatar_friend_relations", Type: field.TypeInt, Nullable: true},
 	}
@@ -110,7 +110,7 @@ var (
 		{Name: "password", Type: field.TypeString, Size: 32},
 		{Name: "email", Type: field.TypeString, Nullable: true},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"admin", "user"}, Default: "user"},
-		{Name: "is_ban", Type: field.TypeBool, Default: false},
+		{Name: "ban_state", Type: field.TypeEnum, Enums: []string{"ban", "unban"}, Default: "unban"},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{

@@ -70,16 +70,16 @@ func (ru *RelationUpdate) SetNillableState(r *relation.State) *RelationUpdate {
 	return ru
 }
 
-// SetAlterState sets the "alterState" field.
-func (ru *RelationUpdate) SetAlterState(rs relation.AlterState) *RelationUpdate {
-	ru.mutation.SetAlterState(rs)
+// SetAlertState sets the "alertState" field.
+func (ru *RelationUpdate) SetAlertState(rs relation.AlertState) *RelationUpdate {
+	ru.mutation.SetAlertState(rs)
 	return ru
 }
 
-// SetNillableAlterState sets the "alterState" field if the given value is not nil.
-func (ru *RelationUpdate) SetNillableAlterState(rs *relation.AlterState) *RelationUpdate {
+// SetNillableAlertState sets the "alertState" field if the given value is not nil.
+func (ru *RelationUpdate) SetNillableAlertState(rs *relation.AlertState) *RelationUpdate {
 	if rs != nil {
-		ru.SetAlterState(*rs)
+		ru.SetAlertState(*rs)
 	}
 	return ru
 }
@@ -224,9 +224,9 @@ func (ru *RelationUpdate) check() error {
 			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Relation.state": %w`, err)}
 		}
 	}
-	if v, ok := ru.mutation.AlterState(); ok {
-		if err := relation.AlterStateValidator(v); err != nil {
-			return &ValidationError{Name: "alterState", err: fmt.Errorf(`ent: validator failed for field "Relation.alterState": %w`, err)}
+	if v, ok := ru.mutation.AlertState(); ok {
+		if err := relation.AlertStateValidator(v); err != nil {
+			return &ValidationError{Name: "alertState", err: fmt.Errorf(`ent: validator failed for field "Relation.alertState": %w`, err)}
 		}
 	}
 	return nil
@@ -256,8 +256,8 @@ func (ru *RelationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ru.mutation.State(); ok {
 		_spec.SetField(relation.FieldState, field.TypeEnum, value)
 	}
-	if value, ok := ru.mutation.AlterState(); ok {
-		_spec.SetField(relation.FieldAlterState, field.TypeEnum, value)
+	if value, ok := ru.mutation.AlertState(); ok {
+		_spec.SetField(relation.FieldAlertState, field.TypeEnum, value)
 	}
 	if ru.mutation.AvatarCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -422,16 +422,16 @@ func (ruo *RelationUpdateOne) SetNillableState(r *relation.State) *RelationUpdat
 	return ruo
 }
 
-// SetAlterState sets the "alterState" field.
-func (ruo *RelationUpdateOne) SetAlterState(rs relation.AlterState) *RelationUpdateOne {
-	ruo.mutation.SetAlterState(rs)
+// SetAlertState sets the "alertState" field.
+func (ruo *RelationUpdateOne) SetAlertState(rs relation.AlertState) *RelationUpdateOne {
+	ruo.mutation.SetAlertState(rs)
 	return ruo
 }
 
-// SetNillableAlterState sets the "alterState" field if the given value is not nil.
-func (ruo *RelationUpdateOne) SetNillableAlterState(rs *relation.AlterState) *RelationUpdateOne {
+// SetNillableAlertState sets the "alertState" field if the given value is not nil.
+func (ruo *RelationUpdateOne) SetNillableAlertState(rs *relation.AlertState) *RelationUpdateOne {
 	if rs != nil {
-		ruo.SetAlterState(*rs)
+		ruo.SetAlertState(*rs)
 	}
 	return ruo
 }
@@ -589,9 +589,9 @@ func (ruo *RelationUpdateOne) check() error {
 			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Relation.state": %w`, err)}
 		}
 	}
-	if v, ok := ruo.mutation.AlterState(); ok {
-		if err := relation.AlterStateValidator(v); err != nil {
-			return &ValidationError{Name: "alterState", err: fmt.Errorf(`ent: validator failed for field "Relation.alterState": %w`, err)}
+	if v, ok := ruo.mutation.AlertState(); ok {
+		if err := relation.AlertStateValidator(v); err != nil {
+			return &ValidationError{Name: "alertState", err: fmt.Errorf(`ent: validator failed for field "Relation.alertState": %w`, err)}
 		}
 	}
 	return nil
@@ -638,8 +638,8 @@ func (ruo *RelationUpdateOne) sqlSave(ctx context.Context) (_node *Relation, err
 	if value, ok := ruo.mutation.State(); ok {
 		_spec.SetField(relation.FieldState, field.TypeEnum, value)
 	}
-	if value, ok := ruo.mutation.AlterState(); ok {
-		_spec.SetField(relation.FieldAlterState, field.TypeEnum, value)
+	if value, ok := ruo.mutation.AlertState(); ok {
+		_spec.SetField(relation.FieldAlertState, field.TypeEnum, value)
 	}
 	if ruo.mutation.AvatarCleared() {
 		edge := &sqlgraph.EdgeSpec{
