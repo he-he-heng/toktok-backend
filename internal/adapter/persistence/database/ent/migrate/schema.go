@@ -108,6 +108,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "uid", Type: field.TypeString, Size: 18},
 		{Name: "password", Type: field.TypeString, Size: 32},
+		{Name: "email", Type: field.TypeString, Nullable: true},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"admin", "user"}, Default: "user"},
 		{Name: "is_ban", Type: field.TypeBool, Default: false},
 	}

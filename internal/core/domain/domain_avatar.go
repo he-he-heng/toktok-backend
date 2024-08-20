@@ -25,8 +25,7 @@ type Avatar struct {
 	Nickname  string
 	Picture   string
 	Introduce *string
-	IsOnline  bool
-	Status    AvatarStateType
+	State     AvatarStateType
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

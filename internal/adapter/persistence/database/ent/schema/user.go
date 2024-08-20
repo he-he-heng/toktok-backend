@@ -24,6 +24,10 @@ func (User) Fields() []ent.Field {
 			MaxLen(32).
 			NotEmpty(),
 
+		field.String("email").
+			Nillable().
+			Optional(),
+
 		field.Enum("role").
 			Values(
 				"admin",

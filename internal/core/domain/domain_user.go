@@ -13,6 +13,7 @@ type User struct {
 	ID       int
 	UID      string
 	Password string
+	Email    *string
 	Role     UserRoleType
 	IsBan    bool
 

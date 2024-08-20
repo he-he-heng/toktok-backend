@@ -183,7 +183,7 @@ func init() {
 		}
 	}()
 	// userDescIsBan is the schema descriptor for isBan field.
-	userDescIsBan := userFields[3].Descriptor()
+	userDescIsBan := userFields[4].Descriptor()
 	// user.DefaultIsBan holds the default value on creation for the isBan field.
 	user.DefaultIsBan = userDescIsBan.Default.(bool)
 }
