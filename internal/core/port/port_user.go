@@ -14,7 +14,7 @@ type UserRepository interface {
 }
 
 type UserService interface {
-	Register(ctx context.Context, user *domain.User) (*domain.User, error)
+	CreateUser(ctx context.Context, user *domain.User) (*domain.User, error)
 	GetUser(ctx context.Context, id int) (*domain.User, error)
 	ListUsers(ctx context.Context, skip, limit int) ([]*domain.User, error)
 	UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error)
