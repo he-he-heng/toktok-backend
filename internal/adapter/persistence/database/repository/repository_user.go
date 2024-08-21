@@ -6,6 +6,8 @@ import (
 	entuser "toktok-backend/internal/adapter/persistence/database/ent/user"
 	"toktok-backend/internal/adapter/persistence/database/utils"
 	"toktok-backend/internal/core/domain"
+
+	"entgo.io/ent/dialect/sql"
 )
 
 type UserRepository struct {
@@ -48,20 +50,29 @@ func (r *UserRepository) GetUser(ctx context.Context, id int) (*domain.User, err
 	return utils.ToDomainUser(queriedUser), err
 }
 
-func (r *UserRepository) ListUser(ctx context.Context, skip, limit int, filter, order string) ([]*domain.User, error) {
+func (r *UserRepository) ListUser(ctx context.Context, skip, limit int, order, critertion string) ([]*domain.User, error) {
 	builder := r.client.User.Query().
 		Limit(limit).
 		Offset((skip - 1) * limit)
 
-	err := utils.HandleOrderAndFilter(builder, filter, order, utils.FieldMap{
-		DefaultField: "id",
-		Candidates: utils.Candidates{
-			"id":  "id",
-			"uid": "uid",
-		},
-	})
-	if err != nil {
-		return nil, err
+	orderTermOption := sql.OrderAsc()
+	if order == "desc" {
+		orderTermOption = sql.OrderDesc()
+	}
+
+	switch critertion {
+	case "uid":
+		builder.Order(
+			entuser.ByUID(
+				orderTermOption,
+			),
+		)
+	default:
+		builder.Order(
+			entuser.ByID(
+				orderTermOption,
+			),
+		)
 	}
 
 	queriedUsers, err := builder.All(ctx)

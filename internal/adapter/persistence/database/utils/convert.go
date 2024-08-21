@@ -95,3 +95,29 @@ func ToDomainRelations(relations []*ent.Relation) []*domain.Relation {
 
 	return retRelations
 }
+
+func ToDomainMessage(message *ent.Message) *domain.Message {
+	retMessage := domain.Message{
+		ID:         message.ID,
+		AvatarID:   message.Edges.Avatar.ID,
+		RelationID: message.Edges.Relation.ID,
+		State:      domain.MessageStateType(message.State),
+		Content:    message.Content,
+		EnteredAt:  message.EnteredAt,
+
+		CreatedAt: message.CreatedAt,
+		UpdatedAt: message.UpdatedAt,
+		DeletedAt: message.DeletedAt,
+	}
+
+	return &retMessage
+}
+
+func ToDomainMesssages(messages []*ent.Message) []*domain.Message {
+	retMessages := []*domain.Message{}
+	for _, message := range messages {
+		retMessages = append(retMessages, ToDomainMessage(message))
+	}
+
+	return retMessages
+}

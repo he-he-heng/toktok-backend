@@ -2,10 +2,14 @@ package repository
 
 import (
 	"context"
+	"slices"
 	"toktok-backend/internal/adapter/persistence/database"
+	entavatar "toktok-backend/internal/adapter/persistence/database/ent/relation"
 	entrelation "toktok-backend/internal/adapter/persistence/database/ent/relation"
 	"toktok-backend/internal/adapter/persistence/database/utils"
 	"toktok-backend/internal/core/domain"
+
+	"entgo.io/ent/dialect/sql"
 )
 
 type RelationRepository struct {
@@ -47,13 +51,55 @@ func (r *RelationRepository) GetRelation(ctx context.Context, id int) (*domain.R
 	return utils.ToDomainRelation(queriedRelation), nil
 }
 
-func (r *RelationRepository) ListRelation(ctx context.Context, skip, limit int, filter, order string) ([]*domain.Relation, error) {
-	queriedRelations, err := r.client.Relation.Query().
+func (r *RelationRepository) ListRelation(ctx context.Context, skip, limit int, order, criterion string, filter domain.RelationStateType) ([]*domain.Relation, error) {
+	builder := r.client.Relation.Query().
 		Limit(limit).
 		Offset((skip - 1) * limit).
 		WithAvatar().
-		WithFriend().
-		All(ctx)
+		WithFriend()
+
+	validStates := []domain.RelationStateType{
+		domain.Friend,
+		domain.Pending,
+		domain.RequestFriend,
+		domain.Declined,
+		domain.Removed,
+	}
+	if slices.Contains(validStates, filter) {
+		builder.Where(entrelation.StateEQ(entrelation.State(filter)))
+	}
+
+	orderTermOption := sql.OrderAsc()
+	if order == "desc" {
+		orderTermOption = sql.OrderDesc()
+	}
+
+	switch criterion {
+	case "avatar_id":
+		builder.Order(
+			entrelation.ByAvatarField(
+				entavatar.FieldID,
+				orderTermOption,
+			),
+		)
+
+	case "friend_id":
+		builder.Order(
+			entrelation.ByFriendField(
+				entavatar.FieldID,
+				orderTermOption,
+			),
+		)
+
+	case "id":
+		builder.Order(
+			entrelation.ByID(
+				orderTermOption,
+			),
+		)
+	}
+
+	queriedRelations, err := builder.All(ctx)
 	if err != nil {
 		return nil, err
 	}

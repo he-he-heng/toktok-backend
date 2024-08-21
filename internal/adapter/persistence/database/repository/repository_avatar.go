@@ -6,6 +6,8 @@ import (
 	entavatar "toktok-backend/internal/adapter/persistence/database/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/database/utils"
 	"toktok-backend/internal/core/domain"
+
+	"entgo.io/ent/dialect/sql"
 )
 
 type AvatarRepository struct {
@@ -46,18 +48,30 @@ func (r *AvatarRepository) GetAvatar(ctx context.Context, id int) (*domain.Avata
 	return utils.ToDomainAvatar(queriedAvatar), nil
 }
 
-func (r *AvatarRepository) ListAvatar(ctx context.Context, skip, limit int, filter, order string) ([]*domain.Avatar, error) {
-	builder := r.client.Avatar.Query()
+func (r *AvatarRepository) ListAvatar(ctx context.Context, skip, limit int, order, criterion string) ([]*domain.Avatar, error) {
+	builder := r.client.Avatar.Query().
+		Limit(limit).
+		Offset((skip - 1) * limit)
 
-	err := utils.HandleOrderAndFilter(builder, filter, order, utils.FieldMap{
-		DefaultField: "id",
-		Candidates: utils.Candidates{
-			"id":      "id",
-			"user_id": "user_id",
-		},
-	})
-	if err != nil {
-		return nil, err
+	orderTermOption := sql.OrderAsc()
+	if order == "desc" {
+		orderTermOption = sql.OrderDesc()
+	}
+
+	switch criterion {
+	case "nickname":
+		builder.Order(
+			entavatar.ByNickname(
+				orderTermOption,
+			),
+		)
+
+	default:
+		builder.Order(
+			entavatar.ByID(
+				orderTermOption,
+			),
+		)
 	}
 
 	avatars, err := builder.All(ctx)

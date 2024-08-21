@@ -14,6 +14,8 @@ type Message struct {
 	AvatarID   int
 	RelationID int
 	State      MessageStateType
+	Content    string
+	EnteredAt  time.Time
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
