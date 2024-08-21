@@ -113,10 +113,11 @@ const DefaultState = StatePending
 
 // State values.
 const (
-	StateAccepted State = "accepted"
-	StatePending  State = "pending"
-	StateDeclined State = "declined"
-	StateRemoved  State = "removed"
+	StateRequestFriend State = "request-friend"
+	StatePending       State = "pending"
+	StateFriend        State = "friend"
+	StateDecline       State = "decline"
+	StateRemove        State = "remove"
 )
 
 func (s State) String() string {
@@ -126,7 +127,7 @@ func (s State) String() string {
 // StateValidator is a validator for the "state" field enum values. It is called by the builders before save.
 func StateValidator(s State) error {
 	switch s {
-	case StateAccepted, StatePending, StateDeclined, StateRemoved:
+	case StateRequestFriend, StatePending, StateFriend, StateDecline, StateRemove:
 		return nil
 	default:
 		return fmt.Errorf("relation: invalid enum value for state field: %q", s)

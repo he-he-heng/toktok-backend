@@ -75,7 +75,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "state", Type: field.TypeEnum, Enums: []string{"accepted", "pending", "declined", "removed"}, Default: "pending"},
+		{Name: "state", Type: field.TypeEnum, Enums: []string{"request-friend", "pending", "friend", "decline", "remove"}, Default: "pending"},
 		{Name: "alert_state", Type: field.TypeEnum, Enums: []string{"allow", "deny"}, Default: "allow"},
 		{Name: "avatar_avatar_relations", Type: field.TypeInt, Nullable: true},
 		{Name: "avatar_friend_relations", Type: field.TypeInt, Nullable: true},

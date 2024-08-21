@@ -4,9 +4,9 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -391.2456,
-    "scrollLeft": 0,
-    "zoomLevel": 1,
+    "scrollTop": -622.7346,
+    "scrollLeft": -242.5,
+    "zoomLevel": 0.9,
     "show": 431,
     "database": 4,
     "databaseName": "toktok_main",
@@ -50,9 +50,9 @@
     "indexIds": [],
     "memoIds": [
       "EEOdY5H0NCJih7DyckpcT",
-      "TN3L6UdK93Cgk_sxxS6qQ",
       "0RMAcMsZ9p0Ik_f-qunJa",
-      "ZWac6r7OPnRt8o5hQ8ZBm"
+      "ZWac6r7OPnRt8o5hQ8ZBm",
+      "TN3L6UdK93Cgk_sxxS6qQ"
     ]
   },
   "collections": {
@@ -385,12 +385,14 @@
           "lr86Q5KtK5qCAyz34w_dO",
           "0RU_I3apRFJUUc3nBU-5r",
           "xuorqnW9KvDm4r88_XsIN",
+          "2uWR3IAyiSxNc1LRL8jk6",
           "T3uFvbhZEqbcehTURoT71"
         ],
         "seqColumnIds": [
           "lr86Q5KtK5qCAyz34w_dO",
           "0RU_I3apRFJUUc3nBU-5r",
           "xuorqnW9KvDm4r88_XsIN",
+          "2uWR3IAyiSxNc1LRL8jk6",
           "T3uFvbhZEqbcehTURoT71"
         ],
         "ui": {
@@ -402,7 +404,7 @@
           "color": ""
         },
         "meta": {
-          "updateAt": 1724065921575,
+          "updateAt": 1724202320822,
           "createAt": 1724035448405
         }
       },
@@ -2599,6 +2601,26 @@
           "updateAt": 1724124126388,
           "createAt": 1724124119462
         }
+      },
+      "2uWR3IAyiSxNc1LRL8jk6": {
+        "id": "2uWR3IAyiSxNc1LRL8jk6",
+        "tableId": "YvffoalaO1sDNFYQj2n13",
+        "name": "firbase_token",
+        "comment": "",
+        "dataType": "",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 79,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1724202331347,
+          "createAt": 1724202315267
+        }
       }
     },
     "relationshipEntities": {
@@ -2789,8 +2811,8 @@
           "columnIds": [
             "0RU_I3apRFJUUc3nBU-5r"
           ],
-          "x": 352.7402,
-          "y": 345.5405,
+          "x": 353.7402,
+          "y": 369.5405,
           "direction": 8
         },
         "meta": {
@@ -2944,33 +2966,33 @@
     "memoEntities": {
       "EEOdY5H0NCJih7DyckpcT": {
         "id": "EEOdY5H0NCJih7DyckpcT",
-        "value": "type 종류들 \n.\n.\n.",
+        "value": "TODO: firbase_token 대신에 ",
         "ui": {
-          "x": 1,
-          "y": -0.5,
+          "x": 112,
+          "y": 46.5,
           "zIndex": 387,
           "width": 116,
           "height": 100,
           "color": ""
         },
         "meta": {
-          "updateAt": 1723516299425,
+          "updateAt": 1724202353530,
           "createAt": 1723516272905
         }
       },
       "TN3L6UdK93Cgk_sxxS6qQ": {
         "id": "TN3L6UdK93Cgk_sxxS6qQ",
-        "value": "state\nAccepted  = \"accepted\"   // 친구 요청이 수락된 상태Pending   = \"pending\"    // 친구 요청이 대기 중인 상태Declined    = \"declined\"   // 친구 요청이 거절된 상태\nRemoved   = \"removed\"    // 친구 관계가 해제된 상태\n",
+        "value": "state\n- 친추를 요청했을 때 : request-friend\n- 친구 요청을 받고 응답을 안하고 있을 때    : pending\n- 친추를 응했을 때 : receive-firend\n\n-->  friend\n\n\n\n- 거절을 요청했을 때 : request-decline\n- 상대방이 수락하는 개념이 아닌, 바로 거절이 됌\n- 거절을 응했을 때 : receive-decline\n\n--> decline\n\n\n\n- 헤어짐을 요청했을 때 : request-remove\n- 상대방이 수락하는 개념이 아닌, 바로 거절이 됌\n- 헤어짐을 응했을 때 : receive-remove\n\n--> remove\n\n- state ( 현재 관계의 상태를 나타내는 필드 입니다. )\n    - request-friend ( 친구추가를 요청한 상태 )\n    - pending ( 친구추가를 요청했는데, 결정을 하지 않은 상태 )\n    - decline ( 친구추가를 요청했는데, 친구 안하기로 결정한 상태 )\n    - friend ( 친구추가를 요청했는데, 친구 하기로 결정한 상태 )\n    - remove ( 전에는 친구인 상태였는데, 친구끊기로 결정한 상태 )\n\n\n",
         "ui": {
           "x": 808.6944,
           "y": 1248.1029,
           "zIndex": 592,
-          "width": 297,
-          "height": 100,
+          "width": 364,
+          "height": 202,
           "color": ""
         },
         "meta": {
-          "updateAt": 1724067269015,
+          "updateAt": 1724216185961,
           "createAt": 1723527554781
         }
       },
@@ -2994,15 +3016,15 @@
         "id": "ZWac6r7OPnRt8o5hQ8ZBm",
         "value": "들어온 시간, 나간 시간으로 이중 로그인 구현을 막으면 된다.",
         "ui": {
-          "x": 188.75,
-          "y": 1130.8822,
+          "x": 166.25,
+          "y": 1115.8822,
           "zIndex": 977,
           "width": 116,
           "height": 100,
           "color": ""
         },
         "meta": {
-          "updateAt": 1724124166840,
+          "updateAt": 1724198196939,
           "createAt": 1724124148275
         }
       }
@@ -3322,7 +3344,7 @@
       1723516272903,
       -1,
       {
-        "value": 1723516282215
+        "value": 1724202353530
       }
     ],
     "WFqI2FzPYtq7ScbFJGGSb": [
@@ -3510,10 +3532,10 @@
     ],
     "TN3L6UdK93Cgk_sxxS6qQ": [
       "memoEntities",
-      1723527554779,
-      -1,
+      1724211194283,
+      1724211193047,
       {
-        "value": 1724065951286
+        "value": 1724211704543
       }
     ],
     "0RMAcMsZ9p0Ik_f-qunJa": [
@@ -4363,6 +4385,14 @@
       -1,
       {
         "value": 1724124163979
+      }
+    ],
+    "2uWR3IAyiSxNc1LRL8jk6": [
+      "tableColumnEntities",
+      1724202315264,
+      -1,
+      {
+        "name": 1724202331346
       }
     ]
   }

@@ -16,10 +16,11 @@ func (Relation) Fields() []ent.Field {
 	return []ent.Field{
 		field.Enum("state").
 			Values(
-				"accepted",
+				"request-friend",
 				"pending",
-				"declined",
-				"removed",
+				"friend",
+				"decline",
+				"remove",
 			).
 			Default("pending"),
 
