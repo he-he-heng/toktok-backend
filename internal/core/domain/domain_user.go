@@ -5,15 +5,15 @@ import "time"
 type UserRoleType string
 
 const (
-	RoleAdmin = "admin"
-	RoleUser  = "user"
+	UserRoleAdmin = "admin"
+	UserRoleUser  = "user"
 )
 
 type UserBanStateType string
 
 const (
-	BanStateBan   UserBanStateType = "ban"
-	BanStateUnban UserBanStateType = "unban"
+	UserBanStateBan   UserBanStateType = "ban"
+	UserBanStateUnBan UserBanStateType = "unban"
 )
 
 type User struct {

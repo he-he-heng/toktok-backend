@@ -5,8 +5,8 @@ import "time"
 type MessageStateType string
 
 const (
-	Check   MessageStateType = "check"
-	UnCheck MessageStateType = "uncheck"
+	MessageStateCheck   MessageStateType = "check"
+	MessageStateUnCheck MessageStateType = "uncheck"
 )
 
 type Message struct {

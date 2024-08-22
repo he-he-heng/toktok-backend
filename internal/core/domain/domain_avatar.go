@@ -5,15 +5,15 @@ import "time"
 type AvatarSexType string
 
 const (
-	SexFemale AvatarSexType = "female"
-	SexMale   AvatarSexType = "male"
+	AvatarSexFemale AvatarSexType = "female"
+	AvatarSexMale   AvatarSexType = "male"
 )
 
 type AvatarStateType string
 
 const (
-	Online  AvatarStateType = "online"
-	Offline AvatarStateType = "offline"
+	AvatarStateOnline  AvatarStateType = "online"
+	AvatarStateOffline AvatarStateType = "offline"
 )
 
 type Avatar struct {

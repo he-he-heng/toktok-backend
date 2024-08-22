@@ -59,11 +59,11 @@ func (r *RelationRepository) ListRelation(ctx context.Context, skip, limit int, 
 		WithFriend()
 
 	validStates := []domain.RelationStateType{
-		domain.Friend,
-		domain.Pending,
-		domain.RequestFriend,
-		domain.Declined,
-		domain.Removed,
+		domain.RelationStateFriend,
+		domain.RealtionStatePending,
+		domain.RelationStateRequestFriend,
+		domain.RelationStateDeclined,
+		domain.RelationStateRemoved,
 	}
 	if slices.Contains(validStates, filter) {
 		builder.Where(entrelation.StateEQ(entrelation.State(filter)))

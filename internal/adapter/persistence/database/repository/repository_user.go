@@ -25,9 +25,15 @@ func NewUserRepository(client *database.Client) *UserRepository {
 func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
 	builder := r.client.User.Create().
 		SetUID(user.UID).
-		SetPassword(user.Password).
-		SetBanState(entuser.BanState(user.BanState)).
-		SetRole(entuser.Role(user.Role))
+		SetPassword(user.Password)
+
+	if user.BanState != "" {
+		builder.SetBanState(entuser.BanState(user.BanState))
+	}
+
+	if user.Role != "" {
+		builder.SetRole(entuser.Role(user.Role))
+	}
 
 	if user.Email != nil {
 		builder.SetEmail(*user.Email)
