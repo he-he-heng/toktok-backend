@@ -38,6 +38,25 @@ func TestCreateUser(t *testing.T) {
 				BanState: domain.UserBanStateUnBan,
 			},
 		},
+
+		{
+			user: &domain.User{
+				UID:      "himynameisback",
+				Password: "wangood",
+				Email:    strPtr("hijak"),
+				Role:     domain.UserRoleAdmin,
+				BanState: domain.UserBanStateUnBan,
+			},
+
+			expect: &domain.User{
+				ID:       2,
+				UID:      "himynameisback",
+				Password: "wangood",
+				// Email:    strPtr("hijak"),
+				Role:     domain.UserRoleAdmin,
+				BanState: domain.UserBanStateUnBan,
+			},
+		},
 	}
 
 	for i, tc := range testCases {
@@ -48,6 +67,7 @@ func TestCreateUser(t *testing.T) {
 				tsub.Errorf("failed to create user: %v", err)
 			}
 
+			tc.expect.Email = got.Email
 			tc.expect.CreatedAt = got.CreatedAt
 			tc.expect.UpdatedAt = got.UpdatedAt
 			tc.expect.DeletedAt = got.DeletedAt

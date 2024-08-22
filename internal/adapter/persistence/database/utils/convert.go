@@ -14,6 +14,7 @@ func ToDomainUser(user *ent.User) *domain.User {
 		ID:       user.ID,
 		UID:      user.UID,
 		Password: user.Password,
+		Email:    user.Email,
 		Role:     domain.UserRoleType(user.Role),
 		BanState: domain.UserBanStateType(user.BanState),
 
