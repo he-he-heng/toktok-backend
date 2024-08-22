@@ -72,7 +72,7 @@ func setupContainer() (testcontainers.Container, error) {
 	// MySQL 컨테이너 설정
 	req := testcontainers.ContainerRequest{
 		Image:        "mysql:8.0.36",
-		ExposedPorts: []string{"3306/tcp"},
+		ExposedPorts: []string{"3306/tcp", "33060/tcp"},
 		Env: map[string]string{
 			"MYSQL_ROOT_PASSWORD": "1234",
 			"MYSQL_DATABASE":      "test",
@@ -104,7 +104,7 @@ func (p *Provider) getDatabaseDsn(ctx context.Context) (string, error) {
 	}
 
 	// 매핑된 포트 얻기
-	port, err := p.container.MappedPort(ctx, "3306")
+	port, err := p.container.MappedPort(ctx, "3306/tcp")
 	if err != nil {
 		return "", err
 	}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"toktok-backend/internal/adapter/persistence/database"
 	entuser "toktok-backend/internal/adapter/persistence/database/ent/user"
 	"toktok-backend/internal/adapter/persistence/database/utils"
@@ -92,23 +93,25 @@ func (r *UserRepository) ListUser(ctx context.Context, skip, limit int, order, c
 func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
 	builder := r.client.User.UpdateOneID(user.ID)
 
-	if utils.Changeable(user.UID) {
+	fmt.Printf("user: %+v", user)
+
+	if user.UID != "" {
 		builder.SetUID(user.UID)
 	}
 
-	if utils.Changeable(user.Password) {
-		builder.SetUID(user.Password)
+	if user.Password != "" {
+		builder.SetPassword(user.Password)
 	}
 
-	if utils.Changeable(user.Role) {
-		builder.SetUID(user.Password)
+	if user.Role != "" {
+		builder.SetRole(entuser.Role(user.Role))
 	}
 
 	if user.Email != nil {
 		builder.SetEmail(*user.Email)
 	}
 
-	if utils.Changeable(user.BanState) {
+	if user.BanState != "" {
 		builder.SetBanState(entuser.BanState(user.BanState))
 	}
 

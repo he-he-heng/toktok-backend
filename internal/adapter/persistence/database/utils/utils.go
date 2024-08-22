@@ -9,7 +9,7 @@ type changeable interface {
 }
 
 func Changeable[T changeable](arg T) bool {
-	return len(arg) == 0
+	return len(arg) != 0
 }
 
 type Candidates map[string]string
