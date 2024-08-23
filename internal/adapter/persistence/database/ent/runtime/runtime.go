@@ -20,16 +20,16 @@ func init() {
 	avatar.Hooks[0] = avatarMixinHooks0[0]
 	avatarMixinInters0 := avatarMixin[0].Interceptors()
 	avatar.Interceptors[0] = avatarMixinInters0[0]
-	avatarMixinFields0 := avatarMixin[0].Fields()
-	_ = avatarMixinFields0
+	avatarMixinFields1 := avatarMixin[1].Fields()
+	_ = avatarMixinFields1
 	avatarFields := schema.Avatar{}.Fields()
 	_ = avatarFields
 	// avatarDescCreatedAt is the schema descriptor for created_at field.
-	avatarDescCreatedAt := avatarMixinFields0[0].Descriptor()
+	avatarDescCreatedAt := avatarMixinFields1[0].Descriptor()
 	// avatar.DefaultCreatedAt holds the default value on creation for the created_at field.
 	avatar.DefaultCreatedAt = avatarDescCreatedAt.Default.(func() time.Time)
 	// avatarDescUpdatedAt is the schema descriptor for updated_at field.
-	avatarDescUpdatedAt := avatarMixinFields0[1].Descriptor()
+	avatarDescUpdatedAt := avatarMixinFields1[1].Descriptor()
 	// avatar.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	avatar.DefaultUpdatedAt = avatarDescUpdatedAt.Default.(func() time.Time)
 	// avatar.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -84,16 +84,16 @@ func init() {
 	message.Hooks[0] = messageMixinHooks0[0]
 	messageMixinInters0 := messageMixin[0].Interceptors()
 	message.Interceptors[0] = messageMixinInters0[0]
-	messageMixinFields0 := messageMixin[0].Fields()
-	_ = messageMixinFields0
+	messageMixinFields1 := messageMixin[1].Fields()
+	_ = messageMixinFields1
 	messageFields := schema.Message{}.Fields()
 	_ = messageFields
 	// messageDescCreatedAt is the schema descriptor for created_at field.
-	messageDescCreatedAt := messageMixinFields0[0].Descriptor()
+	messageDescCreatedAt := messageMixinFields1[0].Descriptor()
 	// message.DefaultCreatedAt holds the default value on creation for the created_at field.
 	message.DefaultCreatedAt = messageDescCreatedAt.Default.(func() time.Time)
 	// messageDescUpdatedAt is the schema descriptor for updated_at field.
-	messageDescUpdatedAt := messageMixinFields0[1].Descriptor()
+	messageDescUpdatedAt := messageMixinFields1[1].Descriptor()
 	// message.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	message.DefaultUpdatedAt = messageDescUpdatedAt.Default.(func() time.Time)
 	// message.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -102,25 +102,25 @@ func init() {
 	messageDescContent := messageFields[1].Descriptor()
 	// message.ContentValidator is a validator for the "content" field. It is called by the builders before save.
 	message.ContentValidator = messageDescContent.Validators[0].(func(string) error)
-	// messageDescEnteredAt is the schema descriptor for enteredAt field.
+	// messageDescEnteredAt is the schema descriptor for entered_at field.
 	messageDescEnteredAt := messageFields[2].Descriptor()
-	// message.DefaultEnteredAt holds the default value on creation for the enteredAt field.
+	// message.DefaultEnteredAt holds the default value on creation for the entered_at field.
 	message.DefaultEnteredAt = messageDescEnteredAt.Default.(func() time.Time)
 	relationMixin := schema.Relation{}.Mixin()
 	relationMixinHooks0 := relationMixin[0].Hooks()
 	relation.Hooks[0] = relationMixinHooks0[0]
 	relationMixinInters0 := relationMixin[0].Interceptors()
 	relation.Interceptors[0] = relationMixinInters0[0]
-	relationMixinFields0 := relationMixin[0].Fields()
-	_ = relationMixinFields0
+	relationMixinFields1 := relationMixin[1].Fields()
+	_ = relationMixinFields1
 	relationFields := schema.Relation{}.Fields()
 	_ = relationFields
 	// relationDescCreatedAt is the schema descriptor for created_at field.
-	relationDescCreatedAt := relationMixinFields0[0].Descriptor()
+	relationDescCreatedAt := relationMixinFields1[0].Descriptor()
 	// relation.DefaultCreatedAt holds the default value on creation for the created_at field.
 	relation.DefaultCreatedAt = relationDescCreatedAt.Default.(func() time.Time)
 	// relationDescUpdatedAt is the schema descriptor for updated_at field.
-	relationDescUpdatedAt := relationMixinFields0[1].Descriptor()
+	relationDescUpdatedAt := relationMixinFields1[1].Descriptor()
 	// relation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	relation.DefaultUpdatedAt = relationDescUpdatedAt.Default.(func() time.Time)
 	// relation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -130,16 +130,16 @@ func init() {
 	user.Hooks[0] = userMixinHooks0[0]
 	userMixinInters0 := userMixin[0].Interceptors()
 	user.Interceptors[0] = userMixinInters0[0]
-	userMixinFields0 := userMixin[0].Fields()
-	_ = userMixinFields0
+	userMixinFields1 := userMixin[1].Fields()
+	_ = userMixinFields1
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userMixinFields0[0].Descriptor()
+	userDescCreatedAt := userMixinFields1[0].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
 	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 	// userDescUpdatedAt is the schema descriptor for updated_at field.
-	userDescUpdatedAt := userMixinFields0[1].Descriptor()
+	userDescUpdatedAt := userMixinFields1[1].Descriptor()
 	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

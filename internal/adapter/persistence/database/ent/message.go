@@ -19,18 +19,18 @@ type Message struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// State holds the value of the "state" field.
 	State message.State `json:"state,omitempty"`
 	// Content holds the value of the "content" field.
 	Content string `json:"content,omitempty"`
-	// EnteredAt holds the value of the "enteredAt" field.
-	EnteredAt time.Time `json:"enteredAt,omitempty"`
+	// EnteredAt holds the value of the "entered_at" field.
+	EnteredAt time.Time `json:"entered_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MessageQuery when eager-loading is set.
 	Edges             MessageEdges `json:"edges"`
@@ -81,7 +81,7 @@ func (*Message) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case message.FieldState, message.FieldContent:
 			values[i] = new(sql.NullString)
-		case message.FieldCreatedAt, message.FieldUpdatedAt, message.FieldDeletedAt, message.FieldEnteredAt:
+		case message.FieldDeletedAt, message.FieldCreatedAt, message.FieldUpdatedAt, message.FieldEnteredAt:
 			values[i] = new(sql.NullTime)
 		case message.ForeignKeys[0]: // avatar_messages
 			values[i] = new(sql.NullInt64)
@@ -108,6 +108,12 @@ func (m *Message) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			m.ID = int(value.Int64)
+		case message.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				m.DeletedAt = value.Time
+			}
 		case message.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -119,13 +125,6 @@ func (m *Message) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				m.UpdatedAt = value.Time
-			}
-		case message.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				m.DeletedAt = new(time.Time)
-				*m.DeletedAt = value.Time
 			}
 		case message.FieldState:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -141,7 +140,7 @@ func (m *Message) assignValues(columns []string, values []any) error {
 			}
 		case message.FieldEnteredAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field enteredAt", values[i])
+				return fmt.Errorf("unexpected type %T for field entered_at", values[i])
 			} else if value.Valid {
 				m.EnteredAt = value.Time
 			}
@@ -205,16 +204,14 @@ func (m *Message) String() string {
 	var builder strings.Builder
 	builder.WriteString("Message(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", m.ID))
+	builder.WriteString("deleted_at=")
+	builder.WriteString(m.DeletedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(m.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := m.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteString(", ")
 	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", m.State))
@@ -222,7 +219,7 @@ func (m *Message) String() string {
 	builder.WriteString("content=")
 	builder.WriteString(m.Content)
 	builder.WriteString(", ")
-	builder.WriteString("enteredAt=")
+	builder.WriteString("entered_at=")
 	builder.WriteString(m.EnteredAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()

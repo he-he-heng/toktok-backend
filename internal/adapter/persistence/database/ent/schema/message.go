@@ -25,7 +25,7 @@ func (Message) Fields() []ent.Field {
 		field.String("content").
 			NotEmpty(),
 
-		field.Time("enteredAt").
+		field.Time("entered_at").
 			Default(time.Now),
 	}
 }
@@ -45,6 +45,7 @@ func (Message) Edges() []ent.Edge {
 
 func (Message) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		SoftDeleteMixin{},
 		TimeMixin{},
 	}
 }

@@ -16,12 +16,12 @@ const (
 	Label = "avatar"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 	// FieldSex holds the string denoting the sex field in the database.
 	FieldSex = "sex"
 	// FieldBirthday holds the string denoting the birthday field in the database.
@@ -38,10 +38,10 @@ const (
 	FieldState = "state"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
-	// EdgeAvatarRelations holds the string denoting the avatarrelations edge name in mutations.
-	EdgeAvatarRelations = "avatarRelations"
-	// EdgeFriendRelations holds the string denoting the friendrelations edge name in mutations.
-	EdgeFriendRelations = "friendRelations"
+	// EdgeAvatarRelations holds the string denoting the avatar_relations edge name in mutations.
+	EdgeAvatarRelations = "avatar_relations"
+	// EdgeFriendRelations holds the string denoting the friend_relations edge name in mutations.
+	EdgeFriendRelations = "friend_relations"
 	// EdgeMessages holds the string denoting the messages edge name in mutations.
 	EdgeMessages = "messages"
 	// Table holds the table name of the avatar in the database.
@@ -53,19 +53,19 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_avatar"
-	// AvatarRelationsTable is the table that holds the avatarRelations relation/edge.
+	// AvatarRelationsTable is the table that holds the avatar_relations relation/edge.
 	AvatarRelationsTable = "relations"
 	// AvatarRelationsInverseTable is the table name for the Relation entity.
 	// It exists in this package in order to avoid circular dependency with the "relation" package.
 	AvatarRelationsInverseTable = "relations"
-	// AvatarRelationsColumn is the table column denoting the avatarRelations relation/edge.
+	// AvatarRelationsColumn is the table column denoting the avatar_relations relation/edge.
 	AvatarRelationsColumn = "avatar_avatar_relations"
-	// FriendRelationsTable is the table that holds the friendRelations relation/edge.
+	// FriendRelationsTable is the table that holds the friend_relations relation/edge.
 	FriendRelationsTable = "relations"
 	// FriendRelationsInverseTable is the table name for the Relation entity.
 	// It exists in this package in order to avoid circular dependency with the "relation" package.
 	FriendRelationsInverseTable = "relations"
-	// FriendRelationsColumn is the table column denoting the friendRelations relation/edge.
+	// FriendRelationsColumn is the table column denoting the friend_relations relation/edge.
 	FriendRelationsColumn = "avatar_friend_relations"
 	// MessagesTable is the table that holds the messages relation/edge.
 	MessagesTable = "messages"
@@ -79,9 +79,9 @@ const (
 // Columns holds all SQL columns for avatar fields.
 var Columns = []string{
 	FieldID,
+	FieldDeletedAt,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldDeletedAt,
 	FieldSex,
 	FieldBirthday,
 	FieldMbti,
@@ -159,7 +159,7 @@ func SexValidator(s Sex) error {
 	}
 }
 
-// State defines the type for the "State" enum field.
+// State defines the type for the "state" enum field.
 type State string
 
 // StateOnline is the default value of the State enum.
@@ -171,17 +171,17 @@ const (
 	StateOffline State = "offline"
 )
 
-func (_state State) String() string {
-	return string(_state)
+func (s State) String() string {
+	return string(s)
 }
 
-// StateValidator is a validator for the "State" field enum values. It is called by the builders before save.
-func StateValidator(_state State) error {
-	switch _state {
+// StateValidator is a validator for the "state" field enum values. It is called by the builders before save.
+func StateValidator(s State) error {
+	switch s {
 	case StateOnline, StateOffline:
 		return nil
 	default:
-		return fmt.Errorf("avatar: invalid enum value for State field: %q", _state)
+		return fmt.Errorf("avatar: invalid enum value for state field: %q", s)
 	}
 }
 
@@ -193,6 +193,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -201,11 +206,6 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // BySex orders the results by the sex field.
@@ -238,7 +238,7 @@ func ByIntroduce(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIntroduce, opts...).ToFunc()
 }
 
-// ByState orders the results by the State field.
+// ByState orders the results by the state field.
 func ByState(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldState, opts...).ToFunc()
 }
@@ -250,28 +250,28 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByAvatarRelationsCount orders the results by avatarRelations count.
+// ByAvatarRelationsCount orders the results by avatar_relations count.
 func ByAvatarRelationsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborsCount(s, newAvatarRelationsStep(), opts...)
 	}
 }
 
-// ByAvatarRelations orders the results by avatarRelations terms.
+// ByAvatarRelations orders the results by avatar_relations terms.
 func ByAvatarRelations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newAvatarRelationsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
-// ByFriendRelationsCount orders the results by friendRelations count.
+// ByFriendRelationsCount orders the results by friend_relations count.
 func ByFriendRelationsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborsCount(s, newFriendRelationsStep(), opts...)
 	}
 }
 
-// ByFriendRelations orders the results by friendRelations terms.
+// ByFriendRelations orders the results by friend_relations terms.
 func ByFriendRelations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newFriendRelationsStep(), append([]sql.OrderTerm{term}, terms...)...)

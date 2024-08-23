@@ -30,12 +30,6 @@ func (ru *RelationUpdate) Where(ps ...predicate.Relation) *RelationUpdate {
 	return ru
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (ru *RelationUpdate) SetUpdatedAt(t time.Time) *RelationUpdate {
-	ru.mutation.SetUpdatedAt(t)
-	return ru
-}
-
 // SetDeletedAt sets the "deleted_at" field.
 func (ru *RelationUpdate) SetDeletedAt(t time.Time) *RelationUpdate {
 	ru.mutation.SetDeletedAt(t)
@@ -53,6 +47,12 @@ func (ru *RelationUpdate) SetNillableDeletedAt(t *time.Time) *RelationUpdate {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (ru *RelationUpdate) ClearDeletedAt() *RelationUpdate {
 	ru.mutation.ClearDeletedAt()
+	return ru
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ru *RelationUpdate) SetUpdatedAt(t time.Time) *RelationUpdate {
+	ru.mutation.SetUpdatedAt(t)
 	return ru
 }
 
@@ -244,14 +244,14 @@ func (ru *RelationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := ru.mutation.UpdatedAt(); ok {
-		_spec.SetField(relation.FieldUpdatedAt, field.TypeTime, value)
-	}
 	if value, ok := ru.mutation.DeletedAt(); ok {
 		_spec.SetField(relation.FieldDeletedAt, field.TypeTime, value)
 	}
 	if ru.mutation.DeletedAtCleared() {
 		_spec.ClearField(relation.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := ru.mutation.UpdatedAt(); ok {
+		_spec.SetField(relation.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := ru.mutation.State(); ok {
 		_spec.SetField(relation.FieldState, field.TypeEnum, value)
@@ -382,12 +382,6 @@ type RelationUpdateOne struct {
 	mutation *RelationMutation
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (ruo *RelationUpdateOne) SetUpdatedAt(t time.Time) *RelationUpdateOne {
-	ruo.mutation.SetUpdatedAt(t)
-	return ruo
-}
-
 // SetDeletedAt sets the "deleted_at" field.
 func (ruo *RelationUpdateOne) SetDeletedAt(t time.Time) *RelationUpdateOne {
 	ruo.mutation.SetDeletedAt(t)
@@ -405,6 +399,12 @@ func (ruo *RelationUpdateOne) SetNillableDeletedAt(t *time.Time) *RelationUpdate
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (ruo *RelationUpdateOne) ClearDeletedAt() *RelationUpdateOne {
 	ruo.mutation.ClearDeletedAt()
+	return ruo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ruo *RelationUpdateOne) SetUpdatedAt(t time.Time) *RelationUpdateOne {
+	ruo.mutation.SetUpdatedAt(t)
 	return ruo
 }
 
@@ -626,14 +626,14 @@ func (ruo *RelationUpdateOne) sqlSave(ctx context.Context) (_node *Relation, err
 			}
 		}
 	}
-	if value, ok := ruo.mutation.UpdatedAt(); ok {
-		_spec.SetField(relation.FieldUpdatedAt, field.TypeTime, value)
-	}
 	if value, ok := ruo.mutation.DeletedAt(); ok {
 		_spec.SetField(relation.FieldDeletedAt, field.TypeTime, value)
 	}
 	if ruo.mutation.DeletedAtCleared() {
 		_spec.ClearField(relation.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := ruo.mutation.UpdatedAt(); ok {
+		_spec.SetField(relation.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := ruo.mutation.State(); ok {
 		_spec.SetField(relation.FieldState, field.TypeEnum, value)

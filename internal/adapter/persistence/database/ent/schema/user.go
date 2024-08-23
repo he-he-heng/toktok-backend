@@ -35,7 +35,7 @@ func (User) Fields() []ent.Field {
 			).
 			Default("user"),
 
-		field.Enum("banState").
+		field.Enum("ban_state").
 			Values(
 				"ban",
 				"unban",
@@ -53,6 +53,7 @@ func (User) Edges() []ent.Edge {
 
 func (User) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		SoftDeleteMixin{},
 		TimeMixin{},
 	}
 }

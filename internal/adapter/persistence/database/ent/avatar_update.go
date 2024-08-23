@@ -31,12 +31,6 @@ func (au *AvatarUpdate) Where(ps ...predicate.Avatar) *AvatarUpdate {
 	return au
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (au *AvatarUpdate) SetUpdatedAt(t time.Time) *AvatarUpdate {
-	au.mutation.SetUpdatedAt(t)
-	return au
-}
-
 // SetDeletedAt sets the "deleted_at" field.
 func (au *AvatarUpdate) SetDeletedAt(t time.Time) *AvatarUpdate {
 	au.mutation.SetDeletedAt(t)
@@ -54,6 +48,12 @@ func (au *AvatarUpdate) SetNillableDeletedAt(t *time.Time) *AvatarUpdate {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (au *AvatarUpdate) ClearDeletedAt() *AvatarUpdate {
 	au.mutation.ClearDeletedAt()
+	return au
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (au *AvatarUpdate) SetUpdatedAt(t time.Time) *AvatarUpdate {
+	au.mutation.SetUpdatedAt(t)
 	return au
 }
 
@@ -153,13 +153,13 @@ func (au *AvatarUpdate) ClearIntroduce() *AvatarUpdate {
 	return au
 }
 
-// SetState sets the "State" field.
+// SetState sets the "state" field.
 func (au *AvatarUpdate) SetState(a avatar.State) *AvatarUpdate {
 	au.mutation.SetState(a)
 	return au
 }
 
-// SetNillableState sets the "State" field if the given value is not nil.
+// SetNillableState sets the "state" field if the given value is not nil.
 func (au *AvatarUpdate) SetNillableState(a *avatar.State) *AvatarUpdate {
 	if a != nil {
 		au.SetState(*a)
@@ -178,13 +178,13 @@ func (au *AvatarUpdate) SetUser(u *User) *AvatarUpdate {
 	return au.SetUserID(u.ID)
 }
 
-// AddAvatarRelationIDs adds the "avatarRelations" edge to the Relation entity by IDs.
+// AddAvatarRelationIDs adds the "avatar_relations" edge to the Relation entity by IDs.
 func (au *AvatarUpdate) AddAvatarRelationIDs(ids ...int) *AvatarUpdate {
 	au.mutation.AddAvatarRelationIDs(ids...)
 	return au
 }
 
-// AddAvatarRelations adds the "avatarRelations" edges to the Relation entity.
+// AddAvatarRelations adds the "avatar_relations" edges to the Relation entity.
 func (au *AvatarUpdate) AddAvatarRelations(r ...*Relation) *AvatarUpdate {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -193,13 +193,13 @@ func (au *AvatarUpdate) AddAvatarRelations(r ...*Relation) *AvatarUpdate {
 	return au.AddAvatarRelationIDs(ids...)
 }
 
-// AddFriendRelationIDs adds the "friendRelations" edge to the Relation entity by IDs.
+// AddFriendRelationIDs adds the "friend_relations" edge to the Relation entity by IDs.
 func (au *AvatarUpdate) AddFriendRelationIDs(ids ...int) *AvatarUpdate {
 	au.mutation.AddFriendRelationIDs(ids...)
 	return au
 }
 
-// AddFriendRelations adds the "friendRelations" edges to the Relation entity.
+// AddFriendRelations adds the "friend_relations" edges to the Relation entity.
 func (au *AvatarUpdate) AddFriendRelations(r ...*Relation) *AvatarUpdate {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -234,19 +234,19 @@ func (au *AvatarUpdate) ClearUser() *AvatarUpdate {
 	return au
 }
 
-// ClearAvatarRelations clears all "avatarRelations" edges to the Relation entity.
+// ClearAvatarRelations clears all "avatar_relations" edges to the Relation entity.
 func (au *AvatarUpdate) ClearAvatarRelations() *AvatarUpdate {
 	au.mutation.ClearAvatarRelations()
 	return au
 }
 
-// RemoveAvatarRelationIDs removes the "avatarRelations" edge to Relation entities by IDs.
+// RemoveAvatarRelationIDs removes the "avatar_relations" edge to Relation entities by IDs.
 func (au *AvatarUpdate) RemoveAvatarRelationIDs(ids ...int) *AvatarUpdate {
 	au.mutation.RemoveAvatarRelationIDs(ids...)
 	return au
 }
 
-// RemoveAvatarRelations removes "avatarRelations" edges to Relation entities.
+// RemoveAvatarRelations removes "avatar_relations" edges to Relation entities.
 func (au *AvatarUpdate) RemoveAvatarRelations(r ...*Relation) *AvatarUpdate {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -255,19 +255,19 @@ func (au *AvatarUpdate) RemoveAvatarRelations(r ...*Relation) *AvatarUpdate {
 	return au.RemoveAvatarRelationIDs(ids...)
 }
 
-// ClearFriendRelations clears all "friendRelations" edges to the Relation entity.
+// ClearFriendRelations clears all "friend_relations" edges to the Relation entity.
 func (au *AvatarUpdate) ClearFriendRelations() *AvatarUpdate {
 	au.mutation.ClearFriendRelations()
 	return au
 }
 
-// RemoveFriendRelationIDs removes the "friendRelations" edge to Relation entities by IDs.
+// RemoveFriendRelationIDs removes the "friend_relations" edge to Relation entities by IDs.
 func (au *AvatarUpdate) RemoveFriendRelationIDs(ids ...int) *AvatarUpdate {
 	au.mutation.RemoveFriendRelationIDs(ids...)
 	return au
 }
 
-// RemoveFriendRelations removes "friendRelations" edges to Relation entities.
+// RemoveFriendRelations removes "friend_relations" edges to Relation entities.
 func (au *AvatarUpdate) RemoveFriendRelations(r ...*Relation) *AvatarUpdate {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -368,7 +368,7 @@ func (au *AvatarUpdate) check() error {
 	}
 	if v, ok := au.mutation.State(); ok {
 		if err := avatar.StateValidator(v); err != nil {
-			return &ValidationError{Name: "State", err: fmt.Errorf(`ent: validator failed for field "Avatar.State": %w`, err)}
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Avatar.state": %w`, err)}
 		}
 	}
 	if au.mutation.UserCleared() && len(au.mutation.UserIDs()) > 0 {
@@ -389,14 +389,14 @@ func (au *AvatarUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := au.mutation.UpdatedAt(); ok {
-		_spec.SetField(avatar.FieldUpdatedAt, field.TypeTime, value)
-	}
 	if value, ok := au.mutation.DeletedAt(); ok {
 		_spec.SetField(avatar.FieldDeletedAt, field.TypeTime, value)
 	}
 	if au.mutation.DeletedAtCleared() {
 		_spec.ClearField(avatar.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := au.mutation.UpdatedAt(); ok {
+		_spec.SetField(avatar.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := au.mutation.Sex(); ok {
 		_spec.SetField(avatar.FieldSex, field.TypeEnum, value)
@@ -609,12 +609,6 @@ type AvatarUpdateOne struct {
 	mutation *AvatarMutation
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (auo *AvatarUpdateOne) SetUpdatedAt(t time.Time) *AvatarUpdateOne {
-	auo.mutation.SetUpdatedAt(t)
-	return auo
-}
-
 // SetDeletedAt sets the "deleted_at" field.
 func (auo *AvatarUpdateOne) SetDeletedAt(t time.Time) *AvatarUpdateOne {
 	auo.mutation.SetDeletedAt(t)
@@ -632,6 +626,12 @@ func (auo *AvatarUpdateOne) SetNillableDeletedAt(t *time.Time) *AvatarUpdateOne 
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (auo *AvatarUpdateOne) ClearDeletedAt() *AvatarUpdateOne {
 	auo.mutation.ClearDeletedAt()
+	return auo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (auo *AvatarUpdateOne) SetUpdatedAt(t time.Time) *AvatarUpdateOne {
+	auo.mutation.SetUpdatedAt(t)
 	return auo
 }
 
@@ -731,13 +731,13 @@ func (auo *AvatarUpdateOne) ClearIntroduce() *AvatarUpdateOne {
 	return auo
 }
 
-// SetState sets the "State" field.
+// SetState sets the "state" field.
 func (auo *AvatarUpdateOne) SetState(a avatar.State) *AvatarUpdateOne {
 	auo.mutation.SetState(a)
 	return auo
 }
 
-// SetNillableState sets the "State" field if the given value is not nil.
+// SetNillableState sets the "state" field if the given value is not nil.
 func (auo *AvatarUpdateOne) SetNillableState(a *avatar.State) *AvatarUpdateOne {
 	if a != nil {
 		auo.SetState(*a)
@@ -756,13 +756,13 @@ func (auo *AvatarUpdateOne) SetUser(u *User) *AvatarUpdateOne {
 	return auo.SetUserID(u.ID)
 }
 
-// AddAvatarRelationIDs adds the "avatarRelations" edge to the Relation entity by IDs.
+// AddAvatarRelationIDs adds the "avatar_relations" edge to the Relation entity by IDs.
 func (auo *AvatarUpdateOne) AddAvatarRelationIDs(ids ...int) *AvatarUpdateOne {
 	auo.mutation.AddAvatarRelationIDs(ids...)
 	return auo
 }
 
-// AddAvatarRelations adds the "avatarRelations" edges to the Relation entity.
+// AddAvatarRelations adds the "avatar_relations" edges to the Relation entity.
 func (auo *AvatarUpdateOne) AddAvatarRelations(r ...*Relation) *AvatarUpdateOne {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -771,13 +771,13 @@ func (auo *AvatarUpdateOne) AddAvatarRelations(r ...*Relation) *AvatarUpdateOne 
 	return auo.AddAvatarRelationIDs(ids...)
 }
 
-// AddFriendRelationIDs adds the "friendRelations" edge to the Relation entity by IDs.
+// AddFriendRelationIDs adds the "friend_relations" edge to the Relation entity by IDs.
 func (auo *AvatarUpdateOne) AddFriendRelationIDs(ids ...int) *AvatarUpdateOne {
 	auo.mutation.AddFriendRelationIDs(ids...)
 	return auo
 }
 
-// AddFriendRelations adds the "friendRelations" edges to the Relation entity.
+// AddFriendRelations adds the "friend_relations" edges to the Relation entity.
 func (auo *AvatarUpdateOne) AddFriendRelations(r ...*Relation) *AvatarUpdateOne {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -812,19 +812,19 @@ func (auo *AvatarUpdateOne) ClearUser() *AvatarUpdateOne {
 	return auo
 }
 
-// ClearAvatarRelations clears all "avatarRelations" edges to the Relation entity.
+// ClearAvatarRelations clears all "avatar_relations" edges to the Relation entity.
 func (auo *AvatarUpdateOne) ClearAvatarRelations() *AvatarUpdateOne {
 	auo.mutation.ClearAvatarRelations()
 	return auo
 }
 
-// RemoveAvatarRelationIDs removes the "avatarRelations" edge to Relation entities by IDs.
+// RemoveAvatarRelationIDs removes the "avatar_relations" edge to Relation entities by IDs.
 func (auo *AvatarUpdateOne) RemoveAvatarRelationIDs(ids ...int) *AvatarUpdateOne {
 	auo.mutation.RemoveAvatarRelationIDs(ids...)
 	return auo
 }
 
-// RemoveAvatarRelations removes "avatarRelations" edges to Relation entities.
+// RemoveAvatarRelations removes "avatar_relations" edges to Relation entities.
 func (auo *AvatarUpdateOne) RemoveAvatarRelations(r ...*Relation) *AvatarUpdateOne {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -833,19 +833,19 @@ func (auo *AvatarUpdateOne) RemoveAvatarRelations(r ...*Relation) *AvatarUpdateO
 	return auo.RemoveAvatarRelationIDs(ids...)
 }
 
-// ClearFriendRelations clears all "friendRelations" edges to the Relation entity.
+// ClearFriendRelations clears all "friend_relations" edges to the Relation entity.
 func (auo *AvatarUpdateOne) ClearFriendRelations() *AvatarUpdateOne {
 	auo.mutation.ClearFriendRelations()
 	return auo
 }
 
-// RemoveFriendRelationIDs removes the "friendRelations" edge to Relation entities by IDs.
+// RemoveFriendRelationIDs removes the "friend_relations" edge to Relation entities by IDs.
 func (auo *AvatarUpdateOne) RemoveFriendRelationIDs(ids ...int) *AvatarUpdateOne {
 	auo.mutation.RemoveFriendRelationIDs(ids...)
 	return auo
 }
 
-// RemoveFriendRelations removes "friendRelations" edges to Relation entities.
+// RemoveFriendRelations removes "friend_relations" edges to Relation entities.
 func (auo *AvatarUpdateOne) RemoveFriendRelations(r ...*Relation) *AvatarUpdateOne {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -959,7 +959,7 @@ func (auo *AvatarUpdateOne) check() error {
 	}
 	if v, ok := auo.mutation.State(); ok {
 		if err := avatar.StateValidator(v); err != nil {
-			return &ValidationError{Name: "State", err: fmt.Errorf(`ent: validator failed for field "Avatar.State": %w`, err)}
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Avatar.state": %w`, err)}
 		}
 	}
 	if auo.mutation.UserCleared() && len(auo.mutation.UserIDs()) > 0 {
@@ -997,14 +997,14 @@ func (auo *AvatarUpdateOne) sqlSave(ctx context.Context) (_node *Avatar, err err
 			}
 		}
 	}
-	if value, ok := auo.mutation.UpdatedAt(); ok {
-		_spec.SetField(avatar.FieldUpdatedAt, field.TypeTime, value)
-	}
 	if value, ok := auo.mutation.DeletedAt(); ok {
 		_spec.SetField(avatar.FieldDeletedAt, field.TypeTime, value)
 	}
 	if auo.mutation.DeletedAtCleared() {
 		_spec.ClearField(avatar.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := auo.mutation.UpdatedAt(); ok {
+		_spec.SetField(avatar.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := auo.mutation.Sex(); ok {
 		_spec.SetField(avatar.FieldSex, field.TypeEnum, value)

@@ -22,6 +22,20 @@ type MessageCreate struct {
 	hooks    []Hook
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (mc *MessageCreate) SetDeletedAt(t time.Time) *MessageCreate {
+	mc.mutation.SetDeletedAt(t)
+	return mc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mc *MessageCreate) SetNillableDeletedAt(t *time.Time) *MessageCreate {
+	if t != nil {
+		mc.SetDeletedAt(*t)
+	}
+	return mc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (mc *MessageCreate) SetCreatedAt(t time.Time) *MessageCreate {
 	mc.mutation.SetCreatedAt(t)
@@ -50,20 +64,6 @@ func (mc *MessageCreate) SetNillableUpdatedAt(t *time.Time) *MessageCreate {
 	return mc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (mc *MessageCreate) SetDeletedAt(t time.Time) *MessageCreate {
-	mc.mutation.SetDeletedAt(t)
-	return mc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (mc *MessageCreate) SetNillableDeletedAt(t *time.Time) *MessageCreate {
-	if t != nil {
-		mc.SetDeletedAt(*t)
-	}
-	return mc
-}
-
 // SetState sets the "state" field.
 func (mc *MessageCreate) SetState(m message.State) *MessageCreate {
 	mc.mutation.SetState(m)
@@ -76,13 +76,13 @@ func (mc *MessageCreate) SetContent(s string) *MessageCreate {
 	return mc
 }
 
-// SetEnteredAt sets the "enteredAt" field.
+// SetEnteredAt sets the "entered_at" field.
 func (mc *MessageCreate) SetEnteredAt(t time.Time) *MessageCreate {
 	mc.mutation.SetEnteredAt(t)
 	return mc
 }
 
-// SetNillableEnteredAt sets the "enteredAt" field if the given value is not nil.
+// SetNillableEnteredAt sets the "entered_at" field if the given value is not nil.
 func (mc *MessageCreate) SetNillableEnteredAt(t *time.Time) *MessageCreate {
 	if t != nil {
 		mc.SetEnteredAt(*t)
@@ -214,7 +214,7 @@ func (mc *MessageCreate) check() error {
 		}
 	}
 	if _, ok := mc.mutation.EnteredAt(); !ok {
-		return &ValidationError{Name: "enteredAt", err: errors.New(`ent: missing required field "Message.enteredAt"`)}
+		return &ValidationError{Name: "entered_at", err: errors.New(`ent: missing required field "Message.entered_at"`)}
 	}
 	return nil
 }
@@ -242,6 +242,10 @@ func (mc *MessageCreate) createSpec() (*Message, *sqlgraph.CreateSpec) {
 		_node = &Message{config: mc.config}
 		_spec = sqlgraph.NewCreateSpec(message.Table, sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt))
 	)
+	if value, ok := mc.mutation.DeletedAt(); ok {
+		_spec.SetField(message.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
+	}
 	if value, ok := mc.mutation.CreatedAt(); ok {
 		_spec.SetField(message.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -249,10 +253,6 @@ func (mc *MessageCreate) createSpec() (*Message, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.UpdatedAt(); ok {
 		_spec.SetField(message.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := mc.mutation.DeletedAt(); ok {
-		_spec.SetField(message.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := mc.mutation.State(); ok {
 		_spec.SetField(message.FieldState, field.TypeEnum, value)

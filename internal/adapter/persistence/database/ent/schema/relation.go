@@ -38,11 +38,11 @@ func (Relation) Edges() []ent.Edge {
 	return []ent.Edge{
 
 		edge.From("avatar", Avatar.Type).
-			Ref("avatarRelations").
+			Ref("avatar_relations").
 			Unique(),
 
 		edge.From("friend", Avatar.Type).
-			Ref("friendRelations").
+			Ref("friend_relations").
 			Unique(),
 
 		edge.To("messages", Message.Type),
@@ -51,6 +51,7 @@ func (Relation) Edges() []ent.Edge {
 
 func (Relation) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		SoftDeleteMixin{},
 		TimeMixin{},
 	}
 }

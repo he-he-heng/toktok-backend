@@ -6,8 +6,6 @@ import (
 	"toktok-backend/internal/infra/config"
 
 	_ "toktok-backend/internal/adapter/persistence/database/ent/runtime"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 type Client struct {

@@ -18,12 +18,12 @@ type Avatar struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// Sex holds the value of the "sex" field.
 	Sex avatar.Sex `json:"sex,omitempty"`
 	// Birthday holds the value of the "birthday" field.
@@ -36,8 +36,8 @@ type Avatar struct {
 	Nickname string `json:"nickname,omitempty"`
 	// Introduce holds the value of the "introduce" field.
 	Introduce *string `json:"introduce,omitempty"`
-	// State holds the value of the "State" field.
-	State avatar.State `json:"State,omitempty"`
+	// State holds the value of the "state" field.
+	State avatar.State `json:"state,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AvatarQuery when eager-loading is set.
 	Edges        AvatarEdges `json:"edges"`
@@ -49,10 +49,10 @@ type Avatar struct {
 type AvatarEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
-	// AvatarRelations holds the value of the avatarRelations edge.
-	AvatarRelations []*Relation `json:"avatarRelations,omitempty"`
-	// FriendRelations holds the value of the friendRelations edge.
-	FriendRelations []*Relation `json:"friendRelations,omitempty"`
+	// AvatarRelations holds the value of the avatar_relations edge.
+	AvatarRelations []*Relation `json:"avatar_relations,omitempty"`
+	// FriendRelations holds the value of the friend_relations edge.
+	FriendRelations []*Relation `json:"friend_relations,omitempty"`
 	// Messages holds the value of the messages edge.
 	Messages []*Message `json:"messages,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -77,7 +77,7 @@ func (e AvatarEdges) AvatarRelationsOrErr() ([]*Relation, error) {
 	if e.loadedTypes[1] {
 		return e.AvatarRelations, nil
 	}
-	return nil, &NotLoadedError{edge: "avatarRelations"}
+	return nil, &NotLoadedError{edge: "avatar_relations"}
 }
 
 // FriendRelationsOrErr returns the FriendRelations value or an error if the edge
@@ -86,7 +86,7 @@ func (e AvatarEdges) FriendRelationsOrErr() ([]*Relation, error) {
 	if e.loadedTypes[2] {
 		return e.FriendRelations, nil
 	}
-	return nil, &NotLoadedError{edge: "friendRelations"}
+	return nil, &NotLoadedError{edge: "friend_relations"}
 }
 
 // MessagesOrErr returns the Messages value or an error if the edge
@@ -107,7 +107,7 @@ func (*Avatar) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case avatar.FieldSex, avatar.FieldBirthday, avatar.FieldMbti, avatar.FieldPicture, avatar.FieldNickname, avatar.FieldIntroduce, avatar.FieldState:
 			values[i] = new(sql.NullString)
-		case avatar.FieldCreatedAt, avatar.FieldUpdatedAt, avatar.FieldDeletedAt:
+		case avatar.FieldDeletedAt, avatar.FieldCreatedAt, avatar.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case avatar.ForeignKeys[0]: // user_avatar
 			values[i] = new(sql.NullInt64)
@@ -132,6 +132,12 @@ func (a *Avatar) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			a.ID = int(value.Int64)
+		case avatar.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				a.DeletedAt = value.Time
+			}
 		case avatar.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -143,13 +149,6 @@ func (a *Avatar) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				a.UpdatedAt = value.Time
-			}
-		case avatar.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				a.DeletedAt = new(time.Time)
-				*a.DeletedAt = value.Time
 			}
 		case avatar.FieldSex:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -191,7 +190,7 @@ func (a *Avatar) assignValues(columns []string, values []any) error {
 			}
 		case avatar.FieldState:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field State", values[i])
+				return fmt.Errorf("unexpected type %T for field state", values[i])
 			} else if value.Valid {
 				a.State = avatar.State(value.String)
 			}
@@ -220,12 +219,12 @@ func (a *Avatar) QueryUser() *UserQuery {
 	return NewAvatarClient(a.config).QueryUser(a)
 }
 
-// QueryAvatarRelations queries the "avatarRelations" edge of the Avatar entity.
+// QueryAvatarRelations queries the "avatar_relations" edge of the Avatar entity.
 func (a *Avatar) QueryAvatarRelations() *RelationQuery {
 	return NewAvatarClient(a.config).QueryAvatarRelations(a)
 }
 
-// QueryFriendRelations queries the "friendRelations" edge of the Avatar entity.
+// QueryFriendRelations queries the "friend_relations" edge of the Avatar entity.
 func (a *Avatar) QueryFriendRelations() *RelationQuery {
 	return NewAvatarClient(a.config).QueryFriendRelations(a)
 }
@@ -258,16 +257,14 @@ func (a *Avatar) String() string {
 	var builder strings.Builder
 	builder.WriteString("Avatar(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
+	builder.WriteString("deleted_at=")
+	builder.WriteString(a.DeletedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(a.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(a.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := a.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteString(", ")
 	builder.WriteString("sex=")
 	builder.WriteString(fmt.Sprintf("%v", a.Sex))
@@ -291,7 +288,7 @@ func (a *Avatar) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	builder.WriteString("State=")
+	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", a.State))
 	builder.WriteByte(')')
 	return builder.String()

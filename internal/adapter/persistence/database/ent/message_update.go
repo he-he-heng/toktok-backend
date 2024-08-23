@@ -30,12 +30,6 @@ func (mu *MessageUpdate) Where(ps ...predicate.Message) *MessageUpdate {
 	return mu
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (mu *MessageUpdate) SetUpdatedAt(t time.Time) *MessageUpdate {
-	mu.mutation.SetUpdatedAt(t)
-	return mu
-}
-
 // SetDeletedAt sets the "deleted_at" field.
 func (mu *MessageUpdate) SetDeletedAt(t time.Time) *MessageUpdate {
 	mu.mutation.SetDeletedAt(t)
@@ -53,6 +47,12 @@ func (mu *MessageUpdate) SetNillableDeletedAt(t *time.Time) *MessageUpdate {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (mu *MessageUpdate) ClearDeletedAt() *MessageUpdate {
 	mu.mutation.ClearDeletedAt()
+	return mu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (mu *MessageUpdate) SetUpdatedAt(t time.Time) *MessageUpdate {
+	mu.mutation.SetUpdatedAt(t)
 	return mu
 }
 
@@ -84,13 +84,13 @@ func (mu *MessageUpdate) SetNillableContent(s *string) *MessageUpdate {
 	return mu
 }
 
-// SetEnteredAt sets the "enteredAt" field.
+// SetEnteredAt sets the "entered_at" field.
 func (mu *MessageUpdate) SetEnteredAt(t time.Time) *MessageUpdate {
 	mu.mutation.SetEnteredAt(t)
 	return mu
 }
 
-// SetNillableEnteredAt sets the "enteredAt" field if the given value is not nil.
+// SetNillableEnteredAt sets the "entered_at" field if the given value is not nil.
 func (mu *MessageUpdate) SetNillableEnteredAt(t *time.Time) *MessageUpdate {
 	if t != nil {
 		mu.SetEnteredAt(*t)
@@ -222,14 +222,14 @@ func (mu *MessageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := mu.mutation.UpdatedAt(); ok {
-		_spec.SetField(message.FieldUpdatedAt, field.TypeTime, value)
-	}
 	if value, ok := mu.mutation.DeletedAt(); ok {
 		_spec.SetField(message.FieldDeletedAt, field.TypeTime, value)
 	}
 	if mu.mutation.DeletedAtCleared() {
 		_spec.ClearField(message.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := mu.mutation.UpdatedAt(); ok {
+		_spec.SetField(message.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := mu.mutation.State(); ok {
 		_spec.SetField(message.FieldState, field.TypeEnum, value)
@@ -318,12 +318,6 @@ type MessageUpdateOne struct {
 	mutation *MessageMutation
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (muo *MessageUpdateOne) SetUpdatedAt(t time.Time) *MessageUpdateOne {
-	muo.mutation.SetUpdatedAt(t)
-	return muo
-}
-
 // SetDeletedAt sets the "deleted_at" field.
 func (muo *MessageUpdateOne) SetDeletedAt(t time.Time) *MessageUpdateOne {
 	muo.mutation.SetDeletedAt(t)
@@ -341,6 +335,12 @@ func (muo *MessageUpdateOne) SetNillableDeletedAt(t *time.Time) *MessageUpdateOn
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (muo *MessageUpdateOne) ClearDeletedAt() *MessageUpdateOne {
 	muo.mutation.ClearDeletedAt()
+	return muo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (muo *MessageUpdateOne) SetUpdatedAt(t time.Time) *MessageUpdateOne {
+	muo.mutation.SetUpdatedAt(t)
 	return muo
 }
 
@@ -372,13 +372,13 @@ func (muo *MessageUpdateOne) SetNillableContent(s *string) *MessageUpdateOne {
 	return muo
 }
 
-// SetEnteredAt sets the "enteredAt" field.
+// SetEnteredAt sets the "entered_at" field.
 func (muo *MessageUpdateOne) SetEnteredAt(t time.Time) *MessageUpdateOne {
 	muo.mutation.SetEnteredAt(t)
 	return muo
 }
 
-// SetNillableEnteredAt sets the "enteredAt" field if the given value is not nil.
+// SetNillableEnteredAt sets the "entered_at" field if the given value is not nil.
 func (muo *MessageUpdateOne) SetNillableEnteredAt(t *time.Time) *MessageUpdateOne {
 	if t != nil {
 		muo.SetEnteredAt(*t)
@@ -540,14 +540,14 @@ func (muo *MessageUpdateOne) sqlSave(ctx context.Context) (_node *Message, err e
 			}
 		}
 	}
-	if value, ok := muo.mutation.UpdatedAt(); ok {
-		_spec.SetField(message.FieldUpdatedAt, field.TypeTime, value)
-	}
 	if value, ok := muo.mutation.DeletedAt(); ok {
 		_spec.SetField(message.FieldDeletedAt, field.TypeTime, value)
 	}
 	if muo.mutation.DeletedAtCleared() {
 		_spec.ClearField(message.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := muo.mutation.UpdatedAt(); ok {
+		_spec.SetField(message.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := muo.mutation.State(); ok {
 		_spec.SetField(message.FieldState, field.TypeEnum, value)

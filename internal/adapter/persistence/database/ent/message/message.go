@@ -16,17 +16,17 @@ const (
 	Label = "message"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 	// FieldState holds the string denoting the state field in the database.
 	FieldState = "state"
 	// FieldContent holds the string denoting the content field in the database.
 	FieldContent = "content"
-	// FieldEnteredAt holds the string denoting the enteredat field in the database.
+	// FieldEnteredAt holds the string denoting the entered_at field in the database.
 	FieldEnteredAt = "entered_at"
 	// EdgeRelation holds the string denoting the relation edge name in mutations.
 	EdgeRelation = "relation"
@@ -53,9 +53,9 @@ const (
 // Columns holds all SQL columns for message fields.
 var Columns = []string{
 	FieldID,
+	FieldDeletedAt,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldDeletedAt,
 	FieldState,
 	FieldContent,
 	FieldEnteredAt,
@@ -99,7 +99,7 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// ContentValidator is a validator for the "content" field. It is called by the builders before save.
 	ContentValidator func(string) error
-	// DefaultEnteredAt holds the default value on creation for the "enteredAt" field.
+	// DefaultEnteredAt holds the default value on creation for the "entered_at" field.
 	DefaultEnteredAt func() time.Time
 )
 
@@ -134,6 +134,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -142,11 +147,6 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByState orders the results by the state field.
@@ -159,7 +159,7 @@ func ByContent(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContent, opts...).ToFunc()
 }
 
-// ByEnteredAt orders the results by the enteredAt field.
+// ByEnteredAt orders the results by the entered_at field.
 func ByEnteredAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEnteredAt, opts...).ToFunc()
 }

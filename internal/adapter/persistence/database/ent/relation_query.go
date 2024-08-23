@@ -371,12 +371,12 @@ func (rq *RelationQuery) WithMessages(opts ...func(*MessageQuery)) *RelationQuer
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		DeletedAt time.Time `json:"deleted_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Relation.Query().
-//		GroupBy(relation.FieldCreatedAt).
+//		GroupBy(relation.FieldDeletedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (rq *RelationQuery) GroupBy(field string, fields ...string) *RelationGroupBy {
@@ -394,11 +394,11 @@ func (rq *RelationQuery) GroupBy(field string, fields ...string) *RelationGroupB
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		DeletedAt time.Time `json:"deleted_at,omitempty"`
 //	}
 //
 //	client.Relation.Query().
-//		Select(relation.FieldCreatedAt).
+//		Select(relation.FieldDeletedAt).
 //		Scan(ctx, &v)
 func (rq *RelationQuery) Select(fields ...string) *RelationSelect {
 	rq.ctx.Fields = append(rq.ctx.Fields, fields...)

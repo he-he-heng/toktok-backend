@@ -29,12 +29,6 @@ func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	return uu
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (uu *UserUpdate) SetUpdatedAt(t time.Time) *UserUpdate {
-	uu.mutation.SetUpdatedAt(t)
-	return uu
-}
-
 // SetDeletedAt sets the "deleted_at" field.
 func (uu *UserUpdate) SetDeletedAt(t time.Time) *UserUpdate {
 	uu.mutation.SetDeletedAt(t)
@@ -52,6 +46,12 @@ func (uu *UserUpdate) SetNillableDeletedAt(t *time.Time) *UserUpdate {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (uu *UserUpdate) ClearDeletedAt() *UserUpdate {
 	uu.mutation.ClearDeletedAt()
+	return uu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (uu *UserUpdate) SetUpdatedAt(t time.Time) *UserUpdate {
+	uu.mutation.SetUpdatedAt(t)
 	return uu
 }
 
@@ -117,13 +117,13 @@ func (uu *UserUpdate) SetNillableRole(u *user.Role) *UserUpdate {
 	return uu
 }
 
-// SetBanState sets the "banState" field.
+// SetBanState sets the "ban_state" field.
 func (uu *UserUpdate) SetBanState(us user.BanState) *UserUpdate {
 	uu.mutation.SetBanState(us)
 	return uu
 }
 
-// SetNillableBanState sets the "banState" field if the given value is not nil.
+// SetNillableBanState sets the "ban_state" field if the given value is not nil.
 func (uu *UserUpdate) SetNillableBanState(us *user.BanState) *UserUpdate {
 	if us != nil {
 		uu.SetBanState(*us)
@@ -222,7 +222,7 @@ func (uu *UserUpdate) check() error {
 	}
 	if v, ok := uu.mutation.BanState(); ok {
 		if err := user.BanStateValidator(v); err != nil {
-			return &ValidationError{Name: "banState", err: fmt.Errorf(`ent: validator failed for field "User.banState": %w`, err)}
+			return &ValidationError{Name: "ban_state", err: fmt.Errorf(`ent: validator failed for field "User.ban_state": %w`, err)}
 		}
 	}
 	return nil
@@ -240,14 +240,14 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := uu.mutation.UpdatedAt(); ok {
-		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
-	}
 	if value, ok := uu.mutation.DeletedAt(); ok {
 		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
 	}
 	if uu.mutation.DeletedAtCleared() {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := uu.mutation.UpdatedAt(); ok {
+		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := uu.mutation.UID(); ok {
 		_spec.SetField(user.FieldUID, field.TypeString, value)
@@ -316,12 +316,6 @@ type UserUpdateOne struct {
 	mutation *UserMutation
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (uuo *UserUpdateOne) SetUpdatedAt(t time.Time) *UserUpdateOne {
-	uuo.mutation.SetUpdatedAt(t)
-	return uuo
-}
-
 // SetDeletedAt sets the "deleted_at" field.
 func (uuo *UserUpdateOne) SetDeletedAt(t time.Time) *UserUpdateOne {
 	uuo.mutation.SetDeletedAt(t)
@@ -339,6 +333,12 @@ func (uuo *UserUpdateOne) SetNillableDeletedAt(t *time.Time) *UserUpdateOne {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (uuo *UserUpdateOne) ClearDeletedAt() *UserUpdateOne {
 	uuo.mutation.ClearDeletedAt()
+	return uuo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (uuo *UserUpdateOne) SetUpdatedAt(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetUpdatedAt(t)
 	return uuo
 }
 
@@ -404,13 +404,13 @@ func (uuo *UserUpdateOne) SetNillableRole(u *user.Role) *UserUpdateOne {
 	return uuo
 }
 
-// SetBanState sets the "banState" field.
+// SetBanState sets the "ban_state" field.
 func (uuo *UserUpdateOne) SetBanState(us user.BanState) *UserUpdateOne {
 	uuo.mutation.SetBanState(us)
 	return uuo
 }
 
-// SetNillableBanState sets the "banState" field if the given value is not nil.
+// SetNillableBanState sets the "ban_state" field if the given value is not nil.
 func (uuo *UserUpdateOne) SetNillableBanState(us *user.BanState) *UserUpdateOne {
 	if us != nil {
 		uuo.SetBanState(*us)
@@ -522,7 +522,7 @@ func (uuo *UserUpdateOne) check() error {
 	}
 	if v, ok := uuo.mutation.BanState(); ok {
 		if err := user.BanStateValidator(v); err != nil {
-			return &ValidationError{Name: "banState", err: fmt.Errorf(`ent: validator failed for field "User.banState": %w`, err)}
+			return &ValidationError{Name: "ban_state", err: fmt.Errorf(`ent: validator failed for field "User.ban_state": %w`, err)}
 		}
 	}
 	return nil
@@ -557,14 +557,14 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
-	if value, ok := uuo.mutation.UpdatedAt(); ok {
-		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
-	}
 	if value, ok := uuo.mutation.DeletedAt(); ok {
 		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
 	}
 	if uuo.mutation.DeletedAtCleared() {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := uuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := uuo.mutation.UID(); ok {
 		_spec.SetField(user.FieldUID, field.TypeString, value)

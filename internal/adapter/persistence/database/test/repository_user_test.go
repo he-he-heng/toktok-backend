@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -70,7 +71,7 @@ func TestCreateUser(t *testing.T) {
 			tc.expect.Email = got.Email
 			tc.expect.CreatedAt = got.CreatedAt
 			tc.expect.UpdatedAt = got.UpdatedAt
-			tc.expect.DeletedAt = got.DeletedAt
+			// tc.expect.DeletedAt = got.DeletedAt
 
 			if !reflect.DeepEqual(tc.expect, got) {
 				tsub.Errorf("\ntc.expect and got don't have each other.\ngot=%+v\nexpect=%+v\n", got, tc.expect)
@@ -116,7 +117,7 @@ func TestGetUser(t *testing.T) {
 			tc.expect.Email = got.Email
 			tc.expect.CreatedAt = got.CreatedAt
 			tc.expect.UpdatedAt = got.UpdatedAt
-			tc.expect.DeletedAt = got.DeletedAt
+			// tc.expect.DeletedAt = got.DeletedAt
 
 			if !reflect.DeepEqual(tc.expect, got) {
 				tsub.Errorf("\ntc.expect and got don't have each other.\ngot=%+v\nexpect=%+v\n", got, tc.expect)
@@ -240,7 +241,7 @@ func TestListUser(t *testing.T) {
 				tc.expect[i].Email = got[i].Email
 				tc.expect[i].CreatedAt = got[i].CreatedAt
 				tc.expect[i].UpdatedAt = got[i].UpdatedAt
-				tc.expect[i].DeletedAt = got[i].DeletedAt
+				// tc.expect[i].DeletedAt = got[i].DeletedAt
 
 				if !reflect.DeepEqual(got[i], tc.expect[i]) {
 					tsub.Errorf("\ntc.expect[i] and got[i] don't have each other.\ngot[i]=%+v\nexpect[i]=%+v\n", got[i], tc.expect[i])
@@ -320,11 +321,58 @@ func TestUpdateUser(t *testing.T) {
 
 			tc.expect.CreatedAt = got.CreatedAt
 			tc.expect.UpdatedAt = got.UpdatedAt
-			tc.expect.DeletedAt = got.DeletedAt
+			// tc.expect.DeletedAt = got.DeletedAt
 
 			if !reflect.DeepEqual(tc.expect, got) {
 				tsub.Errorf("\ntc.expect and got don't have each other.\ngot=%+v\nexpect=%+v\n", got, tc.expect)
 			}
 		})
 	}
+}
+
+func TestDeleteUser(t *testing.T) {
+	defer provider.Get().TerminateContainer(provider.MyContext)
+
+	ctx := context.Background()
+
+	// set seed
+	_, err := userRepo.CreateUser(ctx, &domain.User{
+		UID:      "2hanjunbum6",
+		Password: "mypassword",
+	})
+	if err != nil {
+		t.Errorf("failed to create user: %v", err)
+	}
+
+	_, err = userRepo.GetUser(ctx, 1)
+	if err != nil {
+		t.Errorf("failed to get user: %v", err)
+	}
+
+	// test cases
+	testCases := []struct {
+		deleteId int
+		expect   error
+	}{
+		{
+			deleteId: 1,
+			expect:   nil,
+		},
+	}
+
+	for i, tc := range testCases {
+		name := fmt.Sprintf("#%d DeleteUser", i)
+
+		t.Run(name, func(tsub *testing.T) {
+			got := userRepo.DeleteUser(ctx, tc.deleteId)
+			if got != nil {
+				t.Errorf("failed to delete user: %v", got)
+			}
+
+			if !errors.Is(got, tc.expect) {
+				t.Errorf("got %v, expect %v", got, tc.expect)
+			}
+		})
+	}
+
 }

@@ -11,9 +11,9 @@ var (
 	// AvatarsColumns holds the columns for the "avatars" table.
 	AvatarsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "sex", Type: field.TypeEnum, Enums: []string{"male", "female"}},
 		{Name: "birthday", Type: field.TypeString, Size: 8},
 		{Name: "mbti", Type: field.TypeString, Nullable: true, Size: 4},
@@ -40,9 +40,9 @@ var (
 	// MessagesColumns holds the columns for the "messages" table.
 	MessagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "state", Type: field.TypeEnum, Enums: []string{"check", "uncheck"}},
 		{Name: "content", Type: field.TypeString},
 		{Name: "entered_at", Type: field.TypeTime},
@@ -72,9 +72,9 @@ var (
 	// RelationsColumns holds the columns for the "relations" table.
 	RelationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "state", Type: field.TypeEnum, Enums: []string{"request-friend", "pending", "friend", "decline", "remove"}, Default: "pending"},
 		{Name: "alert_state", Type: field.TypeEnum, Enums: []string{"allow", "deny"}, Default: "allow"},
 		{Name: "avatar_avatar_relations", Type: field.TypeInt, Nullable: true},
@@ -87,13 +87,13 @@ var (
 		PrimaryKey: []*schema.Column{RelationsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "relations_avatars_avatarRelations",
+				Symbol:     "relations_avatars_avatar_relations",
 				Columns:    []*schema.Column{RelationsColumns[6]},
 				RefColumns: []*schema.Column{AvatarsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "relations_avatars_friendRelations",
+				Symbol:     "relations_avatars_friend_relations",
 				Columns:    []*schema.Column{RelationsColumns[7]},
 				RefColumns: []*schema.Column{AvatarsColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -103,9 +103,9 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "uid", Type: field.TypeString, Size: 18},
 		{Name: "password", Type: field.TypeString, Size: 32},
 		{Name: "email", Type: field.TypeString, Nullable: true},

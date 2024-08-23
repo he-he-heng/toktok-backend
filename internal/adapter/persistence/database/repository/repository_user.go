@@ -93,8 +93,6 @@ func (r *UserRepository) ListUser(ctx context.Context, skip, limit int, order, c
 func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
 	builder := r.client.User.UpdateOneID(user.ID)
 
-	fmt.Printf("user: %+v", user)
-
 	if user.UID != "" {
 		builder.SetUID(user.UID)
 	}
@@ -124,10 +122,12 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*do
 }
 
 func (r *UserRepository) DeleteUser(ctx context.Context, id int) error {
-	err := r.client.User.DeleteOneID(id).Exec(ctx)
+	err := r.client.User.DeleteOneID(id).
+		Exec(ctx)
 	if err != nil {
+		fmt.Printf("DeleteUser error: %v\n", err) // 에러 메시지 출력
 		return err
 	}
 
-	return err
+	return nil
 }

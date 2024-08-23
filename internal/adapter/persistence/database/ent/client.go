@@ -352,7 +352,7 @@ func (c *AvatarClient) QueryUser(a *Avatar) *UserQuery {
 	return query
 }
 
-// QueryAvatarRelations queries the avatarRelations edge of a Avatar.
+// QueryAvatarRelations queries the avatar_relations edge of a Avatar.
 func (c *AvatarClient) QueryAvatarRelations(a *Avatar) *RelationQuery {
 	query := (&RelationClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
@@ -368,7 +368,7 @@ func (c *AvatarClient) QueryAvatarRelations(a *Avatar) *RelationQuery {
 	return query
 }
 
-// QueryFriendRelations queries the friendRelations edge of a Avatar.
+// QueryFriendRelations queries the friend_relations edge of a Avatar.
 func (c *AvatarClient) QueryFriendRelations(a *Avatar) *RelationQuery {
 	query := (&RelationClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {

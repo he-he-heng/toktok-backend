@@ -21,6 +21,20 @@ type UserCreate struct {
 	hooks    []Hook
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (uc *UserCreate) SetDeletedAt(t time.Time) *UserCreate {
+	uc.mutation.SetDeletedAt(t)
+	return uc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (uc *UserCreate) SetNillableDeletedAt(t *time.Time) *UserCreate {
+	if t != nil {
+		uc.SetDeletedAt(*t)
+	}
+	return uc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (uc *UserCreate) SetCreatedAt(t time.Time) *UserCreate {
 	uc.mutation.SetCreatedAt(t)
@@ -45,20 +59,6 @@ func (uc *UserCreate) SetUpdatedAt(t time.Time) *UserCreate {
 func (uc *UserCreate) SetNillableUpdatedAt(t *time.Time) *UserCreate {
 	if t != nil {
 		uc.SetUpdatedAt(*t)
-	}
-	return uc
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (uc *UserCreate) SetDeletedAt(t time.Time) *UserCreate {
-	uc.mutation.SetDeletedAt(t)
-	return uc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (uc *UserCreate) SetNillableDeletedAt(t *time.Time) *UserCreate {
-	if t != nil {
-		uc.SetDeletedAt(*t)
 	}
 	return uc
 }
@@ -103,13 +103,13 @@ func (uc *UserCreate) SetNillableRole(u *user.Role) *UserCreate {
 	return uc
 }
 
-// SetBanState sets the "banState" field.
+// SetBanState sets the "ban_state" field.
 func (uc *UserCreate) SetBanState(us user.BanState) *UserCreate {
 	uc.mutation.SetBanState(us)
 	return uc
 }
 
-// SetNillableBanState sets the "banState" field if the given value is not nil.
+// SetNillableBanState sets the "ban_state" field if the given value is not nil.
 func (uc *UserCreate) SetNillableBanState(us *user.BanState) *UserCreate {
 	if us != nil {
 		uc.SetBanState(*us)
@@ -231,11 +231,11 @@ func (uc *UserCreate) check() error {
 		}
 	}
 	if _, ok := uc.mutation.BanState(); !ok {
-		return &ValidationError{Name: "banState", err: errors.New(`ent: missing required field "User.banState"`)}
+		return &ValidationError{Name: "ban_state", err: errors.New(`ent: missing required field "User.ban_state"`)}
 	}
 	if v, ok := uc.mutation.BanState(); ok {
 		if err := user.BanStateValidator(v); err != nil {
-			return &ValidationError{Name: "banState", err: fmt.Errorf(`ent: validator failed for field "User.banState": %w`, err)}
+			return &ValidationError{Name: "ban_state", err: fmt.Errorf(`ent: validator failed for field "User.ban_state": %w`, err)}
 		}
 	}
 	return nil
@@ -264,6 +264,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node = &User{config: uc.config}
 		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
 	)
+	if value, ok := uc.mutation.DeletedAt(); ok {
+		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
+	}
 	if value, ok := uc.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -271,10 +275,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := uc.mutation.DeletedAt(); ok {
-		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := uc.mutation.UID(); ok {
 		_spec.SetField(user.FieldUID, field.TypeString, value)

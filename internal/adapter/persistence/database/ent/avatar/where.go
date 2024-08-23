@@ -55,6 +55,11 @@ func IDLTE(id int) predicate.Avatar {
 	return predicate.Avatar(sql.FieldLTE(FieldID, id))
 }
 
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.Avatar {
+	return predicate.Avatar(sql.FieldEQ(FieldDeletedAt, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Avatar {
 	return predicate.Avatar(sql.FieldEQ(FieldCreatedAt, v))
@@ -63,11 +68,6 @@ func CreatedAt(v time.Time) predicate.Avatar {
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.Avatar {
 	return predicate.Avatar(sql.FieldEQ(FieldUpdatedAt, v))
-}
-
-// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
-func DeletedAt(v time.Time) predicate.Avatar {
-	return predicate.Avatar(sql.FieldEQ(FieldDeletedAt, v))
 }
 
 // Birthday applies equality check predicate on the "birthday" field. It's identical to BirthdayEQ.
@@ -93,6 +93,56 @@ func Nickname(v string) predicate.Avatar {
 // Introduce applies equality check predicate on the "introduce" field. It's identical to IntroduceEQ.
 func Introduce(v string) predicate.Avatar {
 	return predicate.Avatar(sql.FieldEQ(FieldIntroduce, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.Avatar {
+	return predicate.Avatar(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.Avatar {
+	return predicate.Avatar(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.Avatar {
+	return predicate.Avatar(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.Avatar {
+	return predicate.Avatar(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.Avatar {
+	return predicate.Avatar(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.Avatar {
+	return predicate.Avatar(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.Avatar {
+	return predicate.Avatar(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.Avatar {
+	return predicate.Avatar(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.Avatar {
+	return predicate.Avatar(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.Avatar {
+	return predicate.Avatar(sql.FieldNotNull(FieldDeletedAt))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -173,56 +223,6 @@ func UpdatedAtLT(v time.Time) predicate.Avatar {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Avatar {
 	return predicate.Avatar(sql.FieldLTE(FieldUpdatedAt, v))
-}
-
-// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
-func DeletedAtEQ(v time.Time) predicate.Avatar {
-	return predicate.Avatar(sql.FieldEQ(FieldDeletedAt, v))
-}
-
-// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
-func DeletedAtNEQ(v time.Time) predicate.Avatar {
-	return predicate.Avatar(sql.FieldNEQ(FieldDeletedAt, v))
-}
-
-// DeletedAtIn applies the In predicate on the "deleted_at" field.
-func DeletedAtIn(vs ...time.Time) predicate.Avatar {
-	return predicate.Avatar(sql.FieldIn(FieldDeletedAt, vs...))
-}
-
-// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
-func DeletedAtNotIn(vs ...time.Time) predicate.Avatar {
-	return predicate.Avatar(sql.FieldNotIn(FieldDeletedAt, vs...))
-}
-
-// DeletedAtGT applies the GT predicate on the "deleted_at" field.
-func DeletedAtGT(v time.Time) predicate.Avatar {
-	return predicate.Avatar(sql.FieldGT(FieldDeletedAt, v))
-}
-
-// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
-func DeletedAtGTE(v time.Time) predicate.Avatar {
-	return predicate.Avatar(sql.FieldGTE(FieldDeletedAt, v))
-}
-
-// DeletedAtLT applies the LT predicate on the "deleted_at" field.
-func DeletedAtLT(v time.Time) predicate.Avatar {
-	return predicate.Avatar(sql.FieldLT(FieldDeletedAt, v))
-}
-
-// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
-func DeletedAtLTE(v time.Time) predicate.Avatar {
-	return predicate.Avatar(sql.FieldLTE(FieldDeletedAt, v))
-}
-
-// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
-func DeletedAtIsNil() predicate.Avatar {
-	return predicate.Avatar(sql.FieldIsNull(FieldDeletedAt))
-}
-
-// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
-func DeletedAtNotNil() predicate.Avatar {
-	return predicate.Avatar(sql.FieldNotNull(FieldDeletedAt))
 }
 
 // SexEQ applies the EQ predicate on the "sex" field.
@@ -590,22 +590,22 @@ func IntroduceContainsFold(v string) predicate.Avatar {
 	return predicate.Avatar(sql.FieldContainsFold(FieldIntroduce, v))
 }
 
-// StateEQ applies the EQ predicate on the "State" field.
+// StateEQ applies the EQ predicate on the "state" field.
 func StateEQ(v State) predicate.Avatar {
 	return predicate.Avatar(sql.FieldEQ(FieldState, v))
 }
 
-// StateNEQ applies the NEQ predicate on the "State" field.
+// StateNEQ applies the NEQ predicate on the "state" field.
 func StateNEQ(v State) predicate.Avatar {
 	return predicate.Avatar(sql.FieldNEQ(FieldState, v))
 }
 
-// StateIn applies the In predicate on the "State" field.
+// StateIn applies the In predicate on the "state" field.
 func StateIn(vs ...State) predicate.Avatar {
 	return predicate.Avatar(sql.FieldIn(FieldState, vs...))
 }
 
-// StateNotIn applies the NotIn predicate on the "State" field.
+// StateNotIn applies the NotIn predicate on the "state" field.
 func StateNotIn(vs ...State) predicate.Avatar {
 	return predicate.Avatar(sql.FieldNotIn(FieldState, vs...))
 }
@@ -633,7 +633,7 @@ func HasUserWith(preds ...predicate.User) predicate.Avatar {
 	})
 }
 
-// HasAvatarRelations applies the HasEdge predicate on the "avatarRelations" edge.
+// HasAvatarRelations applies the HasEdge predicate on the "avatar_relations" edge.
 func HasAvatarRelations() predicate.Avatar {
 	return predicate.Avatar(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
@@ -644,7 +644,7 @@ func HasAvatarRelations() predicate.Avatar {
 	})
 }
 
-// HasAvatarRelationsWith applies the HasEdge predicate on the "avatarRelations" edge with a given conditions (other predicates).
+// HasAvatarRelationsWith applies the HasEdge predicate on the "avatar_relations" edge with a given conditions (other predicates).
 func HasAvatarRelationsWith(preds ...predicate.Relation) predicate.Avatar {
 	return predicate.Avatar(func(s *sql.Selector) {
 		step := newAvatarRelationsStep()
@@ -656,7 +656,7 @@ func HasAvatarRelationsWith(preds ...predicate.Relation) predicate.Avatar {
 	})
 }
 
-// HasFriendRelations applies the HasEdge predicate on the "friendRelations" edge.
+// HasFriendRelations applies the HasEdge predicate on the "friend_relations" edge.
 func HasFriendRelations() predicate.Avatar {
 	return predicate.Avatar(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
@@ -667,7 +667,7 @@ func HasFriendRelations() predicate.Avatar {
 	})
 }
 
-// HasFriendRelationsWith applies the HasEdge predicate on the "friendRelations" edge with a given conditions (other predicates).
+// HasFriendRelationsWith applies the HasEdge predicate on the "friend_relations" edge with a given conditions (other predicates).
 func HasFriendRelationsWith(preds ...predicate.Relation) predicate.Avatar {
 	return predicate.Avatar(func(s *sql.Selector) {
 		step := newFriendRelationsStep()

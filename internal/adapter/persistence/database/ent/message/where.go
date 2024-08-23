@@ -55,6 +55,11 @@ func IDLTE(id int) predicate.Message {
 	return predicate.Message(sql.FieldLTE(FieldID, id))
 }
 
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.Message {
+	return predicate.Message(sql.FieldEQ(FieldDeletedAt, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldEQ(FieldCreatedAt, v))
@@ -65,19 +70,64 @@ func UpdatedAt(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
-func DeletedAt(v time.Time) predicate.Message {
-	return predicate.Message(sql.FieldEQ(FieldDeletedAt, v))
-}
-
 // Content applies equality check predicate on the "content" field. It's identical to ContentEQ.
 func Content(v string) predicate.Message {
 	return predicate.Message(sql.FieldEQ(FieldContent, v))
 }
 
-// EnteredAt applies equality check predicate on the "enteredAt" field. It's identical to EnteredAtEQ.
+// EnteredAt applies equality check predicate on the "entered_at" field. It's identical to EnteredAtEQ.
 func EnteredAt(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldEQ(FieldEnteredAt, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.Message {
+	return predicate.Message(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.Message {
+	return predicate.Message(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.Message {
+	return predicate.Message(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.Message {
+	return predicate.Message(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.Message {
+	return predicate.Message(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.Message {
+	return predicate.Message(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.Message {
+	return predicate.Message(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.Message {
+	return predicate.Message(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.Message {
+	return predicate.Message(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.Message {
+	return predicate.Message(sql.FieldNotNull(FieldDeletedAt))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -158,56 +208,6 @@ func UpdatedAtLT(v time.Time) predicate.Message {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldLTE(FieldUpdatedAt, v))
-}
-
-// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
-func DeletedAtEQ(v time.Time) predicate.Message {
-	return predicate.Message(sql.FieldEQ(FieldDeletedAt, v))
-}
-
-// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
-func DeletedAtNEQ(v time.Time) predicate.Message {
-	return predicate.Message(sql.FieldNEQ(FieldDeletedAt, v))
-}
-
-// DeletedAtIn applies the In predicate on the "deleted_at" field.
-func DeletedAtIn(vs ...time.Time) predicate.Message {
-	return predicate.Message(sql.FieldIn(FieldDeletedAt, vs...))
-}
-
-// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
-func DeletedAtNotIn(vs ...time.Time) predicate.Message {
-	return predicate.Message(sql.FieldNotIn(FieldDeletedAt, vs...))
-}
-
-// DeletedAtGT applies the GT predicate on the "deleted_at" field.
-func DeletedAtGT(v time.Time) predicate.Message {
-	return predicate.Message(sql.FieldGT(FieldDeletedAt, v))
-}
-
-// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
-func DeletedAtGTE(v time.Time) predicate.Message {
-	return predicate.Message(sql.FieldGTE(FieldDeletedAt, v))
-}
-
-// DeletedAtLT applies the LT predicate on the "deleted_at" field.
-func DeletedAtLT(v time.Time) predicate.Message {
-	return predicate.Message(sql.FieldLT(FieldDeletedAt, v))
-}
-
-// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
-func DeletedAtLTE(v time.Time) predicate.Message {
-	return predicate.Message(sql.FieldLTE(FieldDeletedAt, v))
-}
-
-// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
-func DeletedAtIsNil() predicate.Message {
-	return predicate.Message(sql.FieldIsNull(FieldDeletedAt))
-}
-
-// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
-func DeletedAtNotNil() predicate.Message {
-	return predicate.Message(sql.FieldNotNull(FieldDeletedAt))
 }
 
 // StateEQ applies the EQ predicate on the "state" field.
@@ -295,42 +295,42 @@ func ContentContainsFold(v string) predicate.Message {
 	return predicate.Message(sql.FieldContainsFold(FieldContent, v))
 }
 
-// EnteredAtEQ applies the EQ predicate on the "enteredAt" field.
+// EnteredAtEQ applies the EQ predicate on the "entered_at" field.
 func EnteredAtEQ(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldEQ(FieldEnteredAt, v))
 }
 
-// EnteredAtNEQ applies the NEQ predicate on the "enteredAt" field.
+// EnteredAtNEQ applies the NEQ predicate on the "entered_at" field.
 func EnteredAtNEQ(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldNEQ(FieldEnteredAt, v))
 }
 
-// EnteredAtIn applies the In predicate on the "enteredAt" field.
+// EnteredAtIn applies the In predicate on the "entered_at" field.
 func EnteredAtIn(vs ...time.Time) predicate.Message {
 	return predicate.Message(sql.FieldIn(FieldEnteredAt, vs...))
 }
 
-// EnteredAtNotIn applies the NotIn predicate on the "enteredAt" field.
+// EnteredAtNotIn applies the NotIn predicate on the "entered_at" field.
 func EnteredAtNotIn(vs ...time.Time) predicate.Message {
 	return predicate.Message(sql.FieldNotIn(FieldEnteredAt, vs...))
 }
 
-// EnteredAtGT applies the GT predicate on the "enteredAt" field.
+// EnteredAtGT applies the GT predicate on the "entered_at" field.
 func EnteredAtGT(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldGT(FieldEnteredAt, v))
 }
 
-// EnteredAtGTE applies the GTE predicate on the "enteredAt" field.
+// EnteredAtGTE applies the GTE predicate on the "entered_at" field.
 func EnteredAtGTE(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldGTE(FieldEnteredAt, v))
 }
 
-// EnteredAtLT applies the LT predicate on the "enteredAt" field.
+// EnteredAtLT applies the LT predicate on the "entered_at" field.
 func EnteredAtLT(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldLT(FieldEnteredAt, v))
 }
 
-// EnteredAtLTE applies the LTE predicate on the "enteredAt" field.
+// EnteredAtLTE applies the LTE predicate on the "entered_at" field.
 func EnteredAtLTE(v time.Time) predicate.Message {
 	return predicate.Message(sql.FieldLTE(FieldEnteredAt, v))
 }

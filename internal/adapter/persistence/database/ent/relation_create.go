@@ -22,6 +22,20 @@ type RelationCreate struct {
 	hooks    []Hook
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (rc *RelationCreate) SetDeletedAt(t time.Time) *RelationCreate {
+	rc.mutation.SetDeletedAt(t)
+	return rc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (rc *RelationCreate) SetNillableDeletedAt(t *time.Time) *RelationCreate {
+	if t != nil {
+		rc.SetDeletedAt(*t)
+	}
+	return rc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (rc *RelationCreate) SetCreatedAt(t time.Time) *RelationCreate {
 	rc.mutation.SetCreatedAt(t)
@@ -46,20 +60,6 @@ func (rc *RelationCreate) SetUpdatedAt(t time.Time) *RelationCreate {
 func (rc *RelationCreate) SetNillableUpdatedAt(t *time.Time) *RelationCreate {
 	if t != nil {
 		rc.SetUpdatedAt(*t)
-	}
-	return rc
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (rc *RelationCreate) SetDeletedAt(t time.Time) *RelationCreate {
-	rc.mutation.SetDeletedAt(t)
-	return rc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (rc *RelationCreate) SetNillableDeletedAt(t *time.Time) *RelationCreate {
-	if t != nil {
-		rc.SetDeletedAt(*t)
 	}
 	return rc
 }
@@ -257,6 +257,10 @@ func (rc *RelationCreate) createSpec() (*Relation, *sqlgraph.CreateSpec) {
 		_node = &Relation{config: rc.config}
 		_spec = sqlgraph.NewCreateSpec(relation.Table, sqlgraph.NewFieldSpec(relation.FieldID, field.TypeInt))
 	)
+	if value, ok := rc.mutation.DeletedAt(); ok {
+		_spec.SetField(relation.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
+	}
 	if value, ok := rc.mutation.CreatedAt(); ok {
 		_spec.SetField(relation.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -264,10 +268,6 @@ func (rc *RelationCreate) createSpec() (*Relation, *sqlgraph.CreateSpec) {
 	if value, ok := rc.mutation.UpdatedAt(); ok {
 		_spec.SetField(relation.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := rc.mutation.DeletedAt(); ok {
-		_spec.SetField(relation.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := rc.mutation.State(); ok {
 		_spec.SetField(relation.FieldState, field.TypeEnum, value)

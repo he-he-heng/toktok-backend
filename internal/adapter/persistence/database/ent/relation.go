@@ -18,12 +18,12 @@ type Relation struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// State holds the value of the "state" field.
 	State relation.State `json:"state,omitempty"`
 	// AlertState holds the value of the "alertState" field.
@@ -89,7 +89,7 @@ func (*Relation) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case relation.FieldState, relation.FieldAlertState:
 			values[i] = new(sql.NullString)
-		case relation.FieldCreatedAt, relation.FieldUpdatedAt, relation.FieldDeletedAt:
+		case relation.FieldDeletedAt, relation.FieldCreatedAt, relation.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case relation.ForeignKeys[0]: // avatar_avatar_relations
 			values[i] = new(sql.NullInt64)
@@ -116,6 +116,12 @@ func (r *Relation) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			r.ID = int(value.Int64)
+		case relation.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				r.DeletedAt = value.Time
+			}
 		case relation.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -127,13 +133,6 @@ func (r *Relation) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				r.UpdatedAt = value.Time
-			}
-		case relation.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				r.DeletedAt = new(time.Time)
-				*r.DeletedAt = value.Time
 			}
 		case relation.FieldState:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -212,16 +211,14 @@ func (r *Relation) String() string {
 	var builder strings.Builder
 	builder.WriteString("Relation(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", r.ID))
+	builder.WriteString("deleted_at=")
+	builder.WriteString(r.DeletedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(r.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(r.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := r.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteString(", ")
 	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", r.State))

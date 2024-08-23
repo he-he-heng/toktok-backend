@@ -89,7 +89,7 @@ func (aq *AvatarQuery) QueryUser() *UserQuery {
 	return query
 }
 
-// QueryAvatarRelations chains the current query on the "avatarRelations" edge.
+// QueryAvatarRelations chains the current query on the "avatar_relations" edge.
 func (aq *AvatarQuery) QueryAvatarRelations() *RelationQuery {
 	query := (&RelationClient{config: aq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
@@ -111,7 +111,7 @@ func (aq *AvatarQuery) QueryAvatarRelations() *RelationQuery {
 	return query
 }
 
-// QueryFriendRelations chains the current query on the "friendRelations" edge.
+// QueryFriendRelations chains the current query on the "friend_relations" edge.
 func (aq *AvatarQuery) QueryFriendRelations() *RelationQuery {
 	query := (&RelationClient{config: aq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
@@ -369,7 +369,7 @@ func (aq *AvatarQuery) WithUser(opts ...func(*UserQuery)) *AvatarQuery {
 }
 
 // WithAvatarRelations tells the query-builder to eager-load the nodes that are connected to
-// the "avatarRelations" edge. The optional arguments are used to configure the query builder of the edge.
+// the "avatar_relations" edge. The optional arguments are used to configure the query builder of the edge.
 func (aq *AvatarQuery) WithAvatarRelations(opts ...func(*RelationQuery)) *AvatarQuery {
 	query := (&RelationClient{config: aq.config}).Query()
 	for _, opt := range opts {
@@ -380,7 +380,7 @@ func (aq *AvatarQuery) WithAvatarRelations(opts ...func(*RelationQuery)) *Avatar
 }
 
 // WithFriendRelations tells the query-builder to eager-load the nodes that are connected to
-// the "friendRelations" edge. The optional arguments are used to configure the query builder of the edge.
+// the "friend_relations" edge. The optional arguments are used to configure the query builder of the edge.
 func (aq *AvatarQuery) WithFriendRelations(opts ...func(*RelationQuery)) *AvatarQuery {
 	query := (&RelationClient{config: aq.config}).Query()
 	for _, opt := range opts {
@@ -407,12 +407,12 @@ func (aq *AvatarQuery) WithMessages(opts ...func(*MessageQuery)) *AvatarQuery {
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		DeletedAt time.Time `json:"deleted_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Avatar.Query().
-//		GroupBy(avatar.FieldCreatedAt).
+//		GroupBy(avatar.FieldDeletedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (aq *AvatarQuery) GroupBy(field string, fields ...string) *AvatarGroupBy {
@@ -430,11 +430,11 @@ func (aq *AvatarQuery) GroupBy(field string, fields ...string) *AvatarGroupBy {
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		DeletedAt time.Time `json:"deleted_at,omitempty"`
 //	}
 //
 //	client.Avatar.Query().
-//		Select(avatar.FieldCreatedAt).
+//		Select(avatar.FieldDeletedAt).
 //		Scan(ctx, &v)
 func (aq *AvatarQuery) Select(fields ...string) *AvatarSelect {
 	aq.ctx.Fields = append(aq.ctx.Fields, fields...)

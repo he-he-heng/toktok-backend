@@ -16,12 +16,12 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 	// FieldUID holds the string denoting the uid field in the database.
 	FieldUID = "uid"
 	// FieldPassword holds the string denoting the password field in the database.
@@ -30,7 +30,7 @@ const (
 	FieldEmail = "email"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
-	// FieldBanState holds the string denoting the banstate field in the database.
+	// FieldBanState holds the string denoting the ban_state field in the database.
 	FieldBanState = "ban_state"
 	// EdgeAvatar holds the string denoting the avatar edge name in mutations.
 	EdgeAvatar = "avatar"
@@ -48,9 +48,9 @@ const (
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
+	FieldDeletedAt,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldDeletedAt,
 	FieldUID,
 	FieldPassword,
 	FieldEmail,
@@ -114,7 +114,7 @@ func RoleValidator(r Role) error {
 	}
 }
 
-// BanState defines the type for the "banState" enum field.
+// BanState defines the type for the "ban_state" enum field.
 type BanState string
 
 // BanStateUnban is the default value of the BanState enum.
@@ -130,13 +130,13 @@ func (bs BanState) String() string {
 	return string(bs)
 }
 
-// BanStateValidator is a validator for the "banState" field enum values. It is called by the builders before save.
+// BanStateValidator is a validator for the "ban_state" field enum values. It is called by the builders before save.
 func BanStateValidator(bs BanState) error {
 	switch bs {
 	case BanStateBan, BanStateUnban:
 		return nil
 	default:
-		return fmt.Errorf("user: invalid enum value for banState field: %q", bs)
+		return fmt.Errorf("user: invalid enum value for ban_state field: %q", bs)
 	}
 }
 
@@ -148,6 +148,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -156,11 +161,6 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByUID orders the results by the uid field.
@@ -183,7 +183,7 @@ func ByRole(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRole, opts...).ToFunc()
 }
 
-// ByBanState orders the results by the banState field.
+// ByBanState orders the results by the ban_state field.
 func ByBanState(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBanState, opts...).ToFunc()
 }

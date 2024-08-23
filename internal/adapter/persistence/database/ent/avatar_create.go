@@ -23,6 +23,20 @@ type AvatarCreate struct {
 	hooks    []Hook
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (ac *AvatarCreate) SetDeletedAt(t time.Time) *AvatarCreate {
+	ac.mutation.SetDeletedAt(t)
+	return ac
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (ac *AvatarCreate) SetNillableDeletedAt(t *time.Time) *AvatarCreate {
+	if t != nil {
+		ac.SetDeletedAt(*t)
+	}
+	return ac
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (ac *AvatarCreate) SetCreatedAt(t time.Time) *AvatarCreate {
 	ac.mutation.SetCreatedAt(t)
@@ -47,20 +61,6 @@ func (ac *AvatarCreate) SetUpdatedAt(t time.Time) *AvatarCreate {
 func (ac *AvatarCreate) SetNillableUpdatedAt(t *time.Time) *AvatarCreate {
 	if t != nil {
 		ac.SetUpdatedAt(*t)
-	}
-	return ac
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (ac *AvatarCreate) SetDeletedAt(t time.Time) *AvatarCreate {
-	ac.mutation.SetDeletedAt(t)
-	return ac
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (ac *AvatarCreate) SetNillableDeletedAt(t *time.Time) *AvatarCreate {
-	if t != nil {
-		ac.SetDeletedAt(*t)
 	}
 	return ac
 }
@@ -117,13 +117,13 @@ func (ac *AvatarCreate) SetNillableIntroduce(s *string) *AvatarCreate {
 	return ac
 }
 
-// SetState sets the "State" field.
+// SetState sets the "state" field.
 func (ac *AvatarCreate) SetState(a avatar.State) *AvatarCreate {
 	ac.mutation.SetState(a)
 	return ac
 }
 
-// SetNillableState sets the "State" field if the given value is not nil.
+// SetNillableState sets the "state" field if the given value is not nil.
 func (ac *AvatarCreate) SetNillableState(a *avatar.State) *AvatarCreate {
 	if a != nil {
 		ac.SetState(*a)
@@ -142,13 +142,13 @@ func (ac *AvatarCreate) SetUser(u *User) *AvatarCreate {
 	return ac.SetUserID(u.ID)
 }
 
-// AddAvatarRelationIDs adds the "avatarRelations" edge to the Relation entity by IDs.
+// AddAvatarRelationIDs adds the "avatar_relations" edge to the Relation entity by IDs.
 func (ac *AvatarCreate) AddAvatarRelationIDs(ids ...int) *AvatarCreate {
 	ac.mutation.AddAvatarRelationIDs(ids...)
 	return ac
 }
 
-// AddAvatarRelations adds the "avatarRelations" edges to the Relation entity.
+// AddAvatarRelations adds the "avatar_relations" edges to the Relation entity.
 func (ac *AvatarCreate) AddAvatarRelations(r ...*Relation) *AvatarCreate {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -157,13 +157,13 @@ func (ac *AvatarCreate) AddAvatarRelations(r ...*Relation) *AvatarCreate {
 	return ac.AddAvatarRelationIDs(ids...)
 }
 
-// AddFriendRelationIDs adds the "friendRelations" edge to the Relation entity by IDs.
+// AddFriendRelationIDs adds the "friend_relations" edge to the Relation entity by IDs.
 func (ac *AvatarCreate) AddFriendRelationIDs(ids ...int) *AvatarCreate {
 	ac.mutation.AddFriendRelationIDs(ids...)
 	return ac
 }
 
-// AddFriendRelations adds the "friendRelations" edges to the Relation entity.
+// AddFriendRelations adds the "friend_relations" edges to the Relation entity.
 func (ac *AvatarCreate) AddFriendRelations(r ...*Relation) *AvatarCreate {
 	ids := make([]int, len(r))
 	for i := range r {
@@ -291,11 +291,11 @@ func (ac *AvatarCreate) check() error {
 		}
 	}
 	if _, ok := ac.mutation.State(); !ok {
-		return &ValidationError{Name: "State", err: errors.New(`ent: missing required field "Avatar.State"`)}
+		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "Avatar.state"`)}
 	}
 	if v, ok := ac.mutation.State(); ok {
 		if err := avatar.StateValidator(v); err != nil {
-			return &ValidationError{Name: "State", err: fmt.Errorf(`ent: validator failed for field "Avatar.State": %w`, err)}
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Avatar.state": %w`, err)}
 		}
 	}
 	if len(ac.mutation.UserIDs()) == 0 {
@@ -327,6 +327,10 @@ func (ac *AvatarCreate) createSpec() (*Avatar, *sqlgraph.CreateSpec) {
 		_node = &Avatar{config: ac.config}
 		_spec = sqlgraph.NewCreateSpec(avatar.Table, sqlgraph.NewFieldSpec(avatar.FieldID, field.TypeInt))
 	)
+	if value, ok := ac.mutation.DeletedAt(); ok {
+		_spec.SetField(avatar.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
+	}
 	if value, ok := ac.mutation.CreatedAt(); ok {
 		_spec.SetField(avatar.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -334,10 +338,6 @@ func (ac *AvatarCreate) createSpec() (*Avatar, *sqlgraph.CreateSpec) {
 	if value, ok := ac.mutation.UpdatedAt(); ok {
 		_spec.SetField(avatar.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := ac.mutation.DeletedAt(); ok {
-		_spec.SetField(avatar.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := ac.mutation.Sex(); ok {
 		_spec.SetField(avatar.FieldSex, field.TypeEnum, value)

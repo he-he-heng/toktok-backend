@@ -41,7 +41,7 @@ func (Avatar) Fields() []ent.Field {
 			Nillable().
 			Optional(),
 
-		field.Enum("State").
+		field.Enum("state").
 			Values(
 				"online",
 				"offline",
@@ -58,8 +58,8 @@ func (Avatar) Edges() []ent.Edge {
 			Unique().
 			Required(),
 
-		edge.To("avatarRelations", Relation.Type),
-		edge.To("friendRelations", Relation.Type),
+		edge.To("avatar_relations", Relation.Type),
+		edge.To("friend_relations", Relation.Type),
 
 		edge.To("messages", Message.Type),
 	}
@@ -67,6 +67,7 @@ func (Avatar) Edges() []ent.Edge {
 
 func (Avatar) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		SoftDeleteMixin{},
 		TimeMixin{},
 	}
 }
