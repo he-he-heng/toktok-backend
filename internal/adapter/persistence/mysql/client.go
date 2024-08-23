@@ -3,6 +3,7 @@ package mysql
 import (
 	"fmt"
 	"toktok-backend/internal/adapter/persistence/mysql/ent"
+	_ "toktok-backend/internal/adapter/persistence/mysql/ent/runtime"
 	"toktok-backend/internal/infra/config"
 )
 

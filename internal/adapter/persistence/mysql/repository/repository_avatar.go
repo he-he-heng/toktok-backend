@@ -19,7 +19,6 @@ func NewAvatarRepository(client *mysql.Client) *AvatarRepository {
 	avatarRepository := AvatarRepository{
 		client: client,
 	}
-
 	return &avatarRepository
 }
 
@@ -32,8 +31,12 @@ func (r *AvatarRepository) CreateAvatar(ctx context.Context, avatar *domain.Avat
 		SetPicture(avatar.Picture).
 		SetState(entavatar.State(avatar.State))
 
+	if avatar.State != "" {
+		builder.SetState(entavatar.State(avatar.State))
+	}
+
 	if avatar.Mbti != nil {
-		builder.SetBirthday(avatar.Birthday)
+		builder.SetMbti(*avatar.Mbti)
 	}
 
 	if avatar.Introduce != nil {
@@ -91,26 +94,26 @@ func (r *AvatarRepository) ListAvatar(ctx context.Context, skip, limit int, orde
 	return utils.ToDomainAvatars(avatars), nil
 }
 
-func (r *AvatarRepository) UpdateUser(ctx context.Context, avatar *domain.Avatar) (*domain.Avatar, error) {
+func (r *AvatarRepository) UpdateAvatar(ctx context.Context, avatar *domain.Avatar) (*domain.Avatar, error) {
 	builder := r.client.Avatar.UpdateOneID(avatar.ID)
 
-	if utils.Changeable(avatar.Sex) {
+	if avatar.Sex != "" {
 		builder.SetSex(entavatar.Sex(avatar.Sex))
 	}
 
-	if utils.Changeable(avatar.Birthday) {
+	if avatar.Birthday != "" {
 		builder.SetBirthday(avatar.Birthday)
 	}
 
 	if avatar.Mbti != nil {
-		builder.SetMbti(avatar.Birthday)
+		builder.SetMbti(*avatar.Mbti)
 	}
 
-	if utils.Changeable(avatar.Nickname) {
+	if avatar.Nickname != "" {
 		builder.SetNickname(avatar.Nickname)
 	}
 
-	if utils.Changeable(avatar.Picture) {
+	if avatar.Picture != "" {
 		builder.SetPicture(avatar.Picture)
 	}
 
@@ -118,8 +121,8 @@ func (r *AvatarRepository) UpdateUser(ctx context.Context, avatar *domain.Avatar
 		builder.SetIntroduce(*avatar.Introduce)
 	}
 
-	if utils.Changeable(avatar.State) {
-		builder.SetPicture(avatar.Picture)
+	if avatar.State != "" {
+		builder.SetState(entavatar.State(avatar.State))
 	}
 
 	updatedAvatar, err := builder.Save(ctx)
@@ -130,7 +133,7 @@ func (r *AvatarRepository) UpdateUser(ctx context.Context, avatar *domain.Avatar
 	return utils.ToDomainAvatar(updatedAvatar), nil
 }
 
-func (r *AvatarRepository) DeleteUser(ctx context.Context, id int) error {
+func (r *AvatarRepository) DeleteAvatar(ctx context.Context, id int) error {
 	err := r.client.Avatar.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		return err
