@@ -26,10 +26,10 @@ func (dto *CreateUserRequest) ToDomainUser() *domain.User {
 }
 
 type UpdateUserReqeust struct {
-	Uid      string `json:"uid"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-	BanState string `json:"banState"`
+	Uid      string `json:"uid" validate:"omitempty,gte=6,lte=18"`
+	Password string `json:"password" validate:"omitempty,gte=6,lte=32"`
+	Email    string `json:"email" validate:"omitempty,email"`
+	BanState string `json:"banState" validate:"omitempty,oneof=ban unban"`
 }
 
 func (dto *UpdateUserReqeust) ToDomainUser(id int) *domain.User {
