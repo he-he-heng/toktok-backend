@@ -24,6 +24,10 @@ func NewClient(config *config.Config) (*Client, error) {
 		return nil, err
 	}
 
+	// TODO: ping test
+
+	// TODO : max idle, conns setting
+
 	client := Client{
 		Client: ist,
 	}
