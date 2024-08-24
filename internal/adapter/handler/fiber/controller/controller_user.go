@@ -73,8 +73,8 @@ func (c *UserController) ListUser(ctx *fiber.Ctx) error {
 }
 
 func (c *UserController) UpdateUser(ctx *fiber.Ctx) error {
-	id, err := ctx.ParamsInt("id", -1)
-	if err != nil || id < 0 {
+	id, err := ctx.ParamsInt("id", 0)
+	if err != nil || id < 1 {
 		return errors.Wrap(domain.ErrBadParam, err)
 	}
 
@@ -92,8 +92,8 @@ func (c *UserController) UpdateUser(ctx *fiber.Ctx) error {
 }
 
 func (c *UserController) DeleteUser(ctx *fiber.Ctx) error {
-	id, err := ctx.ParamsInt("id", -1)
-	if err != nil || id < 0 {
+	id, err := ctx.ParamsInt("id", 0)
+	if err != nil || id < 1 {
 		return errors.Wrap(domain.ErrBadParam, err)
 	}
 
