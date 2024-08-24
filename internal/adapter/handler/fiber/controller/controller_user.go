@@ -103,5 +103,4 @@ func (c *UserController) DeleteUser(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.SendStatus(fiber.StatusNoContent)
-
 }
