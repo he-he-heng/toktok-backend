@@ -2,7 +2,10 @@ package controller
 
 import (
 	"toktok-backend/internal/adapter/handler/fiber/dto"
+	"toktok-backend/internal/adapter/handler/fiber/validator"
+	"toktok-backend/internal/core/domain"
 	"toktok-backend/internal/core/port"
+	"toktok-backend/pkg/errors"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,13 +27,16 @@ func (c *UserController) CreateUser(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&body); err != nil {
 		return err
 	}
+	if err := validator.Get().Verify(&body); err != nil {
+		return errors.Wrap(domain.ErrBadParam, err)
+	}
 
-	_, err := c.userService.CreateUser(ctx.Context(), body.ToDomainUser())
+	user, err := c.userService.CreateUser(ctx.Context(), body.ToDomainUser())
 	if err != nil {
 		return err
 	}
 
-	return ctx.SendStatus(fiber.StatusCreated)
+	return ctx.Status(fiber.StatusOK).JSON(dto.CreateUserRequest{}.Of(user))
 }
 
 func (c *UserController) GetUser(ctx *fiber.Ctx) error {

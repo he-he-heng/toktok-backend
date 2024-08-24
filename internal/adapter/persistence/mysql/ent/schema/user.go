@@ -17,16 +17,16 @@ func (User) Fields() []ent.Field {
 		field.String("uid").
 			MinLen(6).
 			MaxLen(18).
-			NotEmpty(),
+			NotEmpty().
+			Unique(),
 
 		field.String("password").
-			MinLen(6).
-			MaxLen(32).
 			NotEmpty(),
 
 		field.String("email").
 			Nillable().
-			Optional(),
+			Optional().
+			Unique(),
 
 		field.Enum("role").
 			Values(

@@ -1,25 +1,25 @@
 package catcher
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // Default error handler
-var CustomErrorHandler = func(c *fiber.Ctx, err error) error {
+var CustomErrorHandler = func(ctx *fiber.Ctx, err error) error {
 	// Status code defaults to 500
-	code := fiber.StatusInternalServerError
+	msg := err.Error()
+	status := fiber.StatusInternalServerError
 
-	// Retrieve the custom status code if it's a *fiber.Error
-	var e *fiber.Error
-	if errors.As(err, &e) {
-		code = e.Code
+	gotStatus, originErrMsg, err := errSetGet().Get(err)
+	if err == nil {
+		status = gotStatus
+		msg = fmt.Sprintf("[%s] %s", originErrMsg, msg)
 	}
 
-	// Set Content-Type: text/plain; charset=utf-8
-	c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
-
-	// Return status code with error message
-	return c.Status(code).SendString(err.Error())
+	return ctx.Status(status).JSON(&errResponse{
+		Status: status,
+		Msg:    msg,
+	})
 }

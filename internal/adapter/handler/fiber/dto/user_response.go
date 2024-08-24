@@ -4,10 +4,10 @@ import (
 	"toktok-backend/internal/core/domain"
 )
 
-type GetUserResponse struct {
-	ID       int     `json:"id"`
-	UID      string  `json:"uid"`
-	Password string  `json:"password"`
+type User struct {
+	ID  int    `json:"id"`
+	UID string `json:"uid"`
+	// Password stirng -> empty password
 	Email    *string `json:"email,omitempty"`
 	Role     string  `json:"role"`
 	BanState string  `json:"banState"`
@@ -17,34 +17,48 @@ type GetUserResponse struct {
 	DeletedAt string `json:"deletedAt,omitempty"`
 }
 
-func (gur GetUserResponse) Of(domainUser *domain.User) GetUserResponse {
-	getUserResponse := GetUserResponse{
+func (u User) Of(domainUser *domain.User) User {
+	user := User{
 		ID:       domainUser.ID,
 		UID:      domainUser.Password,
-		Password: domainUser.Password,
 		Email:    domainUser.Email,
 		Role:     string(domainUser.Role),
 		BanState: string(domainUser.BanState),
 	}
 
-	getUserResponse.CreatedAt = domainUser.CreatedAt.Format("2006-01-02T15:04:05Z")
-	getUserResponse.UpdatedAt = domainUser.UpdatedAt.Format("2006-01-02T15:04:05Z")
+	user.CreatedAt = domainUser.CreatedAt.Format("2006-01-02T15:04:05Z")
+	user.UpdatedAt = domainUser.UpdatedAt.Format("2006-01-02T15:04:05Z")
 
 	if !domainUser.DeletedAt.IsZero() {
-		getUserResponse.DeletedAt = domainUser.DeletedAt.Format("2006-01-02T15:04:05Z")
+		user.DeletedAt = domainUser.DeletedAt.Format("2006-01-02T15:04:05Z")
 	}
 
-	return getUserResponse
+	return user
+
+}
+
+type GetUserResponse struct {
+}
+
+func (GetUserResponse) Of(domainUser *domain.User) User {
+	return User{}.Of(domainUser)
+
 }
 
 type UserListResponse struct {
-	Users []GetUserResponse `json:"users"`
+	Users []User `json:"users"`
 }
 
 func (u UserListResponse) Of(domainUsers []*domain.User) (ret UserListResponse) {
 	for _, user := range domainUsers {
-		ret.Users = append(ret.Users, GetUserResponse{}.Of(user))
+		ret.Users = append(ret.Users, User{}.Of(user))
 	}
 
 	return ret
+}
+
+type CreateUserResponse struct{}
+
+func (CreateUserRequest) Of(domainUser *domain.User) User {
+	return User{}.Of(domainUser)
 }

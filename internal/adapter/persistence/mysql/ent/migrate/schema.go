@@ -106,9 +106,9 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "uid", Type: field.TypeString, Size: 18},
-		{Name: "password", Type: field.TypeString, Size: 32},
-		{Name: "email", Type: field.TypeString, Nullable: true},
+		{Name: "uid", Type: field.TypeString, Unique: true, Size: 18},
+		{Name: "password", Type: field.TypeString},
+		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"admin", "user"}, Default: "user"},
 		{Name: "ban_state", Type: field.TypeEnum, Enums: []string{"ban", "unban"}, Default: "unban"},
 	}

@@ -1,11 +1,11 @@
 package domain
 
-import "errors"
+import "toktok-backend/pkg/errors"
 
 // 공통으로 사용하는 에러
 var (
-	ErrBadParamInput       = errors.New("given param is not valid")
-	ErrInternalServerError = errors.New("internal Server Error")
+	ErrBadParam            = errors.New("given param is not valid")
+	ErrInternalServerError = errors.New("internal server error")
 )
 
 // handler에서 사용되는 에러
@@ -16,6 +16,9 @@ var ()
 
 // repository 에서 사용되는 에러
 var (
-	ErrNotFound = errors.New("your requsted Item is not found")
-	ErrConflict = errors.New("your item already exist")
+	ErrNotFound    = errors.New("not found")      // 404
+	ErrConstraint  = errors.New("conflict")       // 409
+	ErrNotLoaded   = errors.New("not loaded")     // 400
+	ErrNotSingular = errors.New("not singular")   // 400
+	ErrValidation  = errors.New("validation err") // 400
 )

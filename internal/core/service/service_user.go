@@ -4,6 +4,8 @@ import (
 	"context"
 	"toktok-backend/internal/core/domain"
 	"toktok-backend/internal/core/port"
+	"toktok-backend/internal/core/service/utils"
+	"toktok-backend/pkg/errors"
 )
 
 type UserService struct {
@@ -19,6 +21,12 @@ func NewUserService(userRepository port.UserRepository) *UserService {
 }
 
 func (s *UserService) CreateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+
+	hashedPssword, err := utils.HashPassword(user.Password)
+	if err != nil {
+		return nil, errors.Wrap(domain.ErrInternalServerError, hashedPssword)
+	}
+
 	return s.UserRepository.CreateUser(ctx, user)
 }
 

@@ -42,8 +42,10 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*do
 
 	createdUser, err := builder.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrWrap(err)
 	}
+
+	fmt.Printf("\nCreated user :%+v\n", createdUser)
 
 	return utils.ToDomainUser(createdUser), nil
 }
@@ -51,7 +53,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*do
 func (r *UserRepository) GetUser(ctx context.Context, id int) (*domain.User, error) {
 	queriedUser, err := r.client.User.Get(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrWrap(err)
 	}
 
 	return utils.ToDomainUser(queriedUser), err
@@ -84,7 +86,7 @@ func (r *UserRepository) ListUser(ctx context.Context, skip, limit int, order, c
 
 	queriedUsers, err := builder.All(ctx)
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrWrap(err)
 	}
 
 	return utils.ToDomainUsers(queriedUsers), nil
@@ -115,7 +117,7 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*do
 
 	updatedUser, err := builder.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrWrap(err)
 	}
 
 	return utils.ToDomainUser(updatedUser), nil
@@ -125,8 +127,7 @@ func (r *UserRepository) DeleteUser(ctx context.Context, id int) error {
 	err := r.client.User.DeleteOneID(id).
 		Exec(ctx)
 	if err != nil {
-		fmt.Printf("DeleteUser error: %v\n", err) // 에러 메시지 출력
-		return err
+		return utils.ErrWrap(err)
 	}
 
 	return nil

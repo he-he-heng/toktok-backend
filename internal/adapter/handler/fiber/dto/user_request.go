@@ -6,11 +6,10 @@ import (
 
 // TODO: using validation
 type CreateUserRequest struct {
-	Uid      string `json:"uid"`      // require
-	Password string `json:"password"` // require
-	Role     string `json:"role"`
-	Email    string `json:"email"`
-	BanState string `json:"banState"`
+	// validate:"required"
+	Uid      string  `json:"uid" validate:"gte=6,lte=18"`
+	Password string  `json:"password" validate:"gte=6,lte=32"`
+	Email    *string `json:"email" validate:"omitempty,email"`
 }
 
 func (dto *CreateUserRequest) ToDomainUser() *domain.User {
@@ -19,16 +18,8 @@ func (dto *CreateUserRequest) ToDomainUser() *domain.User {
 	ret.UID = dto.Uid
 	ret.Password = dto.Password
 
-	if dto.Role != "" {
-		ret.Role = domain.UserRoleType(dto.Role)
-	}
-
-	if dto.Email != "" {
-		ret.Email = &dto.Email
-	}
-
-	if dto.BanState != "" {
-		ret.BanState = domain.UserBanStateType(dto.BanState)
+	if dto.Email != nil {
+		ret.Email = dto.Email
 	}
 
 	return &ret
