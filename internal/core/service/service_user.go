@@ -39,6 +39,15 @@ func (s *UserService) ListUser(ctx context.Context, skip, limit int, order, crit
 }
 
 func (s *UserService) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+	if user.Password != "" {
+		hashedPssword, err := utils.HashPassword(user.Password)
+		if err != nil {
+			return nil, errors.Wrap(domain.ErrInternalServerError, err)
+		}
+
+		user.Password = hashedPssword
+	}
+
 	return s.UserRepository.UpdateUser(ctx, user)
 }
 

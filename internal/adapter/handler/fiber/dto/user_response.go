@@ -20,7 +20,7 @@ type User struct {
 func (u User) Of(domainUser *domain.User) User {
 	user := User{
 		ID:       domainUser.ID,
-		UID:      domainUser.Password,
+		UID:      domainUser.UID,
 		Email:    domainUser.Email,
 		Role:     string(domainUser.Role),
 		BanState: string(domainUser.BanState),
@@ -60,5 +60,11 @@ func (u UserListResponse) Of(domainUsers []*domain.User) (ret UserListResponse) 
 type CreateUserResponse struct{}
 
 func (CreateUserRequest) Of(domainUser *domain.User) User {
+	return User{}.Of(domainUser)
+}
+
+type UpdateUserResponse struct{}
+
+func (UpdateUserResponse) Of(domainUser *domain.User) User {
 	return User{}.Of(domainUser)
 }

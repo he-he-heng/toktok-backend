@@ -25,7 +25,7 @@ func NewUserController(userService port.UserService) *UserController {
 func (c *UserController) CreateUser(ctx *fiber.Ctx) error {
 	body := dto.CreateUserRequest{}
 	if err := ctx.BodyParser(&body); err != nil {
-		return err
+		return errors.Wrap(domain.ErrBadParam, err)
 	}
 	if err := validator.Get().Verify(&body); err != nil {
 		return errors.Wrap(domain.ErrBadParam, err)
@@ -42,7 +42,7 @@ func (c *UserController) CreateUser(ctx *fiber.Ctx) error {
 func (c *UserController) GetUser(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id", 1)
 	if err != nil {
-		return err
+		return errors.Wrap(domain.ErrBadParam, err)
 	}
 
 	user, err := c.userService.GetUser(ctx.Context(), id)
@@ -57,11 +57,11 @@ func (c *UserController) GetUser(ctx *fiber.Ctx) error {
 func (c *UserController) ListUser(ctx *fiber.Ctx) error {
 	skip := ctx.QueryInt("skip", 1)
 	limit := ctx.QueryInt("limit", 5)
-	order := ctx.Query("order", "asc")
+	order := ctx.Query("order", "asc", "asc")
 	criterion := ctx.Query("criterion", "id")
 
 	if skip > 30 {
-		// TODO: error 반환
+		return errors.Wrap(domain.ErrBadParam, "value of skip is greater than 30")
 	}
 
 	users, err := c.userService.ListUser(ctx.Context(), skip, limit, order, criterion)
@@ -73,27 +73,31 @@ func (c *UserController) ListUser(ctx *fiber.Ctx) error {
 }
 
 func (c *UserController) UpdateUser(ctx *fiber.Ctx) error {
-	id := ctx.QueryInt("id", 1)
-	body := dto.UpdateUserReqeust{}
-	if err := ctx.BodyParser(&body); err != nil {
-		return err
+	id, err := ctx.ParamsInt("id", -1)
+	if err != nil || id < 0 {
+		return errors.Wrap(domain.ErrBadParam, err)
 	}
 
-	_, err := c.userService.UpdateUser(ctx.Context(), body.ToDomainUser(id))
+	body := dto.UpdateUserReqeust{}
+	if err := ctx.BodyParser(&body); err != nil {
+		return errors.Wrap(domain.ErrBadParam, err)
+	}
+
+	user, err := c.userService.UpdateUser(ctx.Context(), body.ToDomainUser(id))
 	if err != nil {
 		return err
 	}
 
-	return ctx.SendStatus(fiber.StatusNoContent)
+	return ctx.Status(fiber.StatusOK).JSON(dto.UpdateUserResponse{}.Of(user))
 }
 
 func (c *UserController) DeleteUser(ctx *fiber.Ctx) error {
-	id := ctx.QueryInt("id", -1)
-	if id == -1 {
-		// TODO: error 반환
+	id, err := ctx.ParamsInt("id", -1)
+	if err != nil || id < 0 {
+		return errors.Wrap(domain.ErrBadParam, err)
 	}
 
-	err := c.userService.DeleteUser(ctx.Context(), id)
+	err = c.userService.DeleteUser(ctx.Context(), id)
 	if err != nil {
 		return err
 	}
