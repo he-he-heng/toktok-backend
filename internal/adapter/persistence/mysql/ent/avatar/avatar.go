@@ -130,8 +130,6 @@ var (
 	BirthdayValidator func(string) error
 	// MbtiValidator is a validator for the "mbti" field. It is called by the builders before save.
 	MbtiValidator func(string) error
-	// PictureValidator is a validator for the "picture" field. It is called by the builders before save.
-	PictureValidator func(string) error
 	// NicknameValidator is a validator for the "nickname" field. It is called by the builders before save.
 	NicknameValidator func(string) error
 )
@@ -156,6 +154,38 @@ func SexValidator(s Sex) error {
 		return nil
 	default:
 		return fmt.Errorf("avatar: invalid enum value for sex field: %q", s)
+	}
+}
+
+// Picture defines the type for the "picture" enum field.
+type Picture string
+
+// PictureLightRed is the default value of the Picture enum.
+const DefaultPicture = PictureLightRed
+
+// Picture values.
+const (
+	PictureLightRed    Picture = "lightRed"
+	PictureMilkRed     Picture = "milkRed"
+	PictureLightOrange Picture = "lightOrange"
+	PictureDeepYellow  Picture = "deepYellow"
+	PictureDeepPurple  Picture = "deepPurple"
+	PictureBluePurple  Picture = "bluePurple"
+	PictureLightPink   Picture = "lightPink"
+	PictureDeepSky     Picture = "deepSky"
+)
+
+func (pi Picture) String() string {
+	return string(pi)
+}
+
+// PictureValidator is a validator for the "picture" field enum values. It is called by the builders before save.
+func PictureValidator(pi Picture) error {
+	switch pi {
+	case PictureLightRed, PictureMilkRed, PictureLightOrange, PictureDeepYellow, PictureDeepPurple, PictureBluePurple, PictureLightPink, PictureDeepSky:
+		return nil
+	default:
+		return fmt.Errorf("avatar: invalid enum value for picture field: %q", pi)
 	}
 }
 

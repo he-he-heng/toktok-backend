@@ -31,7 +31,7 @@ type Avatar struct {
 	// Mbti holds the value of the "mbti" field.
 	Mbti *string `json:"mbti,omitempty"`
 	// Picture holds the value of the "picture" field.
-	Picture string `json:"picture,omitempty"`
+	Picture avatar.Picture `json:"picture,omitempty"`
 	// Nickname holds the value of the "nickname" field.
 	Nickname string `json:"nickname,omitempty"`
 	// Introduce holds the value of the "introduce" field.
@@ -173,7 +173,7 @@ func (a *Avatar) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field picture", values[i])
 			} else if value.Valid {
-				a.Picture = value.String
+				a.Picture = avatar.Picture(value.String)
 			}
 		case avatar.FieldNickname:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -278,7 +278,7 @@ func (a *Avatar) String() string {
 	}
 	builder.WriteString(", ")
 	builder.WriteString("picture=")
-	builder.WriteString(a.Picture)
+	builder.WriteString(fmt.Sprintf("%v", a.Picture))
 	builder.WriteString(", ")
 	builder.WriteString("nickname=")
 	builder.WriteString(a.Nickname)

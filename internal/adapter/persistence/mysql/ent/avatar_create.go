@@ -92,8 +92,16 @@ func (ac *AvatarCreate) SetNillableMbti(s *string) *AvatarCreate {
 }
 
 // SetPicture sets the "picture" field.
-func (ac *AvatarCreate) SetPicture(s string) *AvatarCreate {
-	ac.mutation.SetPicture(s)
+func (ac *AvatarCreate) SetPicture(a avatar.Picture) *AvatarCreate {
+	ac.mutation.SetPicture(a)
+	return ac
+}
+
+// SetNillablePicture sets the "picture" field if the given value is not nil.
+func (ac *AvatarCreate) SetNillablePicture(a *avatar.Picture) *AvatarCreate {
+	if a != nil {
+		ac.SetPicture(*a)
+	}
 	return ac
 }
 
@@ -238,6 +246,10 @@ func (ac *AvatarCreate) defaults() error {
 		v := avatar.DefaultUpdatedAt()
 		ac.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := ac.mutation.Picture(); !ok {
+		v := avatar.DefaultPicture
+		ac.mutation.SetPicture(v)
+	}
 	if _, ok := ac.mutation.State(); !ok {
 		v := avatar.DefaultState
 		ac.mutation.SetState(v)
@@ -352,7 +364,7 @@ func (ac *AvatarCreate) createSpec() (*Avatar, *sqlgraph.CreateSpec) {
 		_node.Mbti = &value
 	}
 	if value, ok := ac.mutation.Picture(); ok {
-		_spec.SetField(avatar.FieldPicture, field.TypeString, value)
+		_spec.SetField(avatar.FieldPicture, field.TypeEnum, value)
 		_node.Picture = value
 	}
 	if value, ok := ac.mutation.Nickname(); ok {

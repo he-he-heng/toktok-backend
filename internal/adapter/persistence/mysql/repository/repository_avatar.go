@@ -28,7 +28,7 @@ func (r *AvatarRepository) CreateAvatar(ctx context.Context, avatar *domain.Avat
 		SetSex(entavatar.Sex(avatar.Sex)).
 		SetBirthday(avatar.Birthday).
 		SetNickname(avatar.Nickname).
-		SetPicture(avatar.Picture).
+		SetPicture(entavatar.Picture(avatar.Picture)).
 		SetState(entavatar.State(avatar.State))
 
 	if avatar.State != "" {
@@ -114,7 +114,7 @@ func (r *AvatarRepository) UpdateAvatar(ctx context.Context, avatar *domain.Avat
 	}
 
 	if avatar.Picture != "" {
-		builder.SetPicture(avatar.Picture)
+		builder.SetPicture(entavatar.Picture(avatar.Picture))
 	}
 
 	if avatar.Introduce != nil {

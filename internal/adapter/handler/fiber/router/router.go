@@ -20,6 +20,7 @@ func NewRouter(controllerSet ControllerSet) *Router {
 	// new app
 	config := fiber.Config{
 		ErrorHandler: catcher.CustomErrorHandler,
+		// EnablePrintRoutes: true,
 	}
 	app := fiber.New(config)
 

@@ -80,11 +80,6 @@ func Mbti(v string) predicate.Avatar {
 	return predicate.Avatar(sql.FieldEQ(FieldMbti, v))
 }
 
-// Picture applies equality check predicate on the "picture" field. It's identical to PictureEQ.
-func Picture(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldEQ(FieldPicture, v))
-}
-
 // Nickname applies equality check predicate on the "nickname" field. It's identical to NicknameEQ.
 func Nickname(v string) predicate.Avatar {
 	return predicate.Avatar(sql.FieldEQ(FieldNickname, v))
@@ -386,68 +381,23 @@ func MbtiContainsFold(v string) predicate.Avatar {
 }
 
 // PictureEQ applies the EQ predicate on the "picture" field.
-func PictureEQ(v string) predicate.Avatar {
+func PictureEQ(v Picture) predicate.Avatar {
 	return predicate.Avatar(sql.FieldEQ(FieldPicture, v))
 }
 
 // PictureNEQ applies the NEQ predicate on the "picture" field.
-func PictureNEQ(v string) predicate.Avatar {
+func PictureNEQ(v Picture) predicate.Avatar {
 	return predicate.Avatar(sql.FieldNEQ(FieldPicture, v))
 }
 
 // PictureIn applies the In predicate on the "picture" field.
-func PictureIn(vs ...string) predicate.Avatar {
+func PictureIn(vs ...Picture) predicate.Avatar {
 	return predicate.Avatar(sql.FieldIn(FieldPicture, vs...))
 }
 
 // PictureNotIn applies the NotIn predicate on the "picture" field.
-func PictureNotIn(vs ...string) predicate.Avatar {
+func PictureNotIn(vs ...Picture) predicate.Avatar {
 	return predicate.Avatar(sql.FieldNotIn(FieldPicture, vs...))
-}
-
-// PictureGT applies the GT predicate on the "picture" field.
-func PictureGT(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldGT(FieldPicture, v))
-}
-
-// PictureGTE applies the GTE predicate on the "picture" field.
-func PictureGTE(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldGTE(FieldPicture, v))
-}
-
-// PictureLT applies the LT predicate on the "picture" field.
-func PictureLT(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldLT(FieldPicture, v))
-}
-
-// PictureLTE applies the LTE predicate on the "picture" field.
-func PictureLTE(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldLTE(FieldPicture, v))
-}
-
-// PictureContains applies the Contains predicate on the "picture" field.
-func PictureContains(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldContains(FieldPicture, v))
-}
-
-// PictureHasPrefix applies the HasPrefix predicate on the "picture" field.
-func PictureHasPrefix(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldHasPrefix(FieldPicture, v))
-}
-
-// PictureHasSuffix applies the HasSuffix predicate on the "picture" field.
-func PictureHasSuffix(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldHasSuffix(FieldPicture, v))
-}
-
-// PictureEqualFold applies the EqualFold predicate on the "picture" field.
-func PictureEqualFold(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldEqualFold(FieldPicture, v))
-}
-
-// PictureContainsFold applies the ContainsFold predicate on the "picture" field.
-func PictureContainsFold(v string) predicate.Avatar {
-	return predicate.Avatar(sql.FieldContainsFold(FieldPicture, v))
 }
 
 // NicknameEQ applies the EQ predicate on the "nickname" field.

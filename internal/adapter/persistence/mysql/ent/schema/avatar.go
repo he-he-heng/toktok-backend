@@ -31,8 +31,17 @@ func (Avatar) Fields() []ent.Field {
 			Nillable().
 			Optional(),
 
-		field.String("picture").
-			NotEmpty(),
+		field.Enum("picture").
+			Values(
+				"lightRed",
+				"milkRed",
+				"lightOrange",
+				"deepYellow",
+				"deepPurple",
+				"bluePurple",
+				"lightPink",
+				"deepSky",
+			).Default("lightRed"),
 
 		field.String("nickname").
 			NotEmpty(),

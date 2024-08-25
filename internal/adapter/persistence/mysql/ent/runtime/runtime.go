@@ -71,10 +71,6 @@ func init() {
 			return nil
 		}
 	}()
-	// avatarDescPicture is the schema descriptor for picture field.
-	avatarDescPicture := avatarFields[3].Descriptor()
-	// avatar.PictureValidator is a validator for the "picture" field. It is called by the builders before save.
-	avatar.PictureValidator = avatarDescPicture.Validators[0].(func(string) error)
 	// avatarDescNickname is the schema descriptor for nickname field.
 	avatarDescNickname := avatarFields[4].Descriptor()
 	// avatar.NicknameValidator is a validator for the "nickname" field. It is called by the builders before save.

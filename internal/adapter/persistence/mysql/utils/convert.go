@@ -47,7 +47,7 @@ func ToDomainAvatar(avatar *ent.Avatar) *domain.Avatar {
 		Birthday:  avatar.Birthday,
 		Mbti:      avatar.Mbti,
 		Nickname:  avatar.Nickname,
-		Picture:   avatar.Picture,
+		Picture:   domain.AvatarPictureType(avatar.Picture),
 		Introduce: avatar.Introduce,
 		State:     domain.AvatarStateType(avatar.State),
 

@@ -45,7 +45,7 @@ type AvatarMutation struct {
 	sex                     *avatar.Sex
 	birthday                *string
 	mbti                    *string
-	picture                 *string
+	picture                 *avatar.Picture
 	nickname                *string
 	introduce               *string
 	state                   *avatar.State
@@ -407,12 +407,12 @@ func (m *AvatarMutation) ResetMbti() {
 }
 
 // SetPicture sets the "picture" field.
-func (m *AvatarMutation) SetPicture(s string) {
-	m.picture = &s
+func (m *AvatarMutation) SetPicture(a avatar.Picture) {
+	m.picture = &a
 }
 
 // Picture returns the value of the "picture" field in the mutation.
-func (m *AvatarMutation) Picture() (r string, exists bool) {
+func (m *AvatarMutation) Picture() (r avatar.Picture, exists bool) {
 	v := m.picture
 	if v == nil {
 		return
@@ -423,7 +423,7 @@ func (m *AvatarMutation) Picture() (r string, exists bool) {
 // OldPicture returns the old "picture" field's value of the Avatar entity.
 // If the Avatar object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AvatarMutation) OldPicture(ctx context.Context) (v string, err error) {
+func (m *AvatarMutation) OldPicture(ctx context.Context) (v avatar.Picture, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPicture is only allowed on UpdateOne operations")
 	}
@@ -938,7 +938,7 @@ func (m *AvatarMutation) SetField(name string, value ent.Value) error {
 		m.SetMbti(v)
 		return nil
 	case avatar.FieldPicture:
-		v, ok := value.(string)
+		v, ok := value.(avatar.Picture)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

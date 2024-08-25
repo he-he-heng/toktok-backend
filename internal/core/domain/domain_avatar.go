@@ -16,6 +16,19 @@ const (
 	AvatarStateOffline AvatarStateType = "offline"
 )
 
+type AvatarPictureType string
+
+const (
+	AvatarPictureLightRed    AvatarPictureType = "lightRed"
+	AvatarPictureMilkRed     AvatarPictureType = "milkRed"
+	AvatarPictureLightOrange AvatarPictureType = "lightOrange"
+	AvatarPictureDeepYellow  AvatarPictureType = "deepYellow"
+	AvatarPictureDeepPurple  AvatarPictureType = "deepPurple"
+	AvatarPictureBluePurple  AvatarPictureType = "bluePurple"
+	AvatarPictureLightPink   AvatarPictureType = "lightPink"
+	AvatarPictureDeepSky     AvatarPictureType = "deepSky"
+)
+
 type Avatar struct {
 	ID        int
 	UserID    int
@@ -23,7 +36,7 @@ type Avatar struct {
 	Birthday  string
 	Mbti      *string
 	Nickname  string
-	Picture   string
+	Picture   AvatarPictureType
 	Introduce *string
 	State     AvatarStateType
 

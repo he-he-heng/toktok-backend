@@ -106,15 +106,15 @@ func (au *AvatarUpdate) ClearMbti() *AvatarUpdate {
 }
 
 // SetPicture sets the "picture" field.
-func (au *AvatarUpdate) SetPicture(s string) *AvatarUpdate {
-	au.mutation.SetPicture(s)
+func (au *AvatarUpdate) SetPicture(a avatar.Picture) *AvatarUpdate {
+	au.mutation.SetPicture(a)
 	return au
 }
 
 // SetNillablePicture sets the "picture" field if the given value is not nil.
-func (au *AvatarUpdate) SetNillablePicture(s *string) *AvatarUpdate {
-	if s != nil {
-		au.SetPicture(*s)
+func (au *AvatarUpdate) SetNillablePicture(a *avatar.Picture) *AvatarUpdate {
+	if a != nil {
+		au.SetPicture(*a)
 	}
 	return au
 }
@@ -411,7 +411,7 @@ func (au *AvatarUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.ClearField(avatar.FieldMbti, field.TypeString)
 	}
 	if value, ok := au.mutation.Picture(); ok {
-		_spec.SetField(avatar.FieldPicture, field.TypeString, value)
+		_spec.SetField(avatar.FieldPicture, field.TypeEnum, value)
 	}
 	if value, ok := au.mutation.Nickname(); ok {
 		_spec.SetField(avatar.FieldNickname, field.TypeString, value)
@@ -684,15 +684,15 @@ func (auo *AvatarUpdateOne) ClearMbti() *AvatarUpdateOne {
 }
 
 // SetPicture sets the "picture" field.
-func (auo *AvatarUpdateOne) SetPicture(s string) *AvatarUpdateOne {
-	auo.mutation.SetPicture(s)
+func (auo *AvatarUpdateOne) SetPicture(a avatar.Picture) *AvatarUpdateOne {
+	auo.mutation.SetPicture(a)
 	return auo
 }
 
 // SetNillablePicture sets the "picture" field if the given value is not nil.
-func (auo *AvatarUpdateOne) SetNillablePicture(s *string) *AvatarUpdateOne {
-	if s != nil {
-		auo.SetPicture(*s)
+func (auo *AvatarUpdateOne) SetNillablePicture(a *avatar.Picture) *AvatarUpdateOne {
+	if a != nil {
+		auo.SetPicture(*a)
 	}
 	return auo
 }
@@ -1019,7 +1019,7 @@ func (auo *AvatarUpdateOne) sqlSave(ctx context.Context) (_node *Avatar, err err
 		_spec.ClearField(avatar.FieldMbti, field.TypeString)
 	}
 	if value, ok := auo.mutation.Picture(); ok {
-		_spec.SetField(avatar.FieldPicture, field.TypeString, value)
+		_spec.SetField(avatar.FieldPicture, field.TypeEnum, value)
 	}
 	if value, ok := auo.mutation.Nickname(); ok {
 		_spec.SetField(avatar.FieldNickname, field.TypeString, value)
