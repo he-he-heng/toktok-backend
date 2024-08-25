@@ -70,12 +70,6 @@ func (r *AvatarRepository) ListAvatar(ctx context.Context, skip, limit int, orde
 	}
 
 	switch criterion {
-	case "nickname":
-		builder.Order(
-			entavatar.ByNickname(
-				orderTermOption,
-			),
-		)
 
 	default:
 		builder.Order(

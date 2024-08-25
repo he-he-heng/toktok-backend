@@ -49,3 +49,31 @@ func (dto CreateAvatarResponse) Of(avatar *domain.Avatar) CreateAvatarResponse {
 
 	return createAvatarResponse
 }
+
+type ListAvatarResponse struct {
+	Avatars []CreateAvatarResponse `json:"avatars,omitempty"`
+}
+
+func (ListAvatarResponse) Of(avatars []*domain.Avatar) ListAvatarResponse {
+	listAvatarResponse := ListAvatarResponse{
+		Avatars: make([]CreateAvatarResponse, 0),
+	}
+
+	for _, avatar := range avatars {
+		listAvatarResponse.Avatars = append(listAvatarResponse.Avatars, CreateAvatarResponse{}.Of(avatar))
+	}
+
+	return listAvatarResponse
+}
+
+type GetAvatarResponse struct{}
+
+func (GetAvatarResponse) Of(avatar *domain.Avatar) CreateAvatarResponse {
+	return CreateAvatarResponse{}.Of(avatar)
+}
+
+type UpdateAvatarResponse struct{}
+
+func (UpdateAvatarResponse) Of(avatar *domain.Avatar) CreateAvatarResponse {
+	return CreateAvatarResponse{}.Of(avatar)
+}

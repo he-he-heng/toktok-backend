@@ -49,7 +49,11 @@ func NewRouter(controllerSet ControllerSet) *Router {
 
 			avatars := api.Group("/avatars")
 			{
+				avatars.Get("/", router.controllerSet.AvatarController.ListAvatar)
+				avatars.Get("/:id", router.controllerSet.AvatarController.GetAvatar)
 				avatars.Post("/", router.controllerSet.AvatarController.CreateAvatar)
+				avatars.Put("/:id", router.controllerSet.AvatarController.UpdateAvatar)
+				avatars.Delete("/:id", router.controllerSet.AvatarController.DeleteAvatar)
 			}
 		}
 	}

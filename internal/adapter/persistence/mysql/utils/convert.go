@@ -61,10 +61,12 @@ func ToDomainAvatar(avatar *ent.Avatar) *domain.Avatar {
 
 func ToDomainAvatars(avatars []*ent.Avatar) []*domain.Avatar {
 	retAvatars := []*domain.Avatar{}
+
 	for _, avatar := range avatars {
 		retAvatars = append(retAvatars, ToDomainAvatar(avatar))
 	}
 
+	// fmt.Printf("convert avatars: %+v\n", retAvatars)
 	return retAvatars
 }
 

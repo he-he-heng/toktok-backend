@@ -26,17 +26,22 @@ func (dto *CreateUserRequest) ToDomainUser() *domain.User {
 }
 
 type UpdateUserReqeust struct {
-	Uid      string  `json:"uid" validate:"omitempty,gte=6,lte=18"`
-	Password string  `json:"password" validate:"omitempty,gte=6,lte=32"`
+	Uid      *string `json:"uid" validate:"omitempty,gte=6,lte=18"`
+	Password *string `json:"password" validate:"omitempty,gte=6,lte=32"`
 	Email    *string `json:"email" validate:"omitempty,email"`
 }
 
 func (dto *UpdateUserReqeust) ToDomainUser(id int) *domain.User {
 	user := domain.User{
-		ID:       id,
-		UID:      dto.Uid,
-		Password: dto.Password,
-		// Email:    dto.Email,
+		ID: id,
+	}
+
+	if dto.Uid != nil {
+		user.UID = *dto.Uid
+	}
+
+	if dto.Password != nil {
+		user.Password = *dto.Password
 	}
 
 	if dto.Email != nil {
