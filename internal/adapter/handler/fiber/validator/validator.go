@@ -12,7 +12,7 @@ type verifier struct {
 
 func newVerifier() *verifier {
 	verifier := verifier{
-		instance: validator.New(),
+		instance: validator.New(validator.WithRequiredStructEnabled()),
 	}
 
 	return &verifier
