@@ -44,7 +44,8 @@ func (Avatar) Fields() []ent.Field {
 			).Default("lightRed"),
 
 		field.String("nickname").
-			NotEmpty(),
+			NotEmpty().
+			Unique(),
 
 		field.String("introduce").
 			Nillable().

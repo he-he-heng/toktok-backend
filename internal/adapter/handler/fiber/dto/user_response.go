@@ -46,7 +46,7 @@ func (GetUserResponse) Of(domainUser *domain.User) User {
 }
 
 type UserListResponse struct {
-	Users []User `json:"users"`
+	Users []User `json:"users,omitempty"`
 }
 
 func (u UserListResponse) Of(domainUsers []*domain.User) (ret UserListResponse) {

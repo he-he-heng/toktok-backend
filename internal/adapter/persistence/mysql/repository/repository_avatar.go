@@ -28,8 +28,7 @@ func (r *AvatarRepository) CreateAvatar(ctx context.Context, avatar *domain.Avat
 		SetSex(entavatar.Sex(avatar.Sex)).
 		SetBirthday(avatar.Birthday).
 		SetNickname(avatar.Nickname).
-		SetPicture(entavatar.Picture(avatar.Picture)).
-		SetState(entavatar.State(avatar.State))
+		SetPicture(entavatar.Picture(avatar.Picture))
 
 	if avatar.State != "" {
 		builder.SetState(entavatar.State(avatar.State))
@@ -45,7 +44,7 @@ func (r *AvatarRepository) CreateAvatar(ctx context.Context, avatar *domain.Avat
 
 	createdAvatar, err := builder.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrWrap(err)
 	}
 
 	return utils.ToDomainAvatar(createdAvatar), nil
@@ -54,7 +53,7 @@ func (r *AvatarRepository) CreateAvatar(ctx context.Context, avatar *domain.Avat
 func (r *AvatarRepository) GetAvatar(ctx context.Context, id int) (*domain.Avatar, error) {
 	queriedAvatar, err := r.client.Avatar.Get(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrWrap(err)
 	}
 
 	return utils.ToDomainAvatar(queriedAvatar), nil
@@ -88,7 +87,7 @@ func (r *AvatarRepository) ListAvatar(ctx context.Context, skip, limit int, orde
 
 	avatars, err := builder.All(ctx)
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrWrap(err)
 	}
 
 	return utils.ToDomainAvatars(avatars), nil
@@ -127,7 +126,7 @@ func (r *AvatarRepository) UpdateAvatar(ctx context.Context, avatar *domain.Avat
 
 	updatedAvatar, err := builder.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrWrap(err)
 	}
 
 	return utils.ToDomainAvatar(updatedAvatar), nil
@@ -136,7 +135,7 @@ func (r *AvatarRepository) UpdateAvatar(ctx context.Context, avatar *domain.Avat
 func (r *AvatarRepository) DeleteAvatar(ctx context.Context, id int) error {
 	err := r.client.Avatar.DeleteOneID(id).Exec(ctx)
 	if err != nil {
-		return err
+		return utils.ErrWrap(err)
 	}
 
 	return nil

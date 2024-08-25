@@ -5,16 +5,16 @@ import "toktok-backend/internal/core/domain"
 type CreateAvatarRequest struct {
 	UserId    int     `json:"userId"`
 	Sex       string  `json:"sex" validate:"oneof=male female"`
-	Birthday  string  `json:"birthday" validate:"gte=6,lte=4"`
-	Mbti      *string `json:"mbti" validate:"gte=4,lte=4,omitempty"`
+	Birthday  string  `json:"birthday" validate:"gte=8,lte=8"`
+	Mbti      *string `json:"mbti" validate:"omitempty,gte=4,lte=4"`
 	Picture   string  `json:"picture" validate:"oneof=lightRed milkRed lightOrange deepYellow deepPurple bluePurple lightPink deepSky"`
 	Nickname  string  `json:"nickname" validate:"gte=4,lte=18"`
-	Introduce *string `json:"introduce" validate:"gte=1,lte=300,omitempty"`
+	Introduce *string `json:"introduce" validate:"omitempty,gte=1,lte=300"`
 }
 
-func (dto CreateAvatarRequest) ToDomainAvatar(userId int) *domain.Avatar {
+func (dto CreateAvatarRequest) ToDomainAvatar() *domain.Avatar {
 	avatar := domain.Avatar{
-		UserID:   userId,
+		UserID:   dto.UserId,
 		Sex:      domain.AvatarSexType(dto.Sex),
 		Birthday: dto.Birthday,
 		// set mbti

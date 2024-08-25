@@ -19,6 +19,7 @@ func NewAvatarService(avatarRepository port.AvatarRepository) *AvatarService {
 }
 
 func (s *AvatarService) CreateAvatar(ctx context.Context, avatar *domain.Avatar) (*domain.Avatar, error) {
+	// user id가 있는지 확인하려고 했는데, ent 단에서 에러를 내줄 것 같아서 여기서 처리 안함
 	return s.avatarRepository.CreateAvatar(ctx, avatar)
 }
 

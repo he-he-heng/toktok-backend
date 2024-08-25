@@ -31,8 +31,13 @@ func main() {
 	userService := service.NewUserService(userRepository)
 	userController := controller.NewUserController(userService)
 
+	avatarRepository := repository.NewAvatarRepository(client)
+	avatarService := service.NewAvatarService(avatarRepository)
+	avatarController := controller.NewAvatarController(avatarService)
+
 	router := router.NewRouter(router.ControllerSet{
-		UserController: userController,
+		UserController:   userController,
+		AvatarController: avatarController,
 	})
 
 	if err := router.Listen(":8080"); err != nil {

@@ -19,7 +19,7 @@ type CreateAvatarResponse struct {
 	DeletedAt string  `json:"deletedAt"`
 }
 
-func (dto CreateAvatarResponse) Of(avatar domain.Avatar) CreateAvatarResponse {
+func (dto CreateAvatarResponse) Of(avatar *domain.Avatar) CreateAvatarResponse {
 	createAvatarResponse := CreateAvatarResponse{
 		Id:       avatar.ID,
 		UserId:   avatar.UserID,

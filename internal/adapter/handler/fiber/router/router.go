@@ -46,6 +46,11 @@ func NewRouter(controllerSet ControllerSet) *Router {
 				users.Put("/:id", router.controllerSet.UserController.UpdateUser)
 				users.Delete("/:id", router.controllerSet.UserController.DeleteUser)
 			}
+
+			avatars := api.Group("/avatars")
+			{
+				avatars.Post("/", router.controllerSet.AvatarController.CreateAvatar)
+			}
 		}
 	}
 

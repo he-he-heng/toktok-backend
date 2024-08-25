@@ -18,7 +18,7 @@ var (
 		{Name: "birthday", Type: field.TypeString, Size: 8},
 		{Name: "mbti", Type: field.TypeString, Nullable: true, Size: 4},
 		{Name: "picture", Type: field.TypeEnum, Enums: []string{"lightRed", "milkRed", "lightOrange", "deepYellow", "deepPurple", "bluePurple", "lightPink", "deepSky"}, Default: "lightRed"},
-		{Name: "nickname", Type: field.TypeString},
+		{Name: "nickname", Type: field.TypeString, Unique: true},
 		{Name: "introduce", Type: field.TypeString, Nullable: true},
 		{Name: "state", Type: field.TypeEnum, Enums: []string{"online", "offline"}, Default: "online"},
 		{Name: "user_avatar", Type: field.TypeInt, Unique: true},
