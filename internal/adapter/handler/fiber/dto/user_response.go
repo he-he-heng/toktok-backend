@@ -5,8 +5,8 @@ import (
 )
 
 type User struct {
-	ID  int    `json:"id"`
-	UID string `json:"uid"`
+	Id  int    `json:"id"`
+	Uid string `json:"uid"`
 	// Password stirng -> empty password
 	Email    *string `json:"email,omitempty"`
 	Role     string  `json:"role"`
@@ -19,8 +19,8 @@ type User struct {
 
 func (u User) Of(domainUser *domain.User) User {
 	user := User{
-		ID:       domainUser.ID,
-		UID:      domainUser.UID,
+		Id:       domainUser.ID,
+		Uid:      domainUser.UID,
 		Email:    domainUser.Email,
 		Role:     string(domainUser.Role),
 		BanState: string(domainUser.BanState),
