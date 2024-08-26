@@ -25,8 +25,25 @@ func NewClient(config *config.Config) (*Client, error) {
 	}
 
 	// TODO: ping test
+	// if err := drv.DB().Ping(); err != nil {
+	// 	return nil, err
+	// }
 
 	// TODO : max idle, conns setting
+
+	// maxPoolIdle, err := strconv.Atoi(os.Getenv("DB_POOL_IDLE_CONN"))
+	// maxPoolOpen, err := strconv.Atoi(os.Getenv("DB_POOL_MAX_CONN"))
+	// maxPollLifeTime, err := strconv.Atoi(os.Getenv("DB_POOL_LIFE_TIME"))
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// // Get the underlying sql.DB object of the driver.
+	// db := drv.DB()
+	// db.SetMaxIdleConns(maxPoolIdle)
+	// db.SetMaxOpenConns(maxPoolOpen)
+	// db.SetConnMaxLifetime(time.Duration(rand.Int31n(int32(maxPollLifeTime))) * time.Millisecond)
+	// clnt := ent.NewClient(ent.Driver(drv))
 
 	client := Client{
 		Client: ist,
