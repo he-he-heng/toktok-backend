@@ -16,16 +16,20 @@ import (
 func main() {
 	ctx := context.Background()
 
-	config, err := config.New("configs/.toml")
+	cfg, err := config.New("configs/.toml")
 	if err != nil {
 		panic(err)
 	}
 
-	client, err := mysql.NewClient(config)
+	client, err := mysql.NewClient(cfg)
 	if err != nil {
 		panic(err)
 	}
-	mysql.AutoMigration(ctx, client)
+
+	err = mysql.AutoMigration(ctx, client)
+	if err != nil {
+		panic(err)
+	}
 
 	userRepository := repository.NewUserRepository(client)
 	userService := service.NewUserService(userRepository)
@@ -35,12 +39,17 @@ func main() {
 	avatarService := service.NewAvatarService(avatarRepository)
 	avatarController := controller.NewAvatarController(avatarService)
 
-	router := router.NewRouter(router.ControllerSet{
-		UserController:   userController,
-		AvatarController: avatarController,
+	relationRepository := repository.NewRelationRepository(client)
+	relationService := service.NewRelationService(relationRepository)
+	relationController := controller.NewRelationController(relationService)
+
+	r := router.NewRouter(router.ControllerSet{
+		UserController:     userController,
+		AvatarController:   avatarController,
+		RelationController: relationController,
 	})
 
-	if err := router.Listen(":8080"); err != nil {
+	if err := r.Listen(":8080"); err != nil {
 		log.Fatal(err)
 	}
 }

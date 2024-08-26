@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"toktok-backend/internal/adapter/persistence/mysql"
 	entuser "toktok-backend/internal/adapter/persistence/mysql/ent/user"
 	"toktok-backend/internal/adapter/persistence/mysql/utils"
@@ -44,8 +43,6 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) (*do
 	if err != nil {
 		return nil, utils.ErrWrap(err)
 	}
-
-	fmt.Printf("\nCreated user :%+v\n", createdUser)
 
 	return utils.ToDomainUser(createdUser), nil
 }

@@ -24,6 +24,7 @@ type withMessage struct {
 // Wrap 함수는 cause와 help를 인자로하여 warp 하여 에러를 반환합니다.
 func Wrap(cause error, help any) error {
 	var msg string
+
 	switch v := help.(type) {
 	case string:
 		msg = v

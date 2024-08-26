@@ -16,7 +16,7 @@ type CreateAvatarResponse struct {
 	State     string  `json:"state"`
 	CreatedAt string  `json:"createdAt"`
 	UpdatedAt string  `json:"updatedAt"`
-	DeletedAt string  `json:"deletedAt"`
+	DeletedAt string  `json:"deletedAt,omitempty"`
 }
 
 func (dto CreateAvatarResponse) Of(avatar *domain.Avatar) CreateAvatarResponse {

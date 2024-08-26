@@ -6,10 +6,10 @@ type RelationStateType string
 
 const (
 	RelationStateRequestFriend RelationStateType = "request-friend"
-	RealtionStatePending       RelationStateType = "pending"
+	RelationStatePending       RelationStateType = "pending"
 	RelationStateFriend        RelationStateType = "friend"
-	RelationStateDeclined      RelationStateType = "decline"
-	RelationStateRemoved       RelationStateType = "remove"
+	RelationStateDecline       RelationStateType = "decline"
+	RelationStateRemove        RelationStateType = "remove"
 )
 
 type RelationAlertStateType string

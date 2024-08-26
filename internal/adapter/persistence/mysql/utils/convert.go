@@ -66,7 +66,6 @@ func ToDomainAvatars(avatars []*ent.Avatar) []*domain.Avatar {
 		retAvatars = append(retAvatars, ToDomainAvatar(avatar))
 	}
 
-	// fmt.Printf("convert avatars: %+v\n", retAvatars)
 	return retAvatars
 }
 
@@ -79,7 +78,7 @@ func ToDomainRelation(relation *ent.Relation) *domain.Relation {
 		ID:         relation.ID,
 		AvatarID:   relation.Edges.Avatar.ID,
 		FriendID:   relation.Edges.Friend.ID,
-		State:      domain.RelationStateType(relation.AlertState),
+		State:      domain.RelationStateType(relation.State),
 		AlertState: domain.RelationAlertStateType(relation.AlertState),
 
 		CreatedAt: relation.CreatedAt,

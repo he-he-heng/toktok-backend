@@ -17,7 +17,7 @@ var ()
 // repository 에서 사용되는 에러
 var (
 	ErrNotFound    = errors.New("not found")      // 404
-	ErrConstraint  = errors.New("conflict")       // 409
+	ErrConstraint  = errors.New("constraint")     // 409
 	ErrNotLoaded   = errors.New("not loaded")     // 400
 	ErrNotSingular = errors.New("not singular")   // 400
 	ErrValidation  = errors.New("validation err") // 400

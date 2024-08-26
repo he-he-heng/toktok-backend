@@ -12,6 +12,7 @@ type Router struct {
 	app           *fiber.App
 }
 
+// TODO: add arg config
 func NewRouter(controllerSet ControllerSet) *Router {
 	router := Router{
 		controllerSet: controllerSet,
@@ -54,6 +55,15 @@ func NewRouter(controllerSet ControllerSet) *Router {
 				avatars.Post("/", router.controllerSet.AvatarController.CreateAvatar)
 				avatars.Put("/:id", router.controllerSet.AvatarController.UpdateAvatar)
 				avatars.Delete("/:id", router.controllerSet.AvatarController.DeleteAvatar)
+			}
+
+			relations := api.Group("/relations")
+			{
+				relations.Get("/", router.controllerSet.RelationController.ListRelation)
+				relations.Get("/:id", router.controllerSet.RelationController.GetRelation)
+				relations.Post("/", router.controllerSet.RelationController.CreateRelation)
+				relations.Put("/:id", router.controllerSet.RelationController.UpdateRelation)
+				relations.Delete("/:id", router.controllerSet.RelationController.DeleteRelation)
 			}
 		}
 	}
