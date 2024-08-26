@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"toktok-backend/internal/adapter/auth/jwt"
 	"toktok-backend/internal/adapter/handler/fiber/controller"
 	"toktok-backend/internal/adapter/handler/fiber/router"
 	"toktok-backend/internal/adapter/persistence/mysql"
@@ -26,6 +27,11 @@ func main() {
 		panic(err)
 	}
 
+	jwtService, err := jwt.NewJWT(cfg)
+	if err != nil {
+		panic(err)
+	}
+
 	err = mysql.AutoMigration(ctx, client)
 	if err != nil {
 		panic(err)
@@ -34,6 +40,9 @@ func main() {
 	userRepository := repository.NewUserRepository(client)
 	userService := service.NewUserService(userRepository)
 	userController := controller.NewUserController(userService)
+
+	authService := service.NewAuthService(userRepository, jwtService)
+	authController := controller.NewAuthController(authService)
 
 	avatarRepository := repository.NewAvatarRepository(client)
 	avatarService := service.NewAvatarService(avatarRepository)
@@ -47,6 +56,8 @@ func main() {
 		UserController:     userController,
 		AvatarController:   avatarController,
 		RelationController: relationController,
+
+		AuthController: authController,
 	})
 
 	if err := r.Listen(":8080"); err != nil {

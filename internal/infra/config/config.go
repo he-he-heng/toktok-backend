@@ -14,6 +14,12 @@ type Config struct {
 		Port     string
 		Database string
 	}
+
+	Token struct {
+		Key             string
+		AccessDuration  string
+		RefreshDuration string
+	}
 }
 
 func New(path string) (*Config, error) {

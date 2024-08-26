@@ -54,6 +54,9 @@ func errSetGet() *errorSet {
 		// StatusBadRequest 400
 		es.add(fiber.StatusBadRequest, domain.ErrNotLoaded, domain.ErrValidation, domain.ErrNotSingular, domain.ErrBadParam)
 
+		// StatusUnauthorized
+		es.add(fiber.StatusUnauthorized, domain.ErrInvalidCredentials, domain.ErrUnauthorized)
+
 		// StatusNotFound 404
 		es.add(fiber.StatusNotFound, domain.ErrNotFound)
 

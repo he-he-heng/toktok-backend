@@ -56,6 +56,17 @@ func (r *UserRepository) GetUser(ctx context.Context, id int) (*domain.User, err
 	return utils.ToDomainUser(queriedUser), err
 }
 
+func (r *UserRepository) GetUserByUID(ctx context.Context, uid string) (*domain.User, error) {
+	queriedUser, err := r.client.User.Query().
+		Where(entuser.UIDEQ(uid)).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.ToDomainUser(queriedUser), nil
+}
+
 func (r *UserRepository) ListUser(ctx context.Context, skip, limit int, order, critertion string) ([]*domain.User, error) {
 	builder := r.client.User.Query().
 		Limit(limit).

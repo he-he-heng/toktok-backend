@@ -14,6 +14,12 @@ var ()
 // service 에서 사용되는 에러
 var ()
 
+// auth 에서 사용되는 에러
+var (
+	ErrInvalidCredentials = errors.New("err invalid credentials")
+	ErrUnauthorized       = errors.New("unauthorized")
+)
+
 // repository 에서 사용되는 에러
 var (
 	ErrNotFound    = errors.New("not found")      // 404
