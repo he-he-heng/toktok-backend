@@ -100,12 +100,12 @@ func ToDomainRelations(relations []*ent.Relation) []*domain.Relation {
 
 func ToDomainMessage(message *ent.Message) *domain.Message {
 	retMessage := domain.Message{
-		ID:         message.ID,
-		AvatarID:   message.Edges.Avatar.ID,
-		RelationID: message.Edges.Relation.ID,
-		State:      domain.MessageStateType(message.State),
-		Content:    message.Content,
-		EnteredAt:  message.EnteredAt,
+		ID:        message.ID,
+		AvatarID:  message.Edges.Avatar.ID,
+		RoomID:    message.Edges.Room.ID,
+		State:     domain.MessageStateType(message.State),
+		Content:   message.Content,
+		EnteredAt: message.EnteredAt,
 
 		CreatedAt: message.CreatedAt,
 		UpdatedAt: message.UpdatedAt,
@@ -122,4 +122,30 @@ func ToDomainMesssages(messages []*ent.Message) []*domain.Message {
 	}
 
 	return retMessages
+}
+
+func ToDomainRoom(room *ent.Room) *domain.Room {
+	retRoom := domain.Room{
+		ID: room.ID,
+
+		AvatarRelationID: room.Edges.Avatar.ID,
+		FriendRelationID: room.Edges.Friend.ID,
+
+		CreatedAt: room.CreatedAt,
+		UpdatedAt: room.UpdatedAt,
+		DeletedAt: room.DeletedAt,
+	}
+
+	return &retRoom
+}
+
+func ToDomainRooms(rooms []*ent.Room) []*domain.Room {
+	retRooms := []*domain.Room{}
+
+	for _, room := range rooms {
+		retRooms = append(retRooms, ToDomainRoom(room))
+	}
+
+	return retRooms
+
 }

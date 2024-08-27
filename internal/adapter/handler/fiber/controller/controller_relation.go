@@ -136,3 +136,21 @@ func (c *RelationController) DeleteRelation(ctx *fiber.Ctx) error {
 	return ctx.SendStatus(fiber.StatusNoContent)
 
 }
+
+func (c *RelationController) GetRoomByRealtionID(ctx *fiber.Ctx) error {
+	id, err := ctx.ParamsInt("id", 0)
+	if err != nil {
+		return errors.Wrap(domain.ErrBadParam, err)
+	}
+
+	if id < 0 {
+		return errors.Wrap(domain.ErrBadParam, err)
+	}
+
+	room, err := c.relationService.GetRoomByRelationID(ctx.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(dto.GetRoomByRelationByIDResponse{}.Of(room))
+}

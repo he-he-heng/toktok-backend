@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"slices"
 	"toktok-backend/internal/adapter/persistence/mysql"
 	entavatar "toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
@@ -76,11 +75,12 @@ func (r *RelationRepository) GetRelation(ctx context.Context, id int) (*domain.R
 
 func (r *RelationRepository) GetRelationByAvatarIDAndRelationIDWithState(ctx context.Context, argRelation *domain.Relation) (*domain.Relation, error) {
 	// 오직 이 함수는 state의 값이 domain.RelationStatePending과 RelationReqeustFriend만 가능합니다.
-	fmt.Printf("argRelation: %+v\n", argRelation)
 
 	if argRelation.State != domain.RelationStateRequestFriend {
 		if argRelation.State != domain.RelationStatePending {
-			return nil, errors.Wrap(domain.ErrBadParam, "invalid filter")
+			if argRelation.State != domain.RelationStateFriend {
+				return nil, errors.Wrap(domain.ErrBadParam, "invalid filter")
+			}
 		}
 	}
 

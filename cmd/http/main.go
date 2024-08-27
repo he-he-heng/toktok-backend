@@ -48,8 +48,11 @@ func main() {
 	avatarService := service.NewAvatarService(avatarRepository)
 	avatarController := controller.NewAvatarController(avatarService)
 
+	roomRepository := repository.NewRoomRepoistory(client)
+	// roomService := service
+
 	relationRepository := repository.NewRelationRepository(client)
-	relationService := service.NewRelationService(relationRepository)
+	relationService := service.NewRelationService(relationRepository, roomRepository)
 	relationController := controller.NewRelationController(relationService)
 
 	r := router.NewRouter(

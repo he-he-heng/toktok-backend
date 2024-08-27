@@ -26,4 +26,7 @@ type RelationService interface {
 	ListRelationByAvatarID(ctx context.Context, skip, limit int, order, criterion string, filter domain.RelationStateType, avatarID int) ([]*domain.Relation, error)
 	UpdateRelation(ctx context.Context, relation *domain.Relation) (*[2]domain.Relation, error)
 	DeleteRelation(ctx context.Context, id int) error
+
+	// using room repository
+	GetRoomByRelationID(ctx context.Context, relationID int) (*domain.Room, error)
 }

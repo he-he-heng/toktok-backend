@@ -70,6 +70,8 @@ func NewRouter(controllerSet ControllerSet, serviceSet ServiceSet) *Router {
 				relations.Post("/", router.controllerSet.RelationController.CreateRelation)
 				relations.Put("/:id", router.controllerSet.RelationController.UpdateRelation)
 				relations.Delete("/:id", router.controllerSet.RelationController.DeleteRelation)
+
+				relations.Get("/:id/room", router.controllerSet.RelationController.GetRoomByRealtionID)
 			}
 
 			auth := api.Group("/auth")

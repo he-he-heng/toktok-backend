@@ -11,11 +11,13 @@ import (
 
 type RelationService struct {
 	relationRepository port.RelationRepository
+	roomRepository     port.RoomRepository
 }
 
-func NewRelationService(relationRepository port.RelationRepository) *RelationService {
+func NewRelationService(relationRepository port.RelationRepository, roomRepository port.RoomRepository) *RelationService {
 	relationService := RelationService{
 		relationRepository: relationRepository,
+		roomRepository:     roomRepository,
 	}
 
 	return &relationService
@@ -105,14 +107,14 @@ func (s *RelationService) ListRelationByAvatarID(ctx context.Context, skip, limi
 
 func (s *RelationService) UpdateRelation(ctx context.Context, relation *domain.Relation) (*[2]domain.Relation, error) {
 	// Input : ID, State(only decline, friend, remove)
-	fmt.Printf("input: %+v\n", relation)
+
+	isFriend := false
 
 	gotRelation, err := s.relationRepository.GetRelation(ctx, relation.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Printf("gotRelation: %+v\n", gotRelation)
 	/*
 		변경할 수 있는 조건
 		A(friend) - B(friend) 일 때  오직 remove state 로만 변경할 수 있다.
@@ -145,8 +147,6 @@ func (s *RelationService) UpdateRelation(ctx context.Context, relation *domain.R
 		}
 
 	} else if relation.State == domain.RelationStateFriend && gotRelation.State == domain.RelationStatePending {
-		fmt.Printf("entry state: %+v\n", gotRelation.State)
-		fmt.Printf("gotRelation.FriendID %d, gotRelation.AvatarID :%d\n", gotRelation.AvatarID, gotRelation.FriendID)
 		friendRelation, err := s.relationRepository.GetRelationByAvatarIDAndRelationIDWithState(ctx, &domain.Relation{
 			AvatarID: gotRelation.FriendID,
 			FriendID: gotRelation.AvatarID,
@@ -166,6 +166,8 @@ func (s *RelationService) UpdateRelation(ctx context.Context, relation *domain.R
 			ID:    friendRelation.ID,
 			State: domain.RelationStateFriend,
 		}
+
+		isFriend = true
 
 	} else if relation.State == domain.RelationStateRemove && gotRelation.State == domain.RelationStateFriend {
 		friendRelation, err := s.relationRepository.GetRelationByAvatarIDAndRelationIDWithState(ctx, &domain.Relation{
@@ -199,6 +201,17 @@ func (s *RelationService) UpdateRelation(ctx context.Context, relation *domain.R
 		return nil, err
 	}
 
+	if isFriend {
+		_, err := s.roomRepository.CreateRoom(ctx, &domain.Room{
+			AvatarRelationID: updateSenderRelation.ID,
+			FriendRelationID: updateReceiverRelation.ID,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &[2]domain.Relation{
 		*updatedSenderRelation,
 		*updatedReceiverRelation,
@@ -207,4 +220,15 @@ func (s *RelationService) UpdateRelation(ctx context.Context, relation *domain.R
 
 func (s *RelationService) DeleteRelation(ctx context.Context, id int) error {
 	return s.relationRepository.DeleteRelation(ctx, id)
+}
+
+/////
+
+func (s *RelationService) GetRoomByRelationID(ctx context.Context, relationID int) (*domain.Room, error) {
+	room, err := s.roomRepository.GetRoomByRelationID(ctx, relationID)
+	if err != nil {
+		return nil, err
+	}
+
+	return room, nil
 }
