@@ -6,5 +6,17 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Avatar is the predicate function for avatar builders.
+type Avatar func(*sql.Selector)
+
+// Message is the predicate function for message builders.
+type Message func(*sql.Selector)
+
+// Relation is the predicate function for relation builders.
+type Relation func(*sql.Selector)
+
+// Room is the predicate function for room builders.
+type Room func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

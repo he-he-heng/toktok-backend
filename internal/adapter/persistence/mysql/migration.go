@@ -1,12 +1,10 @@
 package mysql
 
-import (
-	"context"
-	_ "toktok-backend/internal/adapter/persistence/mysql/ent/runtime"
-)
+import "context"
 
-func (d *Database) AutoMigration(ctx context.Context) error {
-	if err := d.Schema.Create(ctx); err != nil {
+func AutoMigration(ctx context.Context, client *Client) error {
+	err := client.Schema.Create(ctx)
+	if err != nil {
 		return err
 	}
 

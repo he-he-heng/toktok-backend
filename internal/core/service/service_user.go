@@ -2,90 +2,56 @@ package service
 
 import (
 	"context"
-
 	"toktok-backend/internal/core/domain"
 	"toktok-backend/internal/core/port"
-	"toktok-backend/internal/core/utils"
-
+	"toktok-backend/internal/core/service/utils"
 	"toktok-backend/pkg/errors"
 )
 
 type UserService struct {
-	userRepository port.UserRepository
+	UserRepository port.UserRepository
 }
 
 func NewUserService(userRepository port.UserRepository) *UserService {
-	return &UserService{
-		userRepository: userRepository,
+	userService := UserService{
+		UserRepository: userRepository,
 	}
+
+	return &userService
 }
 
-// Register registers a new user
-func (s *UserService) Register(ctx context.Context, user *domain.User) (*domain.User, error) {
-	hashedPassword, err := utils.HashPassword(user.Password)
+func (s *UserService) CreateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+
+	hashedPssword, err := utils.HashPassword(user.Password)
+	user.Password = hashedPssword
 	if err != nil {
-		return nil, errors.Wrap(domain.ErrInternal, err)
+		return nil, errors.Wrap(domain.ErrInternalServerError, hashedPssword)
 	}
 
-	user.Password = hashedPassword
-	user.Role = domain.RoleUser
-
-	user, err = s.userRepository.CreateUser(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return s.UserRepository.CreateUser(ctx, user)
 }
 
-// GetUser returns a user by id
 func (s *UserService) GetUser(ctx context.Context, id int) (*domain.User, error) {
-	user, err := s.userRepository.GetUserByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return s.UserRepository.GetUser(ctx, id)
 }
 
-// ListUsers returns a list of users with pagination
-func (s *UserService) ListUsers(ctx context.Context, skip, limit int) ([]domain.User, error) {
-	users, err := s.userRepository.ListUsers(ctx, skip, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	return users, err
+func (s *UserService) ListUser(ctx context.Context, skip, limit int, order, criterion string) ([]*domain.User, error) {
+	return s.UserRepository.ListUser(ctx, skip, limit, order, criterion)
 }
 
-// UpdateUser updates a user
 func (s *UserService) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
-	existUser, err := s.userRepository.GetUserByID(ctx, user.ID)
-	if err != nil {
-		return nil, err
+	if user.Password != "" {
+		hashedPssword, err := utils.HashPassword(user.Password)
+		if err != nil {
+			return nil, errors.Wrap(domain.ErrInternalServerError, err)
+		}
+
+		user.Password = hashedPssword
 	}
 
-	hashedPassword, err := utils.HashPassword(user.Password)
-	if err != nil {
-		return nil, errors.Wrap(domain.ErrInternal, err)
-	}
-
-	existUser.Password = hashedPassword
-
-	user, err = s.userRepository.UpdateUser(ctx, existUser)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return s.UserRepository.UpdateUser(ctx, user)
 }
 
-// DeleteUser deletes a user
 func (s *UserService) DeleteUser(ctx context.Context, id int) error {
-	_, err := s.userRepository.GetUserByID(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	return s.userRepository.DeleteUser(ctx, id)
+	return s.UserRepository.DeleteUser(ctx, id)
 }

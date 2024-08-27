@@ -8,6 +8,10 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/user"
 
 	"entgo.io/ent"
@@ -69,11 +73,15 @@ var (
 	columnCheck sql.ColumnCheck
 )
 
-// columnChecker checks if the column exists in the given table.
+// checkColumn checks if the column exists in the given table.
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			avatar.Table:   avatar.ValidColumn,
+			message.Table:  message.ValidColumn,
+			relation.Table: relation.ValidColumn,
+			room.Table:     room.ValidColumn,
+			user.Table:     user.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

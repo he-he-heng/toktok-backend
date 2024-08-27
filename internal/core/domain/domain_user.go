@@ -2,20 +2,29 @@ package domain
 
 import "time"
 
-type RoleType string
+type UserRoleType string
 
 const (
-	RoleAdmin RoleType = "admin"
-	RoleUser  RoleType = "user"
+	UserRoleAdmin = "admin"
+	UserRoleUser  = "user"
+)
+
+type UserBanStateType string
+
+const (
+	UserBanStateBan   UserBanStateType = "ban"
+	UserBanStateUnBan UserBanStateType = "unban"
 )
 
 type User struct {
 	ID       int
 	UID      string
 	Password string
-	Role     RoleType
+	Email    *string
+	Role     UserRoleType
+	BanState UserBanStateType
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt *time.Time
+	DeletedAt time.Time
 }

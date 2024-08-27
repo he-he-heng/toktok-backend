@@ -5,8 +5,13 @@ package intercept
 import (
 	"context"
 	"fmt"
+
 	"toktok-backend/internal/adapter/persistence/mysql/ent"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/predicate"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/user"
 
 	"entgo.io/ent/dialect/sql"
@@ -68,6 +73,114 @@ func (f TraverseFunc) Traverse(ctx context.Context, q ent.Query) error {
 	return f(ctx, query)
 }
 
+// The AvatarFunc type is an adapter to allow the use of ordinary function as a Querier.
+type AvatarFunc func(context.Context, *ent.AvatarQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f AvatarFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.AvatarQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.AvatarQuery", q)
+}
+
+// The TraverseAvatar type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseAvatar func(context.Context, *ent.AvatarQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseAvatar) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseAvatar) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.AvatarQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.AvatarQuery", q)
+}
+
+// The MessageFunc type is an adapter to allow the use of ordinary function as a Querier.
+type MessageFunc func(context.Context, *ent.MessageQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f MessageFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.MessageQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.MessageQuery", q)
+}
+
+// The TraverseMessage type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseMessage func(context.Context, *ent.MessageQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseMessage) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseMessage) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.MessageQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.MessageQuery", q)
+}
+
+// The RelationFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RelationFunc func(context.Context, *ent.RelationQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RelationFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RelationQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RelationQuery", q)
+}
+
+// The TraverseRelation type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRelation func(context.Context, *ent.RelationQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRelation) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRelation) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RelationQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RelationQuery", q)
+}
+
+// The RoomFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RoomFunc func(context.Context, *ent.RoomQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RoomFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RoomQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RoomQuery", q)
+}
+
+// The TraverseRoom type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRoom func(context.Context, *ent.RoomQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRoom) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRoom) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RoomQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RoomQuery", q)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary function as a Querier.
 type UserFunc func(context.Context, *ent.UserQuery) (ent.Value, error)
 
@@ -98,6 +211,14 @@ func (f TraverseUser) Traverse(ctx context.Context, q ent.Query) error {
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
+	case *ent.AvatarQuery:
+		return &query[*ent.AvatarQuery, predicate.Avatar, avatar.OrderOption]{typ: ent.TypeAvatar, tq: q}, nil
+	case *ent.MessageQuery:
+		return &query[*ent.MessageQuery, predicate.Message, message.OrderOption]{typ: ent.TypeMessage, tq: q}, nil
+	case *ent.RelationQuery:
+		return &query[*ent.RelationQuery, predicate.Relation, relation.OrderOption]{typ: ent.TypeRelation, tq: q}, nil
+	case *ent.RoomQuery:
+		return &query[*ent.RoomQuery, predicate.Room, room.OrderOption]{typ: ent.TypeRoom, tq: q}, nil
 	case *ent.UserQuery:
 		return &query[*ent.UserQuery, predicate.User, user.OrderOption]{typ: ent.TypeUser, tq: q}, nil
 	default:

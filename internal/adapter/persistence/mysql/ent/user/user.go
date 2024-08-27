@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -15,31 +16,46 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 	// FieldUID holds the string denoting the uid field in the database.
 	FieldUID = "uid"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
+	// FieldBanState holds the string denoting the ban_state field in the database.
+	FieldBanState = "ban_state"
+	// EdgeAvatar holds the string denoting the avatar edge name in mutations.
+	EdgeAvatar = "avatar"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// AvatarTable is the table that holds the avatar relation/edge.
+	AvatarTable = "avatars"
+	// AvatarInverseTable is the table name for the Avatar entity.
+	// It exists in this package in order to avoid circular dependency with the "avatar" package.
+	AvatarInverseTable = "avatars"
+	// AvatarColumn is the table column denoting the avatar relation/edge.
+	AvatarColumn = "user_avatar"
 )
 
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
+	FieldDeletedAt,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldDeletedAt,
 	FieldUID,
 	FieldPassword,
+	FieldEmail,
 	FieldRole,
+	FieldBanState,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -98,12 +114,43 @@ func RoleValidator(r Role) error {
 	}
 }
 
+// BanState defines the type for the "ban_state" enum field.
+type BanState string
+
+// BanStateUnban is the default value of the BanState enum.
+const DefaultBanState = BanStateUnban
+
+// BanState values.
+const (
+	BanStateBan   BanState = "ban"
+	BanStateUnban BanState = "unban"
+)
+
+func (bs BanState) String() string {
+	return string(bs)
+}
+
+// BanStateValidator is a validator for the "ban_state" field enum values. It is called by the builders before save.
+func BanStateValidator(bs BanState) error {
+	switch bs {
+	case BanStateBan, BanStateUnban:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for ban_state field: %q", bs)
+	}
+}
+
 // OrderOption defines the ordering options for the User queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.
@@ -116,11 +163,6 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
-}
-
 // ByUID orders the results by the uid field.
 func ByUID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUID, opts...).ToFunc()
@@ -131,7 +173,31 @@ func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
 }
 
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
 // ByRole orders the results by the role field.
 func ByRole(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRole, opts...).ToFunc()
+}
+
+// ByBanState orders the results by the ban_state field.
+func ByBanState(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBanState, opts...).ToFunc()
+}
+
+// ByAvatarField orders the results by avatar field.
+func ByAvatarField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAvatarStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newAvatarStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AvatarInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, AvatarTable, AvatarColumn),
+	)
 }

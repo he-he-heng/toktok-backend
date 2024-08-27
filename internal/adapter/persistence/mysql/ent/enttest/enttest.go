@@ -4,6 +4,7 @@ package enttest
 
 import (
 	"context"
+
 	"toktok-backend/internal/adapter/persistence/mysql/ent"
 	// required by schema hooks.
 	_ "toktok-backend/internal/adapter/persistence/mysql/ent/runtime"

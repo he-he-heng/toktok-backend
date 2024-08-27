@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -18,6 +19,20 @@ type UserCreate struct {
 	config
 	mutation *UserMutation
 	hooks    []Hook
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (uc *UserCreate) SetDeletedAt(t time.Time) *UserCreate {
+	uc.mutation.SetDeletedAt(t)
+	return uc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (uc *UserCreate) SetNillableDeletedAt(t *time.Time) *UserCreate {
+	if t != nil {
+		uc.SetDeletedAt(*t)
+	}
+	return uc
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -48,20 +63,6 @@ func (uc *UserCreate) SetNillableUpdatedAt(t *time.Time) *UserCreate {
 	return uc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (uc *UserCreate) SetDeletedAt(t time.Time) *UserCreate {
-	uc.mutation.SetDeletedAt(t)
-	return uc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (uc *UserCreate) SetNillableDeletedAt(t *time.Time) *UserCreate {
-	if t != nil {
-		uc.SetDeletedAt(*t)
-	}
-	return uc
-}
-
 // SetUID sets the "uid" field.
 func (uc *UserCreate) SetUID(s string) *UserCreate {
 	uc.mutation.SetUID(s)
@@ -71,6 +72,20 @@ func (uc *UserCreate) SetUID(s string) *UserCreate {
 // SetPassword sets the "password" field.
 func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	uc.mutation.SetPassword(s)
+	return uc
+}
+
+// SetEmail sets the "email" field.
+func (uc *UserCreate) SetEmail(s string) *UserCreate {
+	uc.mutation.SetEmail(s)
+	return uc
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (uc *UserCreate) SetNillableEmail(s *string) *UserCreate {
+	if s != nil {
+		uc.SetEmail(*s)
+	}
 	return uc
 }
 
@@ -86,6 +101,39 @@ func (uc *UserCreate) SetNillableRole(u *user.Role) *UserCreate {
 		uc.SetRole(*u)
 	}
 	return uc
+}
+
+// SetBanState sets the "ban_state" field.
+func (uc *UserCreate) SetBanState(us user.BanState) *UserCreate {
+	uc.mutation.SetBanState(us)
+	return uc
+}
+
+// SetNillableBanState sets the "ban_state" field if the given value is not nil.
+func (uc *UserCreate) SetNillableBanState(us *user.BanState) *UserCreate {
+	if us != nil {
+		uc.SetBanState(*us)
+	}
+	return uc
+}
+
+// SetAvatarID sets the "avatar" edge to the Avatar entity by ID.
+func (uc *UserCreate) SetAvatarID(id int) *UserCreate {
+	uc.mutation.SetAvatarID(id)
+	return uc
+}
+
+// SetNillableAvatarID sets the "avatar" edge to the Avatar entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableAvatarID(id *int) *UserCreate {
+	if id != nil {
+		uc = uc.SetAvatarID(*id)
+	}
+	return uc
+}
+
+// SetAvatar sets the "avatar" edge to the Avatar entity.
+func (uc *UserCreate) SetAvatar(a *Avatar) *UserCreate {
+	return uc.SetAvatarID(a.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -143,6 +191,10 @@ func (uc *UserCreate) defaults() error {
 		v := user.DefaultRole
 		uc.mutation.SetRole(v)
 	}
+	if _, ok := uc.mutation.BanState(); !ok {
+		v := user.DefaultBanState
+		uc.mutation.SetBanState(v)
+	}
 	return nil
 }
 
@@ -178,6 +230,14 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
 		}
 	}
+	if _, ok := uc.mutation.BanState(); !ok {
+		return &ValidationError{Name: "ban_state", err: errors.New(`ent: missing required field "User.ban_state"`)}
+	}
+	if v, ok := uc.mutation.BanState(); ok {
+		if err := user.BanStateValidator(v); err != nil {
+			return &ValidationError{Name: "ban_state", err: fmt.Errorf(`ent: validator failed for field "User.ban_state": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -204,6 +264,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node = &User{config: uc.config}
 		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
 	)
+	if value, ok := uc.mutation.DeletedAt(); ok {
+		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
+	}
 	if value, ok := uc.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -211,10 +275,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := uc.mutation.DeletedAt(); ok {
-		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = value
 	}
 	if value, ok := uc.mutation.UID(); ok {
 		_spec.SetField(user.FieldUID, field.TypeString, value)
@@ -224,9 +284,33 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 		_node.Password = value
 	}
+	if value, ok := uc.mutation.Email(); ok {
+		_spec.SetField(user.FieldEmail, field.TypeString, value)
+		_node.Email = &value
+	}
 	if value, ok := uc.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)
 		_node.Role = value
+	}
+	if value, ok := uc.mutation.BanState(); ok {
+		_spec.SetField(user.FieldBanState, field.TypeEnum, value)
+		_node.BanState = value
+	}
+	if nodes := uc.mutation.AvatarIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.AvatarTable,
+			Columns: []string{user.AvatarColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(avatar.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

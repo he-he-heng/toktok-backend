@@ -2,13 +2,20 @@ package port
 
 import (
 	"context"
+	"toktok-backend/internal/core/domain"
 )
 
-// [INBOUND] AuthService 인터페이스는 인증(Authenication)과 상호 작용하기 위한 주체입니다.
-type AuthService interface {
-	// Login 함수는 uid, password를 인자로 받아 accessToken과 refreshToken을 반환합니다.
-	Login(ctx context.Context, uid, password string) (accessToken string, refreshToken string, err error)
+type JWTService interface {
 
-	// Refresh 함수는 token을 인자로 받아 accessToken을 반환합니다.
-	Refresh(ctx context.Context, token string) (accessToekn string, err error)
+	// CreateToken 함수는 tokenPayload와 user값을 기반으로 새로운 토큰을 생성합니다.
+	CreateToken(tokenType domain.TokenType, user *domain.User) (string, error)
+
+	// VerifyToken 함수는 token을 검증하여 tokenPayload로 변환해줍니다.
+	VerifyToken(token string) (*domain.TokenPayload, error)
+}
+
+type AuthService interface {
+	Login(ctx context.Context, user *domain.User) (string, string, error)
+
+	Refresh(ctx context.Context, token string) (accessToken string, err error)
 }
