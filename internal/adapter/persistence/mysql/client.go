@@ -1,6 +1,11 @@
 package mysql
 
 import (
+	"time"
+
+	"entgo.io/ent/dialect/sql"
+	"golang.org/x/exp/rand"
+
 	"fmt"
 	"toktok-backend/internal/adapter/persistence/mysql/ent"
 	_ "toktok-backend/internal/adapter/persistence/mysql/ent/runtime"
@@ -19,31 +24,28 @@ func NewClient(config *config.Config) (*Client, error) {
 		config.Database.Port,
 		config.Database.Database)
 
-	ist, err := ent.Open("mysql", dsn)
+	driver, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: ping test
-	// if err := drv.DB().Ping(); err != nil {
-	// 	return nil, err
-	// }
+	if err := driver.DB().Ping(); err != nil {
+		return nil, err
+	}
 
 	// TODO : max idle, conns setting
 
-	// maxPoolIdle, err := strconv.Atoi(os.Getenv("DB_POOL_IDLE_CONN"))
-	// maxPoolOpen, err := strconv.Atoi(os.Getenv("DB_POOL_MAX_CONN"))
-	// maxPollLifeTime, err := strconv.Atoi(os.Getenv("DB_POOL_LIFE_TIME"))
-	// if err != nil {
-	// 	return nil, err
-	// }
+	maxPoolIdle := config.Database.MaxPoolIdle
+	maxPoolOpen := config.Database.MaxPoolOpen
+	maxPoolLifeTime := config.Database.MaxPoolLifeTime
 
 	// // Get the underlying sql.DB object of the driver.
-	// db := drv.DB()
-	// db.SetMaxIdleConns(maxPoolIdle)
-	// db.SetMaxOpenConns(maxPoolOpen)
-	// db.SetConnMaxLifetime(time.Duration(rand.Int31n(int32(maxPollLifeTime))) * time.Millisecond)
-	// clnt := ent.NewClient(ent.Driver(drv))
+	db := driver.DB()
+	db.SetMaxIdleConns(maxPoolIdle)
+	db.SetMaxOpenConns(maxPoolOpen)
+	db.SetConnMaxLifetime(time.Duration(rand.Int31n(int32(maxPoolLifeTime))) * time.Millisecond)
+	ist := ent.NewClient(ent.Driver(driver))
 
 	client := Client{
 		Client: ist,

@@ -8,11 +8,14 @@ import (
 
 type Config struct {
 	Database struct {
-		User     string
-		Password string
-		Host     string
-		Port     string
-		Database string
+		User            string
+		Password        string
+		Host            string
+		Port            string
+		Database        string
+		MaxPoolIdle     int
+		MaxPoolOpen     int
+		MaxPoolLifeTime int
 	}
 
 	Token struct {
