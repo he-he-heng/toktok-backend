@@ -15,5 +15,8 @@ type Message func(*sql.Selector)
 // Relation is the predicate function for relation builders.
 type Relation func(*sql.Selector)
 
+// Room is the predicate function for room builders.
+type Room func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

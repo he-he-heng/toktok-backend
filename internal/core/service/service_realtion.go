@@ -146,12 +146,14 @@ func (s *RelationService) UpdateRelation(ctx context.Context, relation *domain.R
 
 	} else if relation.State == domain.RelationStateFriend && gotRelation.State == domain.RelationStatePending {
 		fmt.Printf("entry state: %+v\n", gotRelation.State)
+		fmt.Printf("gotRelation.FriendID %d, gotRelation.AvatarID :%d\n", gotRelation.AvatarID, gotRelation.FriendID)
 		friendRelation, err := s.relationRepository.GetRelationByAvatarIDAndRelationIDWithState(ctx, &domain.Relation{
 			AvatarID: gotRelation.FriendID,
 			FriendID: gotRelation.AvatarID,
 			State:    domain.RelationStateRequestFriend,
 		})
 		if err != nil {
+			fmt.Println("reutnr")
 			return nil, err
 		}
 

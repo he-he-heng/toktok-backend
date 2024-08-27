@@ -8,6 +8,7 @@ import (
 	"time"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -42,11 +43,13 @@ type RelationEdges struct {
 	Avatar *Avatar `json:"avatar,omitempty"`
 	// Friend holds the value of the friend edge.
 	Friend *Avatar `json:"friend,omitempty"`
-	// Messages holds the value of the messages edge.
-	Messages []*Message `json:"messages,omitempty"`
+	// AvatarRooms holds the value of the avatar_rooms edge.
+	AvatarRooms *Room `json:"avatar_rooms,omitempty"`
+	// FriendRooms holds the value of the friend_rooms edge.
+	FriendRooms *Room `json:"friend_rooms,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // AvatarOrErr returns the Avatar value or an error if the edge
@@ -71,13 +74,26 @@ func (e RelationEdges) FriendOrErr() (*Avatar, error) {
 	return nil, &NotLoadedError{edge: "friend"}
 }
 
-// MessagesOrErr returns the Messages value or an error if the edge
-// was not loaded in eager-loading.
-func (e RelationEdges) MessagesOrErr() ([]*Message, error) {
-	if e.loadedTypes[2] {
-		return e.Messages, nil
+// AvatarRoomsOrErr returns the AvatarRooms value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e RelationEdges) AvatarRoomsOrErr() (*Room, error) {
+	if e.AvatarRooms != nil {
+		return e.AvatarRooms, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: room.Label}
 	}
-	return nil, &NotLoadedError{edge: "messages"}
+	return nil, &NotLoadedError{edge: "avatar_rooms"}
+}
+
+// FriendRoomsOrErr returns the FriendRooms value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e RelationEdges) FriendRoomsOrErr() (*Room, error) {
+	if e.FriendRooms != nil {
+		return e.FriendRooms, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: room.Label}
+	}
+	return nil, &NotLoadedError{edge: "friend_rooms"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -183,9 +199,14 @@ func (r *Relation) QueryFriend() *AvatarQuery {
 	return NewRelationClient(r.config).QueryFriend(r)
 }
 
-// QueryMessages queries the "messages" edge of the Relation entity.
-func (r *Relation) QueryMessages() *MessageQuery {
-	return NewRelationClient(r.config).QueryMessages(r)
+// QueryAvatarRooms queries the "avatar_rooms" edge of the Relation entity.
+func (r *Relation) QueryAvatarRooms() *RoomQuery {
+	return NewRelationClient(r.config).QueryAvatarRooms(r)
+}
+
+// QueryFriendRooms queries the "friend_rooms" edge of the Relation entity.
+func (r *Relation) QueryFriendRooms() *RoomQuery {
+	return NewRelationClient(r.config).QueryFriendRooms(r)
 }
 
 // Update returns a builder for updating this Relation.

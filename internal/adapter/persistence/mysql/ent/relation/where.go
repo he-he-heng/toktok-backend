@@ -286,21 +286,44 @@ func HasFriendWith(preds ...predicate.Avatar) predicate.Relation {
 	})
 }
 
-// HasMessages applies the HasEdge predicate on the "messages" edge.
-func HasMessages() predicate.Relation {
+// HasAvatarRooms applies the HasEdge predicate on the "avatar_rooms" edge.
+func HasAvatarRooms() predicate.Relation {
 	return predicate.Relation(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, MessagesTable, MessagesColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, AvatarRoomsTable, AvatarRoomsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasMessagesWith applies the HasEdge predicate on the "messages" edge with a given conditions (other predicates).
-func HasMessagesWith(preds ...predicate.Message) predicate.Relation {
+// HasAvatarRoomsWith applies the HasEdge predicate on the "avatar_rooms" edge with a given conditions (other predicates).
+func HasAvatarRoomsWith(preds ...predicate.Room) predicate.Relation {
 	return predicate.Relation(func(s *sql.Selector) {
-		step := newMessagesStep()
+		step := newAvatarRoomsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasFriendRooms applies the HasEdge predicate on the "friend_rooms" edge.
+func HasFriendRooms() predicate.Relation {
+	return predicate.Relation(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, FriendRoomsTable, FriendRoomsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFriendRoomsWith applies the HasEdge predicate on the "friend_rooms" edge with a given conditions (other predicates).
+func HasFriendRoomsWith(preds ...predicate.Room) predicate.Relation {
+	return predicate.Relation(func(s *sql.Selector) {
+		step := newFriendRoomsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

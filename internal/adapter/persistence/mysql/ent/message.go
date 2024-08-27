@@ -8,7 +8,7 @@ import (
 	"time"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
-	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -33,32 +33,21 @@ type Message struct {
 	EnteredAt time.Time `json:"entered_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MessageQuery when eager-loading is set.
-	Edges             MessageEdges `json:"edges"`
-	avatar_messages   *int
-	relation_messages *int
-	selectValues      sql.SelectValues
+	Edges           MessageEdges `json:"edges"`
+	avatar_messages *int
+	room_messages   *int
+	selectValues    sql.SelectValues
 }
 
 // MessageEdges holds the relations/edges for other nodes in the graph.
 type MessageEdges struct {
-	// Relation holds the value of the relation edge.
-	Relation *Relation `json:"relation,omitempty"`
 	// Avatar holds the value of the avatar edge.
 	Avatar *Avatar `json:"avatar,omitempty"`
+	// Room holds the value of the room edge.
+	Room *Room `json:"room,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
-}
-
-// RelationOrErr returns the Relation value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e MessageEdges) RelationOrErr() (*Relation, error) {
-	if e.Relation != nil {
-		return e.Relation, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: relation.Label}
-	}
-	return nil, &NotLoadedError{edge: "relation"}
 }
 
 // AvatarOrErr returns the Avatar value or an error if the edge
@@ -66,10 +55,21 @@ func (e MessageEdges) RelationOrErr() (*Relation, error) {
 func (e MessageEdges) AvatarOrErr() (*Avatar, error) {
 	if e.Avatar != nil {
 		return e.Avatar, nil
-	} else if e.loadedTypes[1] {
+	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: avatar.Label}
 	}
 	return nil, &NotLoadedError{edge: "avatar"}
+}
+
+// RoomOrErr returns the Room value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MessageEdges) RoomOrErr() (*Room, error) {
+	if e.Room != nil {
+		return e.Room, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: room.Label}
+	}
+	return nil, &NotLoadedError{edge: "room"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -85,7 +85,7 @@ func (*Message) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case message.ForeignKeys[0]: // avatar_messages
 			values[i] = new(sql.NullInt64)
-		case message.ForeignKeys[1]: // relation_messages
+		case message.ForeignKeys[1]: // room_messages
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -153,10 +153,10 @@ func (m *Message) assignValues(columns []string, values []any) error {
 			}
 		case message.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field relation_messages", value)
+				return fmt.Errorf("unexpected type %T for edge-field room_messages", value)
 			} else if value.Valid {
-				m.relation_messages = new(int)
-				*m.relation_messages = int(value.Int64)
+				m.room_messages = new(int)
+				*m.room_messages = int(value.Int64)
 			}
 		default:
 			m.selectValues.Set(columns[i], values[i])
@@ -171,14 +171,14 @@ func (m *Message) Value(name string) (ent.Value, error) {
 	return m.selectValues.Get(name)
 }
 
-// QueryRelation queries the "relation" edge of the Message entity.
-func (m *Message) QueryRelation() *RelationQuery {
-	return NewMessageClient(m.config).QueryRelation(m)
-}
-
 // QueryAvatar queries the "avatar" edge of the Message entity.
 func (m *Message) QueryAvatar() *AvatarQuery {
 	return NewMessageClient(m.config).QueryAvatar(m)
+}
+
+// QueryRoom queries the "room" edge of the Message entity.
+func (m *Message) QueryRoom() *RoomQuery {
+	return NewMessageClient(m.config).QueryRoom(m)
 }
 
 // Update returns a builder for updating this Message.

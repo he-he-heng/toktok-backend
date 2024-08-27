@@ -7,7 +7,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
-	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/predicate"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
@@ -18,57 +18,56 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// RelationQuery is the builder for querying Relation entities.
-type RelationQuery struct {
+// RoomQuery is the builder for querying Room entities.
+type RoomQuery struct {
 	config
-	ctx             *QueryContext
-	order           []relation.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.Relation
-	withAvatar      *AvatarQuery
-	withFriend      *AvatarQuery
-	withAvatarRooms *RoomQuery
-	withFriendRooms *RoomQuery
-	withFKs         bool
+	ctx          *QueryContext
+	order        []room.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.Room
+	withAvatar   *RelationQuery
+	withFriend   *RelationQuery
+	withMessages *MessageQuery
+	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the RelationQuery builder.
-func (rq *RelationQuery) Where(ps ...predicate.Relation) *RelationQuery {
+// Where adds a new predicate for the RoomQuery builder.
+func (rq *RoomQuery) Where(ps ...predicate.Room) *RoomQuery {
 	rq.predicates = append(rq.predicates, ps...)
 	return rq
 }
 
 // Limit the number of records to be returned by this query.
-func (rq *RelationQuery) Limit(limit int) *RelationQuery {
+func (rq *RoomQuery) Limit(limit int) *RoomQuery {
 	rq.ctx.Limit = &limit
 	return rq
 }
 
 // Offset to start from.
-func (rq *RelationQuery) Offset(offset int) *RelationQuery {
+func (rq *RoomQuery) Offset(offset int) *RoomQuery {
 	rq.ctx.Offset = &offset
 	return rq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (rq *RelationQuery) Unique(unique bool) *RelationQuery {
+func (rq *RoomQuery) Unique(unique bool) *RoomQuery {
 	rq.ctx.Unique = &unique
 	return rq
 }
 
 // Order specifies how the records should be ordered.
-func (rq *RelationQuery) Order(o ...relation.OrderOption) *RelationQuery {
+func (rq *RoomQuery) Order(o ...room.OrderOption) *RoomQuery {
 	rq.order = append(rq.order, o...)
 	return rq
 }
 
 // QueryAvatar chains the current query on the "avatar" edge.
-func (rq *RelationQuery) QueryAvatar() *AvatarQuery {
-	query := (&AvatarClient{config: rq.config}).Query()
+func (rq *RoomQuery) QueryAvatar() *RelationQuery {
+	query := (&RelationClient{config: rq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := rq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -78,9 +77,9 @@ func (rq *RelationQuery) QueryAvatar() *AvatarQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(relation.Table, relation.FieldID, selector),
-			sqlgraph.To(avatar.Table, avatar.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, relation.AvatarTable, relation.AvatarColumn),
+			sqlgraph.From(room.Table, room.FieldID, selector),
+			sqlgraph.To(relation.Table, relation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, room.AvatarTable, room.AvatarColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -89,8 +88,8 @@ func (rq *RelationQuery) QueryAvatar() *AvatarQuery {
 }
 
 // QueryFriend chains the current query on the "friend" edge.
-func (rq *RelationQuery) QueryFriend() *AvatarQuery {
-	query := (&AvatarClient{config: rq.config}).Query()
+func (rq *RoomQuery) QueryFriend() *RelationQuery {
+	query := (&RelationClient{config: rq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := rq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -100,9 +99,9 @@ func (rq *RelationQuery) QueryFriend() *AvatarQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(relation.Table, relation.FieldID, selector),
-			sqlgraph.To(avatar.Table, avatar.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, relation.FriendTable, relation.FriendColumn),
+			sqlgraph.From(room.Table, room.FieldID, selector),
+			sqlgraph.To(relation.Table, relation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, room.FriendTable, room.FriendColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -110,9 +109,9 @@ func (rq *RelationQuery) QueryFriend() *AvatarQuery {
 	return query
 }
 
-// QueryAvatarRooms chains the current query on the "avatar_rooms" edge.
-func (rq *RelationQuery) QueryAvatarRooms() *RoomQuery {
-	query := (&RoomClient{config: rq.config}).Query()
+// QueryMessages chains the current query on the "messages" edge.
+func (rq *RoomQuery) QueryMessages() *MessageQuery {
+	query := (&MessageClient{config: rq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := rq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -122,9 +121,9 @@ func (rq *RelationQuery) QueryAvatarRooms() *RoomQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(relation.Table, relation.FieldID, selector),
-			sqlgraph.To(room.Table, room.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, relation.AvatarRoomsTable, relation.AvatarRoomsColumn),
+			sqlgraph.From(room.Table, room.FieldID, selector),
+			sqlgraph.To(message.Table, message.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, room.MessagesTable, room.MessagesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -132,43 +131,21 @@ func (rq *RelationQuery) QueryAvatarRooms() *RoomQuery {
 	return query
 }
 
-// QueryFriendRooms chains the current query on the "friend_rooms" edge.
-func (rq *RelationQuery) QueryFriendRooms() *RoomQuery {
-	query := (&RoomClient{config: rq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := rq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := rq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(relation.Table, relation.FieldID, selector),
-			sqlgraph.To(room.Table, room.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, relation.FriendRoomsTable, relation.FriendRoomsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// First returns the first Relation entity from the query.
-// Returns a *NotFoundError when no Relation was found.
-func (rq *RelationQuery) First(ctx context.Context) (*Relation, error) {
+// First returns the first Room entity from the query.
+// Returns a *NotFoundError when no Room was found.
+func (rq *RoomQuery) First(ctx context.Context) (*Room, error) {
 	nodes, err := rq.Limit(1).All(setContextOp(ctx, rq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{relation.Label}
+		return nil, &NotFoundError{room.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (rq *RelationQuery) FirstX(ctx context.Context) *Relation {
+func (rq *RoomQuery) FirstX(ctx context.Context) *Room {
 	node, err := rq.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -176,22 +153,22 @@ func (rq *RelationQuery) FirstX(ctx context.Context) *Relation {
 	return node
 }
 
-// FirstID returns the first Relation ID from the query.
-// Returns a *NotFoundError when no Relation ID was found.
-func (rq *RelationQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first Room ID from the query.
+// Returns a *NotFoundError when no Room ID was found.
+func (rq *RoomQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = rq.Limit(1).IDs(setContextOp(ctx, rq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{relation.Label}
+		err = &NotFoundError{room.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (rq *RelationQuery) FirstIDX(ctx context.Context) int {
+func (rq *RoomQuery) FirstIDX(ctx context.Context) int {
 	id, err := rq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -199,10 +176,10 @@ func (rq *RelationQuery) FirstIDX(ctx context.Context) int {
 	return id
 }
 
-// Only returns a single Relation entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Relation entity is found.
-// Returns a *NotFoundError when no Relation entities are found.
-func (rq *RelationQuery) Only(ctx context.Context) (*Relation, error) {
+// Only returns a single Room entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Room entity is found.
+// Returns a *NotFoundError when no Room entities are found.
+func (rq *RoomQuery) Only(ctx context.Context) (*Room, error) {
 	nodes, err := rq.Limit(2).All(setContextOp(ctx, rq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -211,14 +188,14 @@ func (rq *RelationQuery) Only(ctx context.Context) (*Relation, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{relation.Label}
+		return nil, &NotFoundError{room.Label}
 	default:
-		return nil, &NotSingularError{relation.Label}
+		return nil, &NotSingularError{room.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (rq *RelationQuery) OnlyX(ctx context.Context) *Relation {
+func (rq *RoomQuery) OnlyX(ctx context.Context) *Room {
 	node, err := rq.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -226,10 +203,10 @@ func (rq *RelationQuery) OnlyX(ctx context.Context) *Relation {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Relation ID in the query.
-// Returns a *NotSingularError when more than one Relation ID is found.
+// OnlyID is like Only, but returns the only Room ID in the query.
+// Returns a *NotSingularError when more than one Room ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (rq *RelationQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (rq *RoomQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = rq.Limit(2).IDs(setContextOp(ctx, rq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -238,15 +215,15 @@ func (rq *RelationQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{relation.Label}
+		err = &NotFoundError{room.Label}
 	default:
-		err = &NotSingularError{relation.Label}
+		err = &NotSingularError{room.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (rq *RelationQuery) OnlyIDX(ctx context.Context) int {
+func (rq *RoomQuery) OnlyIDX(ctx context.Context) int {
 	id, err := rq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -254,18 +231,18 @@ func (rq *RelationQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of Relations.
-func (rq *RelationQuery) All(ctx context.Context) ([]*Relation, error) {
+// All executes the query and returns a list of Rooms.
+func (rq *RoomQuery) All(ctx context.Context) ([]*Room, error) {
 	ctx = setContextOp(ctx, rq.ctx, ent.OpQueryAll)
 	if err := rq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Relation, *RelationQuery]()
-	return withInterceptors[[]*Relation](ctx, rq, qr, rq.inters)
+	qr := querierAll[[]*Room, *RoomQuery]()
+	return withInterceptors[[]*Room](ctx, rq, qr, rq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (rq *RelationQuery) AllX(ctx context.Context) []*Relation {
+func (rq *RoomQuery) AllX(ctx context.Context) []*Room {
 	nodes, err := rq.All(ctx)
 	if err != nil {
 		panic(err)
@@ -273,20 +250,20 @@ func (rq *RelationQuery) AllX(ctx context.Context) []*Relation {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Relation IDs.
-func (rq *RelationQuery) IDs(ctx context.Context) (ids []int, err error) {
+// IDs executes the query and returns a list of Room IDs.
+func (rq *RoomQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if rq.ctx.Unique == nil && rq.path != nil {
 		rq.Unique(true)
 	}
 	ctx = setContextOp(ctx, rq.ctx, ent.OpQueryIDs)
-	if err = rq.Select(relation.FieldID).Scan(ctx, &ids); err != nil {
+	if err = rq.Select(room.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (rq *RelationQuery) IDsX(ctx context.Context) []int {
+func (rq *RoomQuery) IDsX(ctx context.Context) []int {
 	ids, err := rq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -295,16 +272,16 @@ func (rq *RelationQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (rq *RelationQuery) Count(ctx context.Context) (int, error) {
+func (rq *RoomQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, rq.ctx, ent.OpQueryCount)
 	if err := rq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, rq, querierCount[*RelationQuery](), rq.inters)
+	return withInterceptors[int](ctx, rq, querierCount[*RoomQuery](), rq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (rq *RelationQuery) CountX(ctx context.Context) int {
+func (rq *RoomQuery) CountX(ctx context.Context) int {
 	count, err := rq.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -313,7 +290,7 @@ func (rq *RelationQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (rq *RelationQuery) Exist(ctx context.Context) (bool, error) {
+func (rq *RoomQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, rq.ctx, ent.OpQueryExist)
 	switch _, err := rq.FirstID(ctx); {
 	case IsNotFound(err):
@@ -326,7 +303,7 @@ func (rq *RelationQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (rq *RelationQuery) ExistX(ctx context.Context) bool {
+func (rq *RoomQuery) ExistX(ctx context.Context) bool {
 	exist, err := rq.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -334,22 +311,21 @@ func (rq *RelationQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the RelationQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the RoomQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (rq *RelationQuery) Clone() *RelationQuery {
+func (rq *RoomQuery) Clone() *RoomQuery {
 	if rq == nil {
 		return nil
 	}
-	return &RelationQuery{
-		config:          rq.config,
-		ctx:             rq.ctx.Clone(),
-		order:           append([]relation.OrderOption{}, rq.order...),
-		inters:          append([]Interceptor{}, rq.inters...),
-		predicates:      append([]predicate.Relation{}, rq.predicates...),
-		withAvatar:      rq.withAvatar.Clone(),
-		withFriend:      rq.withFriend.Clone(),
-		withAvatarRooms: rq.withAvatarRooms.Clone(),
-		withFriendRooms: rq.withFriendRooms.Clone(),
+	return &RoomQuery{
+		config:       rq.config,
+		ctx:          rq.ctx.Clone(),
+		order:        append([]room.OrderOption{}, rq.order...),
+		inters:       append([]Interceptor{}, rq.inters...),
+		predicates:   append([]predicate.Room{}, rq.predicates...),
+		withAvatar:   rq.withAvatar.Clone(),
+		withFriend:   rq.withFriend.Clone(),
+		withMessages: rq.withMessages.Clone(),
 		// clone intermediate query.
 		sql:  rq.sql.Clone(),
 		path: rq.path,
@@ -358,8 +334,8 @@ func (rq *RelationQuery) Clone() *RelationQuery {
 
 // WithAvatar tells the query-builder to eager-load the nodes that are connected to
 // the "avatar" edge. The optional arguments are used to configure the query builder of the edge.
-func (rq *RelationQuery) WithAvatar(opts ...func(*AvatarQuery)) *RelationQuery {
-	query := (&AvatarClient{config: rq.config}).Query()
+func (rq *RoomQuery) WithAvatar(opts ...func(*RelationQuery)) *RoomQuery {
+	query := (&RelationClient{config: rq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -369,8 +345,8 @@ func (rq *RelationQuery) WithAvatar(opts ...func(*AvatarQuery)) *RelationQuery {
 
 // WithFriend tells the query-builder to eager-load the nodes that are connected to
 // the "friend" edge. The optional arguments are used to configure the query builder of the edge.
-func (rq *RelationQuery) WithFriend(opts ...func(*AvatarQuery)) *RelationQuery {
-	query := (&AvatarClient{config: rq.config}).Query()
+func (rq *RoomQuery) WithFriend(opts ...func(*RelationQuery)) *RoomQuery {
+	query := (&RelationClient{config: rq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -378,25 +354,14 @@ func (rq *RelationQuery) WithFriend(opts ...func(*AvatarQuery)) *RelationQuery {
 	return rq
 }
 
-// WithAvatarRooms tells the query-builder to eager-load the nodes that are connected to
-// the "avatar_rooms" edge. The optional arguments are used to configure the query builder of the edge.
-func (rq *RelationQuery) WithAvatarRooms(opts ...func(*RoomQuery)) *RelationQuery {
-	query := (&RoomClient{config: rq.config}).Query()
+// WithMessages tells the query-builder to eager-load the nodes that are connected to
+// the "messages" edge. The optional arguments are used to configure the query builder of the edge.
+func (rq *RoomQuery) WithMessages(opts ...func(*MessageQuery)) *RoomQuery {
+	query := (&MessageClient{config: rq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	rq.withAvatarRooms = query
-	return rq
-}
-
-// WithFriendRooms tells the query-builder to eager-load the nodes that are connected to
-// the "friend_rooms" edge. The optional arguments are used to configure the query builder of the edge.
-func (rq *RelationQuery) WithFriendRooms(opts ...func(*RoomQuery)) *RelationQuery {
-	query := (&RoomClient{config: rq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	rq.withFriendRooms = query
+	rq.withMessages = query
 	return rq
 }
 
@@ -410,15 +375,15 @@ func (rq *RelationQuery) WithFriendRooms(opts ...func(*RoomQuery)) *RelationQuer
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Relation.Query().
-//		GroupBy(relation.FieldDeletedAt).
+//	client.Room.Query().
+//		GroupBy(room.FieldDeletedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (rq *RelationQuery) GroupBy(field string, fields ...string) *RelationGroupBy {
+func (rq *RoomQuery) GroupBy(field string, fields ...string) *RoomGroupBy {
 	rq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &RelationGroupBy{build: rq}
+	grbuild := &RoomGroupBy{build: rq}
 	grbuild.flds = &rq.ctx.Fields
-	grbuild.label = relation.Label
+	grbuild.label = room.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -432,23 +397,23 @@ func (rq *RelationQuery) GroupBy(field string, fields ...string) *RelationGroupB
 //		DeletedAt time.Time `json:"deleted_at,omitempty"`
 //	}
 //
-//	client.Relation.Query().
-//		Select(relation.FieldDeletedAt).
+//	client.Room.Query().
+//		Select(room.FieldDeletedAt).
 //		Scan(ctx, &v)
-func (rq *RelationQuery) Select(fields ...string) *RelationSelect {
+func (rq *RoomQuery) Select(fields ...string) *RoomSelect {
 	rq.ctx.Fields = append(rq.ctx.Fields, fields...)
-	sbuild := &RelationSelect{RelationQuery: rq}
-	sbuild.label = relation.Label
+	sbuild := &RoomSelect{RoomQuery: rq}
+	sbuild.label = room.Label
 	sbuild.flds, sbuild.scan = &rq.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a RelationSelect configured with the given aggregations.
-func (rq *RelationQuery) Aggregate(fns ...AggregateFunc) *RelationSelect {
+// Aggregate returns a RoomSelect configured with the given aggregations.
+func (rq *RoomQuery) Aggregate(fns ...AggregateFunc) *RoomSelect {
 	return rq.Select().Aggregate(fns...)
 }
 
-func (rq *RelationQuery) prepareQuery(ctx context.Context) error {
+func (rq *RoomQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range rq.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -460,7 +425,7 @@ func (rq *RelationQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range rq.ctx.Fields {
-		if !relation.ValidColumn(f) {
+		if !room.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -474,29 +439,28 @@ func (rq *RelationQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (rq *RelationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Relation, error) {
+func (rq *RoomQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Room, error) {
 	var (
-		nodes       = []*Relation{}
+		nodes       = []*Room{}
 		withFKs     = rq.withFKs
 		_spec       = rq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [3]bool{
 			rq.withAvatar != nil,
 			rq.withFriend != nil,
-			rq.withAvatarRooms != nil,
-			rq.withFriendRooms != nil,
+			rq.withMessages != nil,
 		}
 	)
 	if rq.withAvatar != nil || rq.withFriend != nil {
 		withFKs = true
 	}
 	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, relation.ForeignKeys...)
+		_spec.Node.Columns = append(_spec.Node.Columns, room.ForeignKeys...)
 	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Relation).scanValues(nil, columns)
+		return (*Room).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Relation{config: rq.config}
+		node := &Room{config: rq.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -512,39 +476,33 @@ func (rq *RelationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Rel
 	}
 	if query := rq.withAvatar; query != nil {
 		if err := rq.loadAvatar(ctx, query, nodes, nil,
-			func(n *Relation, e *Avatar) { n.Edges.Avatar = e }); err != nil {
+			func(n *Room, e *Relation) { n.Edges.Avatar = e }); err != nil {
 			return nil, err
 		}
 	}
 	if query := rq.withFriend; query != nil {
 		if err := rq.loadFriend(ctx, query, nodes, nil,
-			func(n *Relation, e *Avatar) { n.Edges.Friend = e }); err != nil {
+			func(n *Room, e *Relation) { n.Edges.Friend = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := rq.withAvatarRooms; query != nil {
-		if err := rq.loadAvatarRooms(ctx, query, nodes, nil,
-			func(n *Relation, e *Room) { n.Edges.AvatarRooms = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := rq.withFriendRooms; query != nil {
-		if err := rq.loadFriendRooms(ctx, query, nodes, nil,
-			func(n *Relation, e *Room) { n.Edges.FriendRooms = e }); err != nil {
+	if query := rq.withMessages; query != nil {
+		if err := rq.loadMessages(ctx, query, nodes, nil,
+			func(n *Room, e *Message) { n.Edges.Messages = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (rq *RelationQuery) loadAvatar(ctx context.Context, query *AvatarQuery, nodes []*Relation, init func(*Relation), assign func(*Relation, *Avatar)) error {
+func (rq *RoomQuery) loadAvatar(ctx context.Context, query *RelationQuery, nodes []*Room, init func(*Room), assign func(*Room, *Relation)) error {
 	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Relation)
+	nodeids := make(map[int][]*Room)
 	for i := range nodes {
-		if nodes[i].avatar_avatar_relations == nil {
+		if nodes[i].relation_avatar_rooms == nil {
 			continue
 		}
-		fk := *nodes[i].avatar_avatar_relations
+		fk := *nodes[i].relation_avatar_rooms
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -553,7 +511,7 @@ func (rq *RelationQuery) loadAvatar(ctx context.Context, query *AvatarQuery, nod
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(avatar.IDIn(ids...))
+	query.Where(relation.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -561,7 +519,7 @@ func (rq *RelationQuery) loadAvatar(ctx context.Context, query *AvatarQuery, nod
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "avatar_avatar_relations" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "relation_avatar_rooms" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -569,14 +527,14 @@ func (rq *RelationQuery) loadAvatar(ctx context.Context, query *AvatarQuery, nod
 	}
 	return nil
 }
-func (rq *RelationQuery) loadFriend(ctx context.Context, query *AvatarQuery, nodes []*Relation, init func(*Relation), assign func(*Relation, *Avatar)) error {
+func (rq *RoomQuery) loadFriend(ctx context.Context, query *RelationQuery, nodes []*Room, init func(*Room), assign func(*Room, *Relation)) error {
 	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Relation)
+	nodeids := make(map[int][]*Room)
 	for i := range nodes {
-		if nodes[i].avatar_friend_relations == nil {
+		if nodes[i].relation_friend_rooms == nil {
 			continue
 		}
-		fk := *nodes[i].avatar_friend_relations
+		fk := *nodes[i].relation_friend_rooms
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -585,7 +543,7 @@ func (rq *RelationQuery) loadFriend(ctx context.Context, query *AvatarQuery, nod
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(avatar.IDIn(ids...))
+	query.Where(relation.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -593,7 +551,7 @@ func (rq *RelationQuery) loadFriend(ctx context.Context, query *AvatarQuery, nod
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "avatar_friend_relations" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "relation_friend_rooms" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -601,64 +559,36 @@ func (rq *RelationQuery) loadFriend(ctx context.Context, query *AvatarQuery, nod
 	}
 	return nil
 }
-func (rq *RelationQuery) loadAvatarRooms(ctx context.Context, query *RoomQuery, nodes []*Relation, init func(*Relation), assign func(*Relation, *Room)) error {
+func (rq *RoomQuery) loadMessages(ctx context.Context, query *MessageQuery, nodes []*Room, init func(*Room), assign func(*Room, *Message)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Relation)
+	nodeids := make(map[int]*Room)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
 	}
 	query.withFKs = true
-	query.Where(predicate.Room(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(relation.AvatarRoomsColumn), fks...))
+	query.Where(predicate.Message(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(room.MessagesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.relation_avatar_rooms
+		fk := n.room_messages
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "relation_avatar_rooms" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "room_messages" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "relation_avatar_rooms" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (rq *RelationQuery) loadFriendRooms(ctx context.Context, query *RoomQuery, nodes []*Relation, init func(*Relation), assign func(*Relation, *Room)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Relation)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-	}
-	query.withFKs = true
-	query.Where(predicate.Room(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(relation.FriendRoomsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.relation_friend_rooms
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "relation_friend_rooms" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "relation_friend_rooms" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "room_messages" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
 	return nil
 }
 
-func (rq *RelationQuery) sqlCount(ctx context.Context) (int, error) {
+func (rq *RoomQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := rq.querySpec()
 	_spec.Node.Columns = rq.ctx.Fields
 	if len(rq.ctx.Fields) > 0 {
@@ -667,8 +597,8 @@ func (rq *RelationQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, rq.driver, _spec)
 }
 
-func (rq *RelationQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(relation.Table, relation.Columns, sqlgraph.NewFieldSpec(relation.FieldID, field.TypeInt))
+func (rq *RoomQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(room.Table, room.Columns, sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt))
 	_spec.From = rq.sql
 	if unique := rq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -677,9 +607,9 @@ func (rq *RelationQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := rq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, relation.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, room.FieldID)
 		for i := range fields {
-			if fields[i] != relation.FieldID {
+			if fields[i] != room.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -707,12 +637,12 @@ func (rq *RelationQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (rq *RelationQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (rq *RoomQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(rq.driver.Dialect())
-	t1 := builder.Table(relation.Table)
+	t1 := builder.Table(room.Table)
 	columns := rq.ctx.Fields
 	if len(columns) == 0 {
-		columns = relation.Columns
+		columns = room.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if rq.sql != nil {
@@ -739,28 +669,28 @@ func (rq *RelationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// RelationGroupBy is the group-by builder for Relation entities.
-type RelationGroupBy struct {
+// RoomGroupBy is the group-by builder for Room entities.
+type RoomGroupBy struct {
 	selector
-	build *RelationQuery
+	build *RoomQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (rgb *RelationGroupBy) Aggregate(fns ...AggregateFunc) *RelationGroupBy {
+func (rgb *RoomGroupBy) Aggregate(fns ...AggregateFunc) *RoomGroupBy {
 	rgb.fns = append(rgb.fns, fns...)
 	return rgb
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (rgb *RelationGroupBy) Scan(ctx context.Context, v any) error {
+func (rgb *RoomGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, rgb.build.ctx, ent.OpQueryGroupBy)
 	if err := rgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*RelationQuery, *RelationGroupBy](ctx, rgb.build, rgb, rgb.build.inters, v)
+	return scanWithInterceptors[*RoomQuery, *RoomGroupBy](ctx, rgb.build, rgb, rgb.build.inters, v)
 }
 
-func (rgb *RelationGroupBy) sqlScan(ctx context.Context, root *RelationQuery, v any) error {
+func (rgb *RoomGroupBy) sqlScan(ctx context.Context, root *RoomQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(rgb.fns))
 	for _, fn := range rgb.fns {
@@ -787,28 +717,28 @@ func (rgb *RelationGroupBy) sqlScan(ctx context.Context, root *RelationQuery, v 
 	return sql.ScanSlice(rows, v)
 }
 
-// RelationSelect is the builder for selecting fields of Relation entities.
-type RelationSelect struct {
-	*RelationQuery
+// RoomSelect is the builder for selecting fields of Room entities.
+type RoomSelect struct {
+	*RoomQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (rs *RelationSelect) Aggregate(fns ...AggregateFunc) *RelationSelect {
+func (rs *RoomSelect) Aggregate(fns ...AggregateFunc) *RoomSelect {
 	rs.fns = append(rs.fns, fns...)
 	return rs
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (rs *RelationSelect) Scan(ctx context.Context, v any) error {
+func (rs *RoomSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, rs.ctx, ent.OpQuerySelect)
 	if err := rs.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*RelationQuery, *RelationSelect](ctx, rs.RelationQuery, rs, rs.inters, v)
+	return scanWithInterceptors[*RoomQuery, *RoomSelect](ctx, rs.RoomQuery, rs, rs.inters, v)
 }
 
-func (rs *RelationSelect) sqlScan(ctx context.Context, root *RelationQuery, v any) error {
+func (rs *RoomSelect) sqlScan(ctx context.Context, root *RoomQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(rs.fns))
 	for _, fn := range rs.fns {

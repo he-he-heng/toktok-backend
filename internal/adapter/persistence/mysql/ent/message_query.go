@@ -9,7 +9,7 @@ import (
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/predicate"
-	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -20,13 +20,13 @@ import (
 // MessageQuery is the builder for querying Message entities.
 type MessageQuery struct {
 	config
-	ctx          *QueryContext
-	order        []message.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Message
-	withRelation *RelationQuery
-	withAvatar   *AvatarQuery
-	withFKs      bool
+	ctx        *QueryContext
+	order      []message.OrderOption
+	inters     []Interceptor
+	predicates []predicate.Message
+	withAvatar *AvatarQuery
+	withRoom   *RoomQuery
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -63,28 +63,6 @@ func (mq *MessageQuery) Order(o ...message.OrderOption) *MessageQuery {
 	return mq
 }
 
-// QueryRelation chains the current query on the "relation" edge.
-func (mq *MessageQuery) QueryRelation() *RelationQuery {
-	query := (&RelationClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(message.Table, message.FieldID, selector),
-			sqlgraph.To(relation.Table, relation.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, message.RelationTable, message.RelationColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QueryAvatar chains the current query on the "avatar" edge.
 func (mq *MessageQuery) QueryAvatar() *AvatarQuery {
 	query := (&AvatarClient{config: mq.config}).Query()
@@ -100,6 +78,28 @@ func (mq *MessageQuery) QueryAvatar() *AvatarQuery {
 			sqlgraph.From(message.Table, message.FieldID, selector),
 			sqlgraph.To(avatar.Table, avatar.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, message.AvatarTable, message.AvatarColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRoom chains the current query on the "room" edge.
+func (mq *MessageQuery) QueryRoom() *RoomQuery {
+	query := (&RoomClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(message.Table, message.FieldID, selector),
+			sqlgraph.To(room.Table, room.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, message.RoomTable, message.RoomColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -294,28 +294,17 @@ func (mq *MessageQuery) Clone() *MessageQuery {
 		return nil
 	}
 	return &MessageQuery{
-		config:       mq.config,
-		ctx:          mq.ctx.Clone(),
-		order:        append([]message.OrderOption{}, mq.order...),
-		inters:       append([]Interceptor{}, mq.inters...),
-		predicates:   append([]predicate.Message{}, mq.predicates...),
-		withRelation: mq.withRelation.Clone(),
-		withAvatar:   mq.withAvatar.Clone(),
+		config:     mq.config,
+		ctx:        mq.ctx.Clone(),
+		order:      append([]message.OrderOption{}, mq.order...),
+		inters:     append([]Interceptor{}, mq.inters...),
+		predicates: append([]predicate.Message{}, mq.predicates...),
+		withAvatar: mq.withAvatar.Clone(),
+		withRoom:   mq.withRoom.Clone(),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
 	}
-}
-
-// WithRelation tells the query-builder to eager-load the nodes that are connected to
-// the "relation" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MessageQuery) WithRelation(opts ...func(*RelationQuery)) *MessageQuery {
-	query := (&RelationClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withRelation = query
-	return mq
 }
 
 // WithAvatar tells the query-builder to eager-load the nodes that are connected to
@@ -326,6 +315,17 @@ func (mq *MessageQuery) WithAvatar(opts ...func(*AvatarQuery)) *MessageQuery {
 		opt(query)
 	}
 	mq.withAvatar = query
+	return mq
+}
+
+// WithRoom tells the query-builder to eager-load the nodes that are connected to
+// the "room" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MessageQuery) WithRoom(opts ...func(*RoomQuery)) *MessageQuery {
+	query := (&RoomClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withRoom = query
 	return mq
 }
 
@@ -409,11 +409,11 @@ func (mq *MessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mess
 		withFKs     = mq.withFKs
 		_spec       = mq.querySpec()
 		loadedTypes = [2]bool{
-			mq.withRelation != nil,
 			mq.withAvatar != nil,
+			mq.withRoom != nil,
 		}
 	)
-	if mq.withRelation != nil || mq.withAvatar != nil {
+	if mq.withAvatar != nil || mq.withRoom != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -437,53 +437,21 @@ func (mq *MessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mess
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := mq.withRelation; query != nil {
-		if err := mq.loadRelation(ctx, query, nodes, nil,
-			func(n *Message, e *Relation) { n.Edges.Relation = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := mq.withAvatar; query != nil {
 		if err := mq.loadAvatar(ctx, query, nodes, nil,
 			func(n *Message, e *Avatar) { n.Edges.Avatar = e }); err != nil {
 			return nil, err
 		}
 	}
+	if query := mq.withRoom; query != nil {
+		if err := mq.loadRoom(ctx, query, nodes, nil,
+			func(n *Message, e *Room) { n.Edges.Room = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
-func (mq *MessageQuery) loadRelation(ctx context.Context, query *RelationQuery, nodes []*Message, init func(*Message), assign func(*Message, *Relation)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Message)
-	for i := range nodes {
-		if nodes[i].relation_messages == nil {
-			continue
-		}
-		fk := *nodes[i].relation_messages
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(relation.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "relation_messages" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (mq *MessageQuery) loadAvatar(ctx context.Context, query *AvatarQuery, nodes []*Message, init func(*Message), assign func(*Message, *Avatar)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Message)
@@ -509,6 +477,38 @@ func (mq *MessageQuery) loadAvatar(ctx context.Context, query *AvatarQuery, node
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "avatar_messages" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (mq *MessageQuery) loadRoom(ctx context.Context, query *RoomQuery, nodes []*Message, init func(*Message), assign func(*Message, *Room)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Message)
+	for i := range nodes {
+		if nodes[i].room_messages == nil {
+			continue
+		}
+		fk := *nodes[i].room_messages
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(room.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "room_messages" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

@@ -18,6 +18,8 @@ type Tx struct {
 	Message *MessageClient
 	// Relation is the client for interacting with the Relation builders.
 	Relation *RelationClient
+	// Room is the client for interacting with the Room builders.
+	Room *RoomClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -154,6 +156,7 @@ func (tx *Tx) init() {
 	tx.Avatar = NewAvatarClient(tx.config)
 	tx.Message = NewMessageClient(tx.config)
 	tx.Relation = NewRelationClient(tx.config)
+	tx.Room = NewRoomClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

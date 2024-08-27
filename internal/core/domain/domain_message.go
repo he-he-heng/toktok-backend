@@ -10,12 +10,12 @@ const (
 )
 
 type Message struct {
-	ID         int
-	AvatarID   int
-	RelationID int
-	State      MessageStateType
-	Content    string
-	EnteredAt  time.Time
+	ID        int
+	AvatarID  int
+	RoomID    int
+	State     MessageStateType
+	Content   string
+	EnteredAt time.Time
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

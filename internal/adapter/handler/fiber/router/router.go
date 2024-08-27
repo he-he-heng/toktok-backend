@@ -46,9 +46,12 @@ func NewRouter(controllerSet ControllerSet, serviceSet ServiceSet) *Router {
 			{
 				users.Get("/", router.controllerSet.UserController.ListUser)
 				users.Get("/:id", router.controllerSet.UserController.GetUser)
-				users.Post("/", router.controllerSet.UserController.CreateUser)
 				users.Put("/:id", router.controllerSet.UserController.UpdateUser)
 				users.Delete("/:id", router.controllerSet.UserController.DeleteUser)
+			}
+			unauthorizedUsers := api.Group("/users")
+			{
+				unauthorizedUsers.Post("/", router.controllerSet.UserController.CreateUser)
 			}
 
 			avatars := api.Group("/avatars")

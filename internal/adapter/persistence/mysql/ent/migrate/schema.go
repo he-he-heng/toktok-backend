@@ -47,7 +47,7 @@ var (
 		{Name: "content", Type: field.TypeString},
 		{Name: "entered_at", Type: field.TypeTime},
 		{Name: "avatar_messages", Type: field.TypeInt, Nullable: true},
-		{Name: "relation_messages", Type: field.TypeInt, Nullable: true},
+		{Name: "room_messages", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// MessagesTable holds the schema information for the "messages" table.
 	MessagesTable = &schema.Table{
@@ -62,9 +62,9 @@ var (
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "messages_relations_messages",
+				Symbol:     "messages_rooms_messages",
 				Columns:    []*schema.Column{MessagesColumns[8]},
-				RefColumns: []*schema.Column{RelationsColumns[0]},
+				RefColumns: []*schema.Column{RoomsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -100,6 +100,35 @@ var (
 			},
 		},
 	}
+	// RoomsColumns holds the columns for the "rooms" table.
+	RoomsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "relation_avatar_rooms", Type: field.TypeInt, Unique: true, Nullable: true},
+		{Name: "relation_friend_rooms", Type: field.TypeInt, Unique: true, Nullable: true},
+	}
+	// RoomsTable holds the schema information for the "rooms" table.
+	RoomsTable = &schema.Table{
+		Name:       "rooms",
+		Columns:    RoomsColumns,
+		PrimaryKey: []*schema.Column{RoomsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "rooms_relations_avatar_rooms",
+				Columns:    []*schema.Column{RoomsColumns[4]},
+				RefColumns: []*schema.Column{RelationsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "rooms_relations_friend_rooms",
+				Columns:    []*schema.Column{RoomsColumns[5]},
+				RefColumns: []*schema.Column{RelationsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -123,6 +152,7 @@ var (
 		AvatarsTable,
 		MessagesTable,
 		RelationsTable,
+		RoomsTable,
 		UsersTable,
 	}
 )
@@ -130,7 +160,9 @@ var (
 func init() {
 	AvatarsTable.ForeignKeys[0].RefTable = UsersTable
 	MessagesTable.ForeignKeys[0].RefTable = AvatarsTable
-	MessagesTable.ForeignKeys[1].RefTable = RelationsTable
+	MessagesTable.ForeignKeys[1].RefTable = RoomsTable
 	RelationsTable.ForeignKeys[0].RefTable = AvatarsTable
 	RelationsTable.ForeignKeys[1].RefTable = AvatarsTable
+	RoomsTable.ForeignKeys[0].RefTable = RelationsTable
+	RoomsTable.ForeignKeys[1].RefTable = RelationsTable
 }

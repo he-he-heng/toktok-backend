@@ -14,6 +14,7 @@ import (
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/user"
 
 	"entgo.io/ent"
@@ -33,6 +34,8 @@ type Client struct {
 	Message *MessageClient
 	// Relation is the client for interacting with the Relation builders.
 	Relation *RelationClient
+	// Room is the client for interacting with the Room builders.
+	Room *RoomClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -49,6 +52,7 @@ func (c *Client) init() {
 	c.Avatar = NewAvatarClient(c.config)
 	c.Message = NewMessageClient(c.config)
 	c.Relation = NewRelationClient(c.config)
+	c.Room = NewRoomClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -145,6 +149,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Avatar:   NewAvatarClient(cfg),
 		Message:  NewMessageClient(cfg),
 		Relation: NewRelationClient(cfg),
+		Room:     NewRoomClient(cfg),
 		User:     NewUserClient(cfg),
 	}, nil
 }
@@ -168,6 +173,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Avatar:   NewAvatarClient(cfg),
 		Message:  NewMessageClient(cfg),
 		Relation: NewRelationClient(cfg),
+		Room:     NewRoomClient(cfg),
 		User:     NewUserClient(cfg),
 	}, nil
 }
@@ -200,6 +206,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Avatar.Use(hooks...)
 	c.Message.Use(hooks...)
 	c.Relation.Use(hooks...)
+	c.Room.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
@@ -209,6 +216,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Avatar.Intercept(interceptors...)
 	c.Message.Intercept(interceptors...)
 	c.Relation.Intercept(interceptors...)
+	c.Room.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
@@ -221,6 +229,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Message.mutate(ctx, m)
 	case *RelationMutation:
 		return c.Relation.mutate(ctx, m)
+	case *RoomMutation:
+		return c.Room.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -535,22 +545,6 @@ func (c *MessageClient) GetX(ctx context.Context, id int) *Message {
 	return obj
 }
 
-// QueryRelation queries the relation edge of a Message.
-func (c *MessageClient) QueryRelation(m *Message) *RelationQuery {
-	query := (&RelationClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(message.Table, message.FieldID, id),
-			sqlgraph.To(relation.Table, relation.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, message.RelationTable, message.RelationColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryAvatar queries the avatar edge of a Message.
 func (c *MessageClient) QueryAvatar(m *Message) *AvatarQuery {
 	query := (&AvatarClient{config: c.config}).Query()
@@ -560,6 +554,22 @@ func (c *MessageClient) QueryAvatar(m *Message) *AvatarQuery {
 			sqlgraph.From(message.Table, message.FieldID, id),
 			sqlgraph.To(avatar.Table, avatar.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, message.AvatarTable, message.AvatarColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRoom queries the room edge of a Message.
+func (c *MessageClient) QueryRoom(m *Message) *RoomQuery {
+	query := (&RoomClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(message.Table, message.FieldID, id),
+			sqlgraph.To(room.Table, room.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, message.RoomTable, message.RoomColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -734,15 +744,31 @@ func (c *RelationClient) QueryFriend(r *Relation) *AvatarQuery {
 	return query
 }
 
-// QueryMessages queries the messages edge of a Relation.
-func (c *RelationClient) QueryMessages(r *Relation) *MessageQuery {
-	query := (&MessageClient{config: c.config}).Query()
+// QueryAvatarRooms queries the avatar_rooms edge of a Relation.
+func (c *RelationClient) QueryAvatarRooms(r *Relation) *RoomQuery {
+	query := (&RoomClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := r.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(relation.Table, relation.FieldID, id),
-			sqlgraph.To(message.Table, message.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, relation.MessagesTable, relation.MessagesColumn),
+			sqlgraph.To(room.Table, room.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, relation.AvatarRoomsTable, relation.AvatarRoomsColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFriendRooms queries the friend_rooms edge of a Relation.
+func (c *RelationClient) QueryFriendRooms(r *Relation) *RoomQuery {
+	query := (&RoomClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(relation.Table, relation.FieldID, id),
+			sqlgraph.To(room.Table, room.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, relation.FriendRoomsTable, relation.FriendRoomsColumn),
 		)
 		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
 		return fromV, nil
@@ -774,6 +800,189 @@ func (c *RelationClient) mutate(ctx context.Context, m *RelationMutation) (Value
 		return (&RelationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Relation mutation op: %q", m.Op())
+	}
+}
+
+// RoomClient is a client for the Room schema.
+type RoomClient struct {
+	config
+}
+
+// NewRoomClient returns a client for the Room from the given config.
+func NewRoomClient(c config) *RoomClient {
+	return &RoomClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `room.Hooks(f(g(h())))`.
+func (c *RoomClient) Use(hooks ...Hook) {
+	c.hooks.Room = append(c.hooks.Room, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `room.Intercept(f(g(h())))`.
+func (c *RoomClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Room = append(c.inters.Room, interceptors...)
+}
+
+// Create returns a builder for creating a Room entity.
+func (c *RoomClient) Create() *RoomCreate {
+	mutation := newRoomMutation(c.config, OpCreate)
+	return &RoomCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Room entities.
+func (c *RoomClient) CreateBulk(builders ...*RoomCreate) *RoomCreateBulk {
+	return &RoomCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RoomClient) MapCreateBulk(slice any, setFunc func(*RoomCreate, int)) *RoomCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RoomCreateBulk{err: fmt.Errorf("calling to RoomClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RoomCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RoomCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Room.
+func (c *RoomClient) Update() *RoomUpdate {
+	mutation := newRoomMutation(c.config, OpUpdate)
+	return &RoomUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RoomClient) UpdateOne(r *Room) *RoomUpdateOne {
+	mutation := newRoomMutation(c.config, OpUpdateOne, withRoom(r))
+	return &RoomUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RoomClient) UpdateOneID(id int) *RoomUpdateOne {
+	mutation := newRoomMutation(c.config, OpUpdateOne, withRoomID(id))
+	return &RoomUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Room.
+func (c *RoomClient) Delete() *RoomDelete {
+	mutation := newRoomMutation(c.config, OpDelete)
+	return &RoomDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RoomClient) DeleteOne(r *Room) *RoomDeleteOne {
+	return c.DeleteOneID(r.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RoomClient) DeleteOneID(id int) *RoomDeleteOne {
+	builder := c.Delete().Where(room.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RoomDeleteOne{builder}
+}
+
+// Query returns a query builder for Room.
+func (c *RoomClient) Query() *RoomQuery {
+	return &RoomQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRoom},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Room entity by its id.
+func (c *RoomClient) Get(ctx context.Context, id int) (*Room, error) {
+	return c.Query().Where(room.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RoomClient) GetX(ctx context.Context, id int) *Room {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryAvatar queries the avatar edge of a Room.
+func (c *RoomClient) QueryAvatar(r *Room) *RelationQuery {
+	query := (&RelationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(room.Table, room.FieldID, id),
+			sqlgraph.To(relation.Table, relation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, room.AvatarTable, room.AvatarColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFriend queries the friend edge of a Room.
+func (c *RoomClient) QueryFriend(r *Room) *RelationQuery {
+	query := (&RelationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(room.Table, room.FieldID, id),
+			sqlgraph.To(relation.Table, relation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, room.FriendTable, room.FriendColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMessages queries the messages edge of a Room.
+func (c *RoomClient) QueryMessages(r *Room) *MessageQuery {
+	query := (&MessageClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(room.Table, room.FieldID, id),
+			sqlgraph.To(message.Table, message.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, room.MessagesTable, room.MessagesColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *RoomClient) Hooks() []Hook {
+	hooks := c.hooks.Room
+	return append(hooks[:len(hooks):len(hooks)], room.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *RoomClient) Interceptors() []Interceptor {
+	inters := c.inters.Room
+	return append(inters[:len(inters):len(inters)], room.Interceptors[:]...)
+}
+
+func (c *RoomClient) mutate(ctx context.Context, m *RoomMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RoomCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RoomUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RoomUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RoomDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Room mutation op: %q", m.Op())
 	}
 }
 
@@ -931,9 +1140,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Avatar, Message, Relation, User []ent.Hook
+		Avatar, Message, Relation, Room, User []ent.Hook
 	}
 	inters struct {
-		Avatar, Message, Relation, User []ent.Interceptor
+		Avatar, Message, Relation, Room, User []ent.Interceptor
 	}
 )

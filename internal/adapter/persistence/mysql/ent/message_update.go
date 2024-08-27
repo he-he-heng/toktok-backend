@@ -10,7 +10,7 @@ import (
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/predicate"
-	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -98,25 +98,6 @@ func (mu *MessageUpdate) SetNillableEnteredAt(t *time.Time) *MessageUpdate {
 	return mu
 }
 
-// SetRelationID sets the "relation" edge to the Relation entity by ID.
-func (mu *MessageUpdate) SetRelationID(id int) *MessageUpdate {
-	mu.mutation.SetRelationID(id)
-	return mu
-}
-
-// SetNillableRelationID sets the "relation" edge to the Relation entity by ID if the given value is not nil.
-func (mu *MessageUpdate) SetNillableRelationID(id *int) *MessageUpdate {
-	if id != nil {
-		mu = mu.SetRelationID(*id)
-	}
-	return mu
-}
-
-// SetRelation sets the "relation" edge to the Relation entity.
-func (mu *MessageUpdate) SetRelation(r *Relation) *MessageUpdate {
-	return mu.SetRelationID(r.ID)
-}
-
 // SetAvatarID sets the "avatar" edge to the Avatar entity by ID.
 func (mu *MessageUpdate) SetAvatarID(id int) *MessageUpdate {
 	mu.mutation.SetAvatarID(id)
@@ -136,20 +117,39 @@ func (mu *MessageUpdate) SetAvatar(a *Avatar) *MessageUpdate {
 	return mu.SetAvatarID(a.ID)
 }
 
+// SetRoomID sets the "room" edge to the Room entity by ID.
+func (mu *MessageUpdate) SetRoomID(id int) *MessageUpdate {
+	mu.mutation.SetRoomID(id)
+	return mu
+}
+
+// SetNillableRoomID sets the "room" edge to the Room entity by ID if the given value is not nil.
+func (mu *MessageUpdate) SetNillableRoomID(id *int) *MessageUpdate {
+	if id != nil {
+		mu = mu.SetRoomID(*id)
+	}
+	return mu
+}
+
+// SetRoom sets the "room" edge to the Room entity.
+func (mu *MessageUpdate) SetRoom(r *Room) *MessageUpdate {
+	return mu.SetRoomID(r.ID)
+}
+
 // Mutation returns the MessageMutation object of the builder.
 func (mu *MessageUpdate) Mutation() *MessageMutation {
 	return mu.mutation
 }
 
-// ClearRelation clears the "relation" edge to the Relation entity.
-func (mu *MessageUpdate) ClearRelation() *MessageUpdate {
-	mu.mutation.ClearRelation()
-	return mu
-}
-
 // ClearAvatar clears the "avatar" edge to the Avatar entity.
 func (mu *MessageUpdate) ClearAvatar() *MessageUpdate {
 	mu.mutation.ClearAvatar()
+	return mu
+}
+
+// ClearRoom clears the "room" edge to the Room entity.
+func (mu *MessageUpdate) ClearRoom() *MessageUpdate {
+	mu.mutation.ClearRoom()
 	return mu
 }
 
@@ -240,35 +240,6 @@ func (mu *MessageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.EnteredAt(); ok {
 		_spec.SetField(message.FieldEnteredAt, field.TypeTime, value)
 	}
-	if mu.mutation.RelationCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   message.RelationTable,
-			Columns: []string{message.RelationColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(relation.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mu.mutation.RelationIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   message.RelationTable,
-			Columns: []string{message.RelationColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(relation.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if mu.mutation.AvatarCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -291,6 +262,35 @@ func (mu *MessageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(avatar.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.RoomCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   message.RoomTable,
+			Columns: []string{message.RoomColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RoomIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   message.RoomTable,
+			Columns: []string{message.RoomColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -386,25 +386,6 @@ func (muo *MessageUpdateOne) SetNillableEnteredAt(t *time.Time) *MessageUpdateOn
 	return muo
 }
 
-// SetRelationID sets the "relation" edge to the Relation entity by ID.
-func (muo *MessageUpdateOne) SetRelationID(id int) *MessageUpdateOne {
-	muo.mutation.SetRelationID(id)
-	return muo
-}
-
-// SetNillableRelationID sets the "relation" edge to the Relation entity by ID if the given value is not nil.
-func (muo *MessageUpdateOne) SetNillableRelationID(id *int) *MessageUpdateOne {
-	if id != nil {
-		muo = muo.SetRelationID(*id)
-	}
-	return muo
-}
-
-// SetRelation sets the "relation" edge to the Relation entity.
-func (muo *MessageUpdateOne) SetRelation(r *Relation) *MessageUpdateOne {
-	return muo.SetRelationID(r.ID)
-}
-
 // SetAvatarID sets the "avatar" edge to the Avatar entity by ID.
 func (muo *MessageUpdateOne) SetAvatarID(id int) *MessageUpdateOne {
 	muo.mutation.SetAvatarID(id)
@@ -424,20 +405,39 @@ func (muo *MessageUpdateOne) SetAvatar(a *Avatar) *MessageUpdateOne {
 	return muo.SetAvatarID(a.ID)
 }
 
+// SetRoomID sets the "room" edge to the Room entity by ID.
+func (muo *MessageUpdateOne) SetRoomID(id int) *MessageUpdateOne {
+	muo.mutation.SetRoomID(id)
+	return muo
+}
+
+// SetNillableRoomID sets the "room" edge to the Room entity by ID if the given value is not nil.
+func (muo *MessageUpdateOne) SetNillableRoomID(id *int) *MessageUpdateOne {
+	if id != nil {
+		muo = muo.SetRoomID(*id)
+	}
+	return muo
+}
+
+// SetRoom sets the "room" edge to the Room entity.
+func (muo *MessageUpdateOne) SetRoom(r *Room) *MessageUpdateOne {
+	return muo.SetRoomID(r.ID)
+}
+
 // Mutation returns the MessageMutation object of the builder.
 func (muo *MessageUpdateOne) Mutation() *MessageMutation {
 	return muo.mutation
 }
 
-// ClearRelation clears the "relation" edge to the Relation entity.
-func (muo *MessageUpdateOne) ClearRelation() *MessageUpdateOne {
-	muo.mutation.ClearRelation()
-	return muo
-}
-
 // ClearAvatar clears the "avatar" edge to the Avatar entity.
 func (muo *MessageUpdateOne) ClearAvatar() *MessageUpdateOne {
 	muo.mutation.ClearAvatar()
+	return muo
+}
+
+// ClearRoom clears the "room" edge to the Room entity.
+func (muo *MessageUpdateOne) ClearRoom() *MessageUpdateOne {
+	muo.mutation.ClearRoom()
 	return muo
 }
 
@@ -558,35 +558,6 @@ func (muo *MessageUpdateOne) sqlSave(ctx context.Context) (_node *Message, err e
 	if value, ok := muo.mutation.EnteredAt(); ok {
 		_spec.SetField(message.FieldEnteredAt, field.TypeTime, value)
 	}
-	if muo.mutation.RelationCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   message.RelationTable,
-			Columns: []string{message.RelationColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(relation.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := muo.mutation.RelationIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   message.RelationTable,
-			Columns: []string{message.RelationColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(relation.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if muo.mutation.AvatarCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -609,6 +580,35 @@ func (muo *MessageUpdateOne) sqlSave(ctx context.Context) (_node *Message, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(avatar.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.RoomCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   message.RoomTable,
+			Columns: []string{message.RoomColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RoomIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   message.RoomTable,
+			Columns: []string{message.RoomColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

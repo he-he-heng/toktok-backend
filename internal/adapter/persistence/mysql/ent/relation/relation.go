@@ -30,8 +30,10 @@ const (
 	EdgeAvatar = "avatar"
 	// EdgeFriend holds the string denoting the friend edge name in mutations.
 	EdgeFriend = "friend"
-	// EdgeMessages holds the string denoting the messages edge name in mutations.
-	EdgeMessages = "messages"
+	// EdgeAvatarRooms holds the string denoting the avatar_rooms edge name in mutations.
+	EdgeAvatarRooms = "avatar_rooms"
+	// EdgeFriendRooms holds the string denoting the friend_rooms edge name in mutations.
+	EdgeFriendRooms = "friend_rooms"
 	// Table holds the table name of the relation in the database.
 	Table = "relations"
 	// AvatarTable is the table that holds the avatar relation/edge.
@@ -48,13 +50,20 @@ const (
 	FriendInverseTable = "avatars"
 	// FriendColumn is the table column denoting the friend relation/edge.
 	FriendColumn = "avatar_friend_relations"
-	// MessagesTable is the table that holds the messages relation/edge.
-	MessagesTable = "messages"
-	// MessagesInverseTable is the table name for the Message entity.
-	// It exists in this package in order to avoid circular dependency with the "message" package.
-	MessagesInverseTable = "messages"
-	// MessagesColumn is the table column denoting the messages relation/edge.
-	MessagesColumn = "relation_messages"
+	// AvatarRoomsTable is the table that holds the avatar_rooms relation/edge.
+	AvatarRoomsTable = "rooms"
+	// AvatarRoomsInverseTable is the table name for the Room entity.
+	// It exists in this package in order to avoid circular dependency with the "room" package.
+	AvatarRoomsInverseTable = "rooms"
+	// AvatarRoomsColumn is the table column denoting the avatar_rooms relation/edge.
+	AvatarRoomsColumn = "relation_avatar_rooms"
+	// FriendRoomsTable is the table that holds the friend_rooms relation/edge.
+	FriendRoomsTable = "rooms"
+	// FriendRoomsInverseTable is the table name for the Room entity.
+	// It exists in this package in order to avoid circular dependency with the "room" package.
+	FriendRoomsInverseTable = "rooms"
+	// FriendRoomsColumn is the table column denoting the friend_rooms relation/edge.
+	FriendRoomsColumn = "relation_friend_rooms"
 )
 
 // Columns holds all SQL columns for relation fields.
@@ -207,17 +216,17 @@ func ByFriendField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByMessagesCount orders the results by messages count.
-func ByMessagesCount(opts ...sql.OrderTermOption) OrderOption {
+// ByAvatarRoomsField orders the results by avatar_rooms field.
+func ByAvatarRoomsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newMessagesStep(), opts...)
+		sqlgraph.OrderByNeighborTerms(s, newAvatarRoomsStep(), sql.OrderByField(field, opts...))
 	}
 }
 
-// ByMessages orders the results by messages terms.
-func ByMessages(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByFriendRoomsField orders the results by friend_rooms field.
+func ByFriendRoomsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMessagesStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newFriendRoomsStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newAvatarStep() *sqlgraph.Step {
@@ -234,10 +243,17 @@ func newFriendStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, FriendTable, FriendColumn),
 	)
 }
-func newMessagesStep() *sqlgraph.Step {
+func newAvatarRoomsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MessagesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, MessagesTable, MessagesColumn),
+		sqlgraph.To(AvatarRoomsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, AvatarRoomsTable, AvatarRoomsColumn),
+	)
+}
+func newFriendRoomsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FriendRoomsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, FriendRoomsTable, FriendRoomsColumn),
 	)
 }

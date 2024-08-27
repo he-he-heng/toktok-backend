@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
-	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -130,19 +130,42 @@ func (rc *RelationCreate) SetFriend(a *Avatar) *RelationCreate {
 	return rc.SetFriendID(a.ID)
 }
 
-// AddMessageIDs adds the "messages" edge to the Message entity by IDs.
-func (rc *RelationCreate) AddMessageIDs(ids ...int) *RelationCreate {
-	rc.mutation.AddMessageIDs(ids...)
+// SetAvatarRoomsID sets the "avatar_rooms" edge to the Room entity by ID.
+func (rc *RelationCreate) SetAvatarRoomsID(id int) *RelationCreate {
+	rc.mutation.SetAvatarRoomsID(id)
 	return rc
 }
 
-// AddMessages adds the "messages" edges to the Message entity.
-func (rc *RelationCreate) AddMessages(m ...*Message) *RelationCreate {
-	ids := make([]int, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// SetNillableAvatarRoomsID sets the "avatar_rooms" edge to the Room entity by ID if the given value is not nil.
+func (rc *RelationCreate) SetNillableAvatarRoomsID(id *int) *RelationCreate {
+	if id != nil {
+		rc = rc.SetAvatarRoomsID(*id)
 	}
-	return rc.AddMessageIDs(ids...)
+	return rc
+}
+
+// SetAvatarRooms sets the "avatar_rooms" edge to the Room entity.
+func (rc *RelationCreate) SetAvatarRooms(r *Room) *RelationCreate {
+	return rc.SetAvatarRoomsID(r.ID)
+}
+
+// SetFriendRoomsID sets the "friend_rooms" edge to the Room entity by ID.
+func (rc *RelationCreate) SetFriendRoomsID(id int) *RelationCreate {
+	rc.mutation.SetFriendRoomsID(id)
+	return rc
+}
+
+// SetNillableFriendRoomsID sets the "friend_rooms" edge to the Room entity by ID if the given value is not nil.
+func (rc *RelationCreate) SetNillableFriendRoomsID(id *int) *RelationCreate {
+	if id != nil {
+		rc = rc.SetFriendRoomsID(*id)
+	}
+	return rc
+}
+
+// SetFriendRooms sets the "friend_rooms" edge to the Room entity.
+func (rc *RelationCreate) SetFriendRooms(r *Room) *RelationCreate {
+	return rc.SetFriendRoomsID(r.ID)
 }
 
 // Mutation returns the RelationMutation object of the builder.
@@ -311,15 +334,31 @@ func (rc *RelationCreate) createSpec() (*Relation, *sqlgraph.CreateSpec) {
 		_node.avatar_friend_relations = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := rc.mutation.MessagesIDs(); len(nodes) > 0 {
+	if nodes := rc.mutation.AvatarRoomsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   relation.MessagesTable,
-			Columns: []string{relation.MessagesColumn},
+			Table:   relation.AvatarRoomsTable,
+			Columns: []string{relation.AvatarRoomsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rc.mutation.FriendRoomsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   relation.FriendRoomsTable,
+			Columns: []string{relation.FriendRoomsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

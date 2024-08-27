@@ -9,7 +9,7 @@ import (
 	"time"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
-	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -90,25 +90,6 @@ func (mc *MessageCreate) SetNillableEnteredAt(t *time.Time) *MessageCreate {
 	return mc
 }
 
-// SetRelationID sets the "relation" edge to the Relation entity by ID.
-func (mc *MessageCreate) SetRelationID(id int) *MessageCreate {
-	mc.mutation.SetRelationID(id)
-	return mc
-}
-
-// SetNillableRelationID sets the "relation" edge to the Relation entity by ID if the given value is not nil.
-func (mc *MessageCreate) SetNillableRelationID(id *int) *MessageCreate {
-	if id != nil {
-		mc = mc.SetRelationID(*id)
-	}
-	return mc
-}
-
-// SetRelation sets the "relation" edge to the Relation entity.
-func (mc *MessageCreate) SetRelation(r *Relation) *MessageCreate {
-	return mc.SetRelationID(r.ID)
-}
-
 // SetAvatarID sets the "avatar" edge to the Avatar entity by ID.
 func (mc *MessageCreate) SetAvatarID(id int) *MessageCreate {
 	mc.mutation.SetAvatarID(id)
@@ -126,6 +107,25 @@ func (mc *MessageCreate) SetNillableAvatarID(id *int) *MessageCreate {
 // SetAvatar sets the "avatar" edge to the Avatar entity.
 func (mc *MessageCreate) SetAvatar(a *Avatar) *MessageCreate {
 	return mc.SetAvatarID(a.ID)
+}
+
+// SetRoomID sets the "room" edge to the Room entity by ID.
+func (mc *MessageCreate) SetRoomID(id int) *MessageCreate {
+	mc.mutation.SetRoomID(id)
+	return mc
+}
+
+// SetNillableRoomID sets the "room" edge to the Room entity by ID if the given value is not nil.
+func (mc *MessageCreate) SetNillableRoomID(id *int) *MessageCreate {
+	if id != nil {
+		mc = mc.SetRoomID(*id)
+	}
+	return mc
+}
+
+// SetRoom sets the "room" edge to the Room entity.
+func (mc *MessageCreate) SetRoom(r *Room) *MessageCreate {
+	return mc.SetRoomID(r.ID)
 }
 
 // Mutation returns the MessageMutation object of the builder.
@@ -266,23 +266,6 @@ func (mc *MessageCreate) createSpec() (*Message, *sqlgraph.CreateSpec) {
 		_spec.SetField(message.FieldEnteredAt, field.TypeTime, value)
 		_node.EnteredAt = value
 	}
-	if nodes := mc.mutation.RelationIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   message.RelationTable,
-			Columns: []string{message.RelationColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(relation.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.relation_messages = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := mc.mutation.AvatarIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -298,6 +281,23 @@ func (mc *MessageCreate) createSpec() (*Message, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.avatar_messages = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.RoomIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   message.RoomTable,
+			Columns: []string{message.RoomColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.room_messages = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

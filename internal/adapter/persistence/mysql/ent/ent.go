@@ -11,6 +11,7 @@ import (
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/user"
 
 	"entgo.io/ent"
@@ -79,6 +80,7 @@ func checkColumn(table, column string) error {
 			avatar.Table:   avatar.ValidColumn,
 			message.Table:  message.ValidColumn,
 			relation.Table: relation.ValidColumn,
+			room.Table:     room.ValidColumn,
 			user.Table:     user.ValidColumn,
 		})
 	})

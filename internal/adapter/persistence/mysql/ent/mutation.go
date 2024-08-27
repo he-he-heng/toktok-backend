@@ -12,6 +12,7 @@ import (
 	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/predicate"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/user"
 
 	"entgo.io/ent"
@@ -30,6 +31,7 @@ const (
 	TypeAvatar   = "Avatar"
 	TypeMessage  = "Message"
 	TypeRelation = "Relation"
+	TypeRoom     = "Room"
 	TypeUser     = "User"
 )
 
@@ -1226,23 +1228,23 @@ func (m *AvatarMutation) ResetEdge(name string) error {
 // MessageMutation represents an operation that mutates the Message nodes in the graph.
 type MessageMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	deleted_at      *time.Time
-	created_at      *time.Time
-	updated_at      *time.Time
-	state           *message.State
-	content         *string
-	entered_at      *time.Time
-	clearedFields   map[string]struct{}
-	relation        *int
-	clearedrelation bool
-	avatar          *int
-	clearedavatar   bool
-	done            bool
-	oldValue        func(context.Context) (*Message, error)
-	predicates      []predicate.Message
+	op            Op
+	typ           string
+	id            *int
+	deleted_at    *time.Time
+	created_at    *time.Time
+	updated_at    *time.Time
+	state         *message.State
+	content       *string
+	entered_at    *time.Time
+	clearedFields map[string]struct{}
+	avatar        *int
+	clearedavatar bool
+	room          *int
+	clearedroom   bool
+	done          bool
+	oldValue      func(context.Context) (*Message, error)
+	predicates    []predicate.Message
 }
 
 var _ ent.Mutation = (*MessageMutation)(nil)
@@ -1572,45 +1574,6 @@ func (m *MessageMutation) ResetEnteredAt() {
 	m.entered_at = nil
 }
 
-// SetRelationID sets the "relation" edge to the Relation entity by id.
-func (m *MessageMutation) SetRelationID(id int) {
-	m.relation = &id
-}
-
-// ClearRelation clears the "relation" edge to the Relation entity.
-func (m *MessageMutation) ClearRelation() {
-	m.clearedrelation = true
-}
-
-// RelationCleared reports if the "relation" edge to the Relation entity was cleared.
-func (m *MessageMutation) RelationCleared() bool {
-	return m.clearedrelation
-}
-
-// RelationID returns the "relation" edge ID in the mutation.
-func (m *MessageMutation) RelationID() (id int, exists bool) {
-	if m.relation != nil {
-		return *m.relation, true
-	}
-	return
-}
-
-// RelationIDs returns the "relation" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// RelationID instead. It exists only for internal usage by the builders.
-func (m *MessageMutation) RelationIDs() (ids []int) {
-	if id := m.relation; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetRelation resets all changes to the "relation" edge.
-func (m *MessageMutation) ResetRelation() {
-	m.relation = nil
-	m.clearedrelation = false
-}
-
 // SetAvatarID sets the "avatar" edge to the Avatar entity by id.
 func (m *MessageMutation) SetAvatarID(id int) {
 	m.avatar = &id
@@ -1648,6 +1611,45 @@ func (m *MessageMutation) AvatarIDs() (ids []int) {
 func (m *MessageMutation) ResetAvatar() {
 	m.avatar = nil
 	m.clearedavatar = false
+}
+
+// SetRoomID sets the "room" edge to the Room entity by id.
+func (m *MessageMutation) SetRoomID(id int) {
+	m.room = &id
+}
+
+// ClearRoom clears the "room" edge to the Room entity.
+func (m *MessageMutation) ClearRoom() {
+	m.clearedroom = true
+}
+
+// RoomCleared reports if the "room" edge to the Room entity was cleared.
+func (m *MessageMutation) RoomCleared() bool {
+	return m.clearedroom
+}
+
+// RoomID returns the "room" edge ID in the mutation.
+func (m *MessageMutation) RoomID() (id int, exists bool) {
+	if m.room != nil {
+		return *m.room, true
+	}
+	return
+}
+
+// RoomIDs returns the "room" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// RoomID instead. It exists only for internal usage by the builders.
+func (m *MessageMutation) RoomIDs() (ids []int) {
+	if id := m.room; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetRoom resets all changes to the "room" edge.
+func (m *MessageMutation) ResetRoom() {
+	m.room = nil
+	m.clearedroom = false
 }
 
 // Where appends a list predicates to the MessageMutation builder.
@@ -1878,11 +1880,11 @@ func (m *MessageMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MessageMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.relation != nil {
-		edges = append(edges, message.EdgeRelation)
-	}
 	if m.avatar != nil {
 		edges = append(edges, message.EdgeAvatar)
+	}
+	if m.room != nil {
+		edges = append(edges, message.EdgeRoom)
 	}
 	return edges
 }
@@ -1891,12 +1893,12 @@ func (m *MessageMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *MessageMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case message.EdgeRelation:
-		if id := m.relation; id != nil {
-			return []ent.Value{*id}
-		}
 	case message.EdgeAvatar:
 		if id := m.avatar; id != nil {
+			return []ent.Value{*id}
+		}
+	case message.EdgeRoom:
+		if id := m.room; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -1918,11 +1920,11 @@ func (m *MessageMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MessageMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.clearedrelation {
-		edges = append(edges, message.EdgeRelation)
-	}
 	if m.clearedavatar {
 		edges = append(edges, message.EdgeAvatar)
+	}
+	if m.clearedroom {
+		edges = append(edges, message.EdgeRoom)
 	}
 	return edges
 }
@@ -1931,10 +1933,10 @@ func (m *MessageMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *MessageMutation) EdgeCleared(name string) bool {
 	switch name {
-	case message.EdgeRelation:
-		return m.clearedrelation
 	case message.EdgeAvatar:
 		return m.clearedavatar
+	case message.EdgeRoom:
+		return m.clearedroom
 	}
 	return false
 }
@@ -1943,11 +1945,11 @@ func (m *MessageMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *MessageMutation) ClearEdge(name string) error {
 	switch name {
-	case message.EdgeRelation:
-		m.ClearRelation()
-		return nil
 	case message.EdgeAvatar:
 		m.ClearAvatar()
+		return nil
+	case message.EdgeRoom:
+		m.ClearRoom()
 		return nil
 	}
 	return fmt.Errorf("unknown Message unique edge %s", name)
@@ -1957,11 +1959,11 @@ func (m *MessageMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *MessageMutation) ResetEdge(name string) error {
 	switch name {
-	case message.EdgeRelation:
-		m.ResetRelation()
-		return nil
 	case message.EdgeAvatar:
 		m.ResetAvatar()
+		return nil
+	case message.EdgeRoom:
+		m.ResetRoom()
 		return nil
 	}
 	return fmt.Errorf("unknown Message edge %s", name)
@@ -1970,25 +1972,26 @@ func (m *MessageMutation) ResetEdge(name string) error {
 // RelationMutation represents an operation that mutates the Relation nodes in the graph.
 type RelationMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	deleted_at      *time.Time
-	created_at      *time.Time
-	updated_at      *time.Time
-	state           *relation.State
-	alertState      *relation.AlertState
-	clearedFields   map[string]struct{}
-	avatar          *int
-	clearedavatar   bool
-	friend          *int
-	clearedfriend   bool
-	messages        map[int]struct{}
-	removedmessages map[int]struct{}
-	clearedmessages bool
-	done            bool
-	oldValue        func(context.Context) (*Relation, error)
-	predicates      []predicate.Relation
+	op                  Op
+	typ                 string
+	id                  *int
+	deleted_at          *time.Time
+	created_at          *time.Time
+	updated_at          *time.Time
+	state               *relation.State
+	alertState          *relation.AlertState
+	clearedFields       map[string]struct{}
+	avatar              *int
+	clearedavatar       bool
+	friend              *int
+	clearedfriend       bool
+	avatar_rooms        *int
+	clearedavatar_rooms bool
+	friend_rooms        *int
+	clearedfriend_rooms bool
+	done                bool
+	oldValue            func(context.Context) (*Relation, error)
+	predicates          []predicate.Relation
 }
 
 var _ ent.Mutation = (*RelationMutation)(nil)
@@ -2360,58 +2363,82 @@ func (m *RelationMutation) ResetFriend() {
 	m.clearedfriend = false
 }
 
-// AddMessageIDs adds the "messages" edge to the Message entity by ids.
-func (m *RelationMutation) AddMessageIDs(ids ...int) {
-	if m.messages == nil {
-		m.messages = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.messages[ids[i]] = struct{}{}
-	}
+// SetAvatarRoomsID sets the "avatar_rooms" edge to the Room entity by id.
+func (m *RelationMutation) SetAvatarRoomsID(id int) {
+	m.avatar_rooms = &id
 }
 
-// ClearMessages clears the "messages" edge to the Message entity.
-func (m *RelationMutation) ClearMessages() {
-	m.clearedmessages = true
+// ClearAvatarRooms clears the "avatar_rooms" edge to the Room entity.
+func (m *RelationMutation) ClearAvatarRooms() {
+	m.clearedavatar_rooms = true
 }
 
-// MessagesCleared reports if the "messages" edge to the Message entity was cleared.
-func (m *RelationMutation) MessagesCleared() bool {
-	return m.clearedmessages
+// AvatarRoomsCleared reports if the "avatar_rooms" edge to the Room entity was cleared.
+func (m *RelationMutation) AvatarRoomsCleared() bool {
+	return m.clearedavatar_rooms
 }
 
-// RemoveMessageIDs removes the "messages" edge to the Message entity by IDs.
-func (m *RelationMutation) RemoveMessageIDs(ids ...int) {
-	if m.removedmessages == nil {
-		m.removedmessages = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.messages, ids[i])
-		m.removedmessages[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedMessages returns the removed IDs of the "messages" edge to the Message entity.
-func (m *RelationMutation) RemovedMessagesIDs() (ids []int) {
-	for id := range m.removedmessages {
-		ids = append(ids, id)
+// AvatarRoomsID returns the "avatar_rooms" edge ID in the mutation.
+func (m *RelationMutation) AvatarRoomsID() (id int, exists bool) {
+	if m.avatar_rooms != nil {
+		return *m.avatar_rooms, true
 	}
 	return
 }
 
-// MessagesIDs returns the "messages" edge IDs in the mutation.
-func (m *RelationMutation) MessagesIDs() (ids []int) {
-	for id := range m.messages {
-		ids = append(ids, id)
+// AvatarRoomsIDs returns the "avatar_rooms" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AvatarRoomsID instead. It exists only for internal usage by the builders.
+func (m *RelationMutation) AvatarRoomsIDs() (ids []int) {
+	if id := m.avatar_rooms; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetMessages resets all changes to the "messages" edge.
-func (m *RelationMutation) ResetMessages() {
-	m.messages = nil
-	m.clearedmessages = false
-	m.removedmessages = nil
+// ResetAvatarRooms resets all changes to the "avatar_rooms" edge.
+func (m *RelationMutation) ResetAvatarRooms() {
+	m.avatar_rooms = nil
+	m.clearedavatar_rooms = false
+}
+
+// SetFriendRoomsID sets the "friend_rooms" edge to the Room entity by id.
+func (m *RelationMutation) SetFriendRoomsID(id int) {
+	m.friend_rooms = &id
+}
+
+// ClearFriendRooms clears the "friend_rooms" edge to the Room entity.
+func (m *RelationMutation) ClearFriendRooms() {
+	m.clearedfriend_rooms = true
+}
+
+// FriendRoomsCleared reports if the "friend_rooms" edge to the Room entity was cleared.
+func (m *RelationMutation) FriendRoomsCleared() bool {
+	return m.clearedfriend_rooms
+}
+
+// FriendRoomsID returns the "friend_rooms" edge ID in the mutation.
+func (m *RelationMutation) FriendRoomsID() (id int, exists bool) {
+	if m.friend_rooms != nil {
+		return *m.friend_rooms, true
+	}
+	return
+}
+
+// FriendRoomsIDs returns the "friend_rooms" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// FriendRoomsID instead. It exists only for internal usage by the builders.
+func (m *RelationMutation) FriendRoomsIDs() (ids []int) {
+	if id := m.friend_rooms; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetFriendRooms resets all changes to the "friend_rooms" edge.
+func (m *RelationMutation) ResetFriendRooms() {
+	m.friend_rooms = nil
+	m.clearedfriend_rooms = false
 }
 
 // Where appends a list predicates to the RelationMutation builder.
@@ -2624,15 +2651,18 @@ func (m *RelationMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RelationMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.avatar != nil {
 		edges = append(edges, relation.EdgeAvatar)
 	}
 	if m.friend != nil {
 		edges = append(edges, relation.EdgeFriend)
 	}
-	if m.messages != nil {
-		edges = append(edges, relation.EdgeMessages)
+	if m.avatar_rooms != nil {
+		edges = append(edges, relation.EdgeAvatarRooms)
+	}
+	if m.friend_rooms != nil {
+		edges = append(edges, relation.EdgeFriendRooms)
 	}
 	return edges
 }
@@ -2649,50 +2679,44 @@ func (m *RelationMutation) AddedIDs(name string) []ent.Value {
 		if id := m.friend; id != nil {
 			return []ent.Value{*id}
 		}
-	case relation.EdgeMessages:
-		ids := make([]ent.Value, 0, len(m.messages))
-		for id := range m.messages {
-			ids = append(ids, id)
+	case relation.EdgeAvatarRooms:
+		if id := m.avatar_rooms; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
+	case relation.EdgeFriendRooms:
+		if id := m.friend_rooms; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RelationMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.removedmessages != nil {
-		edges = append(edges, relation.EdgeMessages)
-	}
+	edges := make([]string, 0, 4)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *RelationMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case relation.EdgeMessages:
-		ids := make([]ent.Value, 0, len(m.removedmessages))
-		for id := range m.removedmessages {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RelationMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedavatar {
 		edges = append(edges, relation.EdgeAvatar)
 	}
 	if m.clearedfriend {
 		edges = append(edges, relation.EdgeFriend)
 	}
-	if m.clearedmessages {
-		edges = append(edges, relation.EdgeMessages)
+	if m.clearedavatar_rooms {
+		edges = append(edges, relation.EdgeAvatarRooms)
+	}
+	if m.clearedfriend_rooms {
+		edges = append(edges, relation.EdgeFriendRooms)
 	}
 	return edges
 }
@@ -2705,8 +2729,10 @@ func (m *RelationMutation) EdgeCleared(name string) bool {
 		return m.clearedavatar
 	case relation.EdgeFriend:
 		return m.clearedfriend
-	case relation.EdgeMessages:
-		return m.clearedmessages
+	case relation.EdgeAvatarRooms:
+		return m.clearedavatar_rooms
+	case relation.EdgeFriendRooms:
+		return m.clearedfriend_rooms
 	}
 	return false
 }
@@ -2720,6 +2746,12 @@ func (m *RelationMutation) ClearEdge(name string) error {
 		return nil
 	case relation.EdgeFriend:
 		m.ClearFriend()
+		return nil
+	case relation.EdgeAvatarRooms:
+		m.ClearAvatarRooms()
+		return nil
+	case relation.EdgeFriendRooms:
+		m.ClearFriendRooms()
 		return nil
 	}
 	return fmt.Errorf("unknown Relation unique edge %s", name)
@@ -2735,11 +2767,655 @@ func (m *RelationMutation) ResetEdge(name string) error {
 	case relation.EdgeFriend:
 		m.ResetFriend()
 		return nil
-	case relation.EdgeMessages:
-		m.ResetMessages()
+	case relation.EdgeAvatarRooms:
+		m.ResetAvatarRooms()
+		return nil
+	case relation.EdgeFriendRooms:
+		m.ResetFriendRooms()
 		return nil
 	}
 	return fmt.Errorf("unknown Relation edge %s", name)
+}
+
+// RoomMutation represents an operation that mutates the Room nodes in the graph.
+type RoomMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *int
+	deleted_at      *time.Time
+	created_at      *time.Time
+	updated_at      *time.Time
+	clearedFields   map[string]struct{}
+	avatar          *int
+	clearedavatar   bool
+	friend          *int
+	clearedfriend   bool
+	messages        *int
+	clearedmessages bool
+	done            bool
+	oldValue        func(context.Context) (*Room, error)
+	predicates      []predicate.Room
+}
+
+var _ ent.Mutation = (*RoomMutation)(nil)
+
+// roomOption allows management of the mutation configuration using functional options.
+type roomOption func(*RoomMutation)
+
+// newRoomMutation creates new mutation for the Room entity.
+func newRoomMutation(c config, op Op, opts ...roomOption) *RoomMutation {
+	m := &RoomMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeRoom,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withRoomID sets the ID field of the mutation.
+func withRoomID(id int) roomOption {
+	return func(m *RoomMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Room
+		)
+		m.oldValue = func(ctx context.Context) (*Room, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Room.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withRoom sets the old Room of the mutation.
+func withRoom(node *Room) roomOption {
+	return func(m *RoomMutation) {
+		m.oldValue = func(context.Context) (*Room, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m RoomMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m RoomMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *RoomMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *RoomMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Room.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *RoomMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *RoomMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Room entity.
+// If the Room object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoomMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *RoomMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[room.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *RoomMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[room.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *RoomMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, room.FieldDeletedAt)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *RoomMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *RoomMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Room entity.
+// If the Room object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoomMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *RoomMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *RoomMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *RoomMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Room entity.
+// If the Room object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoomMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *RoomMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetAvatarID sets the "avatar" edge to the Relation entity by id.
+func (m *RoomMutation) SetAvatarID(id int) {
+	m.avatar = &id
+}
+
+// ClearAvatar clears the "avatar" edge to the Relation entity.
+func (m *RoomMutation) ClearAvatar() {
+	m.clearedavatar = true
+}
+
+// AvatarCleared reports if the "avatar" edge to the Relation entity was cleared.
+func (m *RoomMutation) AvatarCleared() bool {
+	return m.clearedavatar
+}
+
+// AvatarID returns the "avatar" edge ID in the mutation.
+func (m *RoomMutation) AvatarID() (id int, exists bool) {
+	if m.avatar != nil {
+		return *m.avatar, true
+	}
+	return
+}
+
+// AvatarIDs returns the "avatar" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AvatarID instead. It exists only for internal usage by the builders.
+func (m *RoomMutation) AvatarIDs() (ids []int) {
+	if id := m.avatar; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAvatar resets all changes to the "avatar" edge.
+func (m *RoomMutation) ResetAvatar() {
+	m.avatar = nil
+	m.clearedavatar = false
+}
+
+// SetFriendID sets the "friend" edge to the Relation entity by id.
+func (m *RoomMutation) SetFriendID(id int) {
+	m.friend = &id
+}
+
+// ClearFriend clears the "friend" edge to the Relation entity.
+func (m *RoomMutation) ClearFriend() {
+	m.clearedfriend = true
+}
+
+// FriendCleared reports if the "friend" edge to the Relation entity was cleared.
+func (m *RoomMutation) FriendCleared() bool {
+	return m.clearedfriend
+}
+
+// FriendID returns the "friend" edge ID in the mutation.
+func (m *RoomMutation) FriendID() (id int, exists bool) {
+	if m.friend != nil {
+		return *m.friend, true
+	}
+	return
+}
+
+// FriendIDs returns the "friend" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// FriendID instead. It exists only for internal usage by the builders.
+func (m *RoomMutation) FriendIDs() (ids []int) {
+	if id := m.friend; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetFriend resets all changes to the "friend" edge.
+func (m *RoomMutation) ResetFriend() {
+	m.friend = nil
+	m.clearedfriend = false
+}
+
+// SetMessagesID sets the "messages" edge to the Message entity by id.
+func (m *RoomMutation) SetMessagesID(id int) {
+	m.messages = &id
+}
+
+// ClearMessages clears the "messages" edge to the Message entity.
+func (m *RoomMutation) ClearMessages() {
+	m.clearedmessages = true
+}
+
+// MessagesCleared reports if the "messages" edge to the Message entity was cleared.
+func (m *RoomMutation) MessagesCleared() bool {
+	return m.clearedmessages
+}
+
+// MessagesID returns the "messages" edge ID in the mutation.
+func (m *RoomMutation) MessagesID() (id int, exists bool) {
+	if m.messages != nil {
+		return *m.messages, true
+	}
+	return
+}
+
+// MessagesIDs returns the "messages" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// MessagesID instead. It exists only for internal usage by the builders.
+func (m *RoomMutation) MessagesIDs() (ids []int) {
+	if id := m.messages; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMessages resets all changes to the "messages" edge.
+func (m *RoomMutation) ResetMessages() {
+	m.messages = nil
+	m.clearedmessages = false
+}
+
+// Where appends a list predicates to the RoomMutation builder.
+func (m *RoomMutation) Where(ps ...predicate.Room) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the RoomMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *RoomMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Room, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *RoomMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *RoomMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Room).
+func (m *RoomMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *RoomMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.deleted_at != nil {
+		fields = append(fields, room.FieldDeletedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, room.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, room.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *RoomMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case room.FieldDeletedAt:
+		return m.DeletedAt()
+	case room.FieldCreatedAt:
+		return m.CreatedAt()
+	case room.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *RoomMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case room.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case room.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case room.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Room field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *RoomMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case room.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case room.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case room.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Room field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *RoomMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *RoomMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *RoomMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Room numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *RoomMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(room.FieldDeletedAt) {
+		fields = append(fields, room.FieldDeletedAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *RoomMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *RoomMutation) ClearField(name string) error {
+	switch name {
+	case room.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Room nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *RoomMutation) ResetField(name string) error {
+	switch name {
+	case room.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case room.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case room.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Room field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *RoomMutation) AddedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.avatar != nil {
+		edges = append(edges, room.EdgeAvatar)
+	}
+	if m.friend != nil {
+		edges = append(edges, room.EdgeFriend)
+	}
+	if m.messages != nil {
+		edges = append(edges, room.EdgeMessages)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *RoomMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case room.EdgeAvatar:
+		if id := m.avatar; id != nil {
+			return []ent.Value{*id}
+		}
+	case room.EdgeFriend:
+		if id := m.friend; id != nil {
+			return []ent.Value{*id}
+		}
+	case room.EdgeMessages:
+		if id := m.messages; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *RoomMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 3)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *RoomMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *RoomMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.clearedavatar {
+		edges = append(edges, room.EdgeAvatar)
+	}
+	if m.clearedfriend {
+		edges = append(edges, room.EdgeFriend)
+	}
+	if m.clearedmessages {
+		edges = append(edges, room.EdgeMessages)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *RoomMutation) EdgeCleared(name string) bool {
+	switch name {
+	case room.EdgeAvatar:
+		return m.clearedavatar
+	case room.EdgeFriend:
+		return m.clearedfriend
+	case room.EdgeMessages:
+		return m.clearedmessages
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *RoomMutation) ClearEdge(name string) error {
+	switch name {
+	case room.EdgeAvatar:
+		m.ClearAvatar()
+		return nil
+	case room.EdgeFriend:
+		m.ClearFriend()
+		return nil
+	case room.EdgeMessages:
+		m.ClearMessages()
+		return nil
+	}
+	return fmt.Errorf("unknown Room unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *RoomMutation) ResetEdge(name string) error {
+	switch name {
+	case room.EdgeAvatar:
+		m.ResetAvatar()
+		return nil
+	case room.EdgeFriend:
+		m.ResetFriend()
+		return nil
+	case room.EdgeMessages:
+		m.ResetMessages()
+		return nil
+	}
+	return fmt.Errorf("unknown Room edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.

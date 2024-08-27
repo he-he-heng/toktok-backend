@@ -33,11 +33,11 @@ func (Message) Fields() []ent.Field {
 // Edges of the Message.
 func (Message) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("relation", Relation.Type).
+		edge.From("avatar", Avatar.Type).
 			Ref("messages").
 			Unique(),
 
-		edge.From("avatar", Avatar.Type).
+		edge.From("room", Room.Type).
 			Ref("messages").
 			Unique(),
 	}

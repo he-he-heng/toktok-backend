@@ -45,7 +45,11 @@ func (Relation) Edges() []ent.Edge {
 			Ref("friend_relations").
 			Unique(),
 
-		edge.To("messages", Message.Type),
+		edge.To("avatar_rooms", Room.Type).
+			Unique(),
+
+		edge.To("friend_rooms", Room.Type).
+			Unique(),
 	}
 }
 

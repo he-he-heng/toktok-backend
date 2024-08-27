@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"time"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
-	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/predicate"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -122,19 +122,42 @@ func (ru *RelationUpdate) SetFriend(a *Avatar) *RelationUpdate {
 	return ru.SetFriendID(a.ID)
 }
 
-// AddMessageIDs adds the "messages" edge to the Message entity by IDs.
-func (ru *RelationUpdate) AddMessageIDs(ids ...int) *RelationUpdate {
-	ru.mutation.AddMessageIDs(ids...)
+// SetAvatarRoomsID sets the "avatar_rooms" edge to the Room entity by ID.
+func (ru *RelationUpdate) SetAvatarRoomsID(id int) *RelationUpdate {
+	ru.mutation.SetAvatarRoomsID(id)
 	return ru
 }
 
-// AddMessages adds the "messages" edges to the Message entity.
-func (ru *RelationUpdate) AddMessages(m ...*Message) *RelationUpdate {
-	ids := make([]int, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// SetNillableAvatarRoomsID sets the "avatar_rooms" edge to the Room entity by ID if the given value is not nil.
+func (ru *RelationUpdate) SetNillableAvatarRoomsID(id *int) *RelationUpdate {
+	if id != nil {
+		ru = ru.SetAvatarRoomsID(*id)
 	}
-	return ru.AddMessageIDs(ids...)
+	return ru
+}
+
+// SetAvatarRooms sets the "avatar_rooms" edge to the Room entity.
+func (ru *RelationUpdate) SetAvatarRooms(r *Room) *RelationUpdate {
+	return ru.SetAvatarRoomsID(r.ID)
+}
+
+// SetFriendRoomsID sets the "friend_rooms" edge to the Room entity by ID.
+func (ru *RelationUpdate) SetFriendRoomsID(id int) *RelationUpdate {
+	ru.mutation.SetFriendRoomsID(id)
+	return ru
+}
+
+// SetNillableFriendRoomsID sets the "friend_rooms" edge to the Room entity by ID if the given value is not nil.
+func (ru *RelationUpdate) SetNillableFriendRoomsID(id *int) *RelationUpdate {
+	if id != nil {
+		ru = ru.SetFriendRoomsID(*id)
+	}
+	return ru
+}
+
+// SetFriendRooms sets the "friend_rooms" edge to the Room entity.
+func (ru *RelationUpdate) SetFriendRooms(r *Room) *RelationUpdate {
+	return ru.SetFriendRoomsID(r.ID)
 }
 
 // Mutation returns the RelationMutation object of the builder.
@@ -154,25 +177,16 @@ func (ru *RelationUpdate) ClearFriend() *RelationUpdate {
 	return ru
 }
 
-// ClearMessages clears all "messages" edges to the Message entity.
-func (ru *RelationUpdate) ClearMessages() *RelationUpdate {
-	ru.mutation.ClearMessages()
+// ClearAvatarRooms clears the "avatar_rooms" edge to the Room entity.
+func (ru *RelationUpdate) ClearAvatarRooms() *RelationUpdate {
+	ru.mutation.ClearAvatarRooms()
 	return ru
 }
 
-// RemoveMessageIDs removes the "messages" edge to Message entities by IDs.
-func (ru *RelationUpdate) RemoveMessageIDs(ids ...int) *RelationUpdate {
-	ru.mutation.RemoveMessageIDs(ids...)
+// ClearFriendRooms clears the "friend_rooms" edge to the Room entity.
+func (ru *RelationUpdate) ClearFriendRooms() *RelationUpdate {
+	ru.mutation.ClearFriendRooms()
 	return ru
-}
-
-// RemoveMessages removes "messages" edges to Message entities.
-func (ru *RelationUpdate) RemoveMessages(m ...*Message) *RelationUpdate {
-	ids := make([]int, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return ru.RemoveMessageIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -317,44 +331,57 @@ func (ru *RelationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ru.mutation.MessagesCleared() {
+	if ru.mutation.AvatarRoomsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   relation.MessagesTable,
-			Columns: []string{relation.MessagesColumn},
+			Table:   relation.AvatarRoomsTable,
+			Columns: []string{relation.AvatarRoomsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ru.mutation.RemovedMessagesIDs(); len(nodes) > 0 && !ru.mutation.MessagesCleared() {
+	if nodes := ru.mutation.AvatarRoomsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   relation.MessagesTable,
-			Columns: []string{relation.MessagesColumn},
+			Table:   relation.AvatarRoomsTable,
+			Columns: []string{relation.AvatarRoomsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if nodes := ru.mutation.MessagesIDs(); len(nodes) > 0 {
+	if ru.mutation.FriendRoomsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   relation.MessagesTable,
-			Columns: []string{relation.MessagesColumn},
+			Table:   relation.FriendRoomsTable,
+			Columns: []string{relation.FriendRoomsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ru.mutation.FriendRoomsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   relation.FriendRoomsTable,
+			Columns: []string{relation.FriendRoomsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -474,19 +501,42 @@ func (ruo *RelationUpdateOne) SetFriend(a *Avatar) *RelationUpdateOne {
 	return ruo.SetFriendID(a.ID)
 }
 
-// AddMessageIDs adds the "messages" edge to the Message entity by IDs.
-func (ruo *RelationUpdateOne) AddMessageIDs(ids ...int) *RelationUpdateOne {
-	ruo.mutation.AddMessageIDs(ids...)
+// SetAvatarRoomsID sets the "avatar_rooms" edge to the Room entity by ID.
+func (ruo *RelationUpdateOne) SetAvatarRoomsID(id int) *RelationUpdateOne {
+	ruo.mutation.SetAvatarRoomsID(id)
 	return ruo
 }
 
-// AddMessages adds the "messages" edges to the Message entity.
-func (ruo *RelationUpdateOne) AddMessages(m ...*Message) *RelationUpdateOne {
-	ids := make([]int, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// SetNillableAvatarRoomsID sets the "avatar_rooms" edge to the Room entity by ID if the given value is not nil.
+func (ruo *RelationUpdateOne) SetNillableAvatarRoomsID(id *int) *RelationUpdateOne {
+	if id != nil {
+		ruo = ruo.SetAvatarRoomsID(*id)
 	}
-	return ruo.AddMessageIDs(ids...)
+	return ruo
+}
+
+// SetAvatarRooms sets the "avatar_rooms" edge to the Room entity.
+func (ruo *RelationUpdateOne) SetAvatarRooms(r *Room) *RelationUpdateOne {
+	return ruo.SetAvatarRoomsID(r.ID)
+}
+
+// SetFriendRoomsID sets the "friend_rooms" edge to the Room entity by ID.
+func (ruo *RelationUpdateOne) SetFriendRoomsID(id int) *RelationUpdateOne {
+	ruo.mutation.SetFriendRoomsID(id)
+	return ruo
+}
+
+// SetNillableFriendRoomsID sets the "friend_rooms" edge to the Room entity by ID if the given value is not nil.
+func (ruo *RelationUpdateOne) SetNillableFriendRoomsID(id *int) *RelationUpdateOne {
+	if id != nil {
+		ruo = ruo.SetFriendRoomsID(*id)
+	}
+	return ruo
+}
+
+// SetFriendRooms sets the "friend_rooms" edge to the Room entity.
+func (ruo *RelationUpdateOne) SetFriendRooms(r *Room) *RelationUpdateOne {
+	return ruo.SetFriendRoomsID(r.ID)
 }
 
 // Mutation returns the RelationMutation object of the builder.
@@ -506,25 +556,16 @@ func (ruo *RelationUpdateOne) ClearFriend() *RelationUpdateOne {
 	return ruo
 }
 
-// ClearMessages clears all "messages" edges to the Message entity.
-func (ruo *RelationUpdateOne) ClearMessages() *RelationUpdateOne {
-	ruo.mutation.ClearMessages()
+// ClearAvatarRooms clears the "avatar_rooms" edge to the Room entity.
+func (ruo *RelationUpdateOne) ClearAvatarRooms() *RelationUpdateOne {
+	ruo.mutation.ClearAvatarRooms()
 	return ruo
 }
 
-// RemoveMessageIDs removes the "messages" edge to Message entities by IDs.
-func (ruo *RelationUpdateOne) RemoveMessageIDs(ids ...int) *RelationUpdateOne {
-	ruo.mutation.RemoveMessageIDs(ids...)
+// ClearFriendRooms clears the "friend_rooms" edge to the Room entity.
+func (ruo *RelationUpdateOne) ClearFriendRooms() *RelationUpdateOne {
+	ruo.mutation.ClearFriendRooms()
 	return ruo
-}
-
-// RemoveMessages removes "messages" edges to Message entities.
-func (ruo *RelationUpdateOne) RemoveMessages(m ...*Message) *RelationUpdateOne {
-	ids := make([]int, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return ruo.RemoveMessageIDs(ids...)
 }
 
 // Where appends a list predicates to the RelationUpdate builder.
@@ -699,44 +740,57 @@ func (ruo *RelationUpdateOne) sqlSave(ctx context.Context) (_node *Relation, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ruo.mutation.MessagesCleared() {
+	if ruo.mutation.AvatarRoomsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   relation.MessagesTable,
-			Columns: []string{relation.MessagesColumn},
+			Table:   relation.AvatarRoomsTable,
+			Columns: []string{relation.AvatarRoomsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ruo.mutation.RemovedMessagesIDs(); len(nodes) > 0 && !ruo.mutation.MessagesCleared() {
+	if nodes := ruo.mutation.AvatarRoomsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   relation.MessagesTable,
-			Columns: []string{relation.MessagesColumn},
+			Table:   relation.AvatarRoomsTable,
+			Columns: []string{relation.AvatarRoomsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if nodes := ruo.mutation.MessagesIDs(); len(nodes) > 0 {
+	if ruo.mutation.FriendRoomsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   relation.MessagesTable,
-			Columns: []string{relation.MessagesColumn},
+			Table:   relation.FriendRoomsTable,
+			Columns: []string{relation.FriendRoomsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ruo.mutation.FriendRoomsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   relation.FriendRoomsTable,
+			Columns: []string{relation.FriendRoomsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

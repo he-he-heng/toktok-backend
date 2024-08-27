@@ -7,6 +7,7 @@ import (
 	"toktok-backend/internal/adapter/persistence/mysql/ent/avatar"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/message"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/relation"
+	"toktok-backend/internal/adapter/persistence/mysql/ent/room"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/schema"
 	"toktok-backend/internal/adapter/persistence/mysql/ent/user"
 )
@@ -121,6 +122,25 @@ func init() {
 	relation.DefaultUpdatedAt = relationDescUpdatedAt.Default.(func() time.Time)
 	// relation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	relation.UpdateDefaultUpdatedAt = relationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	roomMixin := schema.Room{}.Mixin()
+	roomMixinHooks0 := roomMixin[0].Hooks()
+	room.Hooks[0] = roomMixinHooks0[0]
+	roomMixinInters0 := roomMixin[0].Interceptors()
+	room.Interceptors[0] = roomMixinInters0[0]
+	roomMixinFields1 := roomMixin[1].Fields()
+	_ = roomMixinFields1
+	roomFields := schema.Room{}.Fields()
+	_ = roomFields
+	// roomDescCreatedAt is the schema descriptor for created_at field.
+	roomDescCreatedAt := roomMixinFields1[0].Descriptor()
+	// room.DefaultCreatedAt holds the default value on creation for the created_at field.
+	room.DefaultCreatedAt = roomDescCreatedAt.Default.(func() time.Time)
+	// roomDescUpdatedAt is the schema descriptor for updated_at field.
+	roomDescUpdatedAt := roomMixinFields1[1].Descriptor()
+	// room.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	room.DefaultUpdatedAt = roomDescUpdatedAt.Default.(func() time.Time)
+	// room.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	room.UpdateDefaultUpdatedAt = roomDescUpdatedAt.UpdateDefault.(func() time.Time)
 	userMixin := schema.User{}.Mixin()
 	userMixinHooks0 := userMixin[0].Hooks()
 	user.Hooks[0] = userMixinHooks0[0]
