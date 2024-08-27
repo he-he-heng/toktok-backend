@@ -49,7 +49,8 @@ func main() {
 	avatarController := controller.NewAvatarController(avatarService)
 
 	roomRepository := repository.NewRoomRepoistory(client)
-	// roomService := service
+	roomService := service.NewRoomService(roomRepository)
+	roomController := controller.NewRoomController(roomService)
 
 	relationRepository := repository.NewRelationRepository(client)
 	relationService := service.NewRelationService(relationRepository, roomRepository)
@@ -60,6 +61,7 @@ func main() {
 			UserController:     userController,
 			AvatarController:   avatarController,
 			RelationController: relationController,
+			RoomController:     roomController,
 
 			AuthController: authController,
 		},

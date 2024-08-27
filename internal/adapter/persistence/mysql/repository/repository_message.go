@@ -27,6 +27,7 @@ func NewMessageRepository(client *mysql.Client) *MessageRepository {
 // 	if err != nil {
 // 		return nil, err
 // 	}
+// }
 
 // 	return utils.ToDomainMessage(createdMessage), nil
 // }

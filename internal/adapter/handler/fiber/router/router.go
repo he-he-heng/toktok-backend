@@ -4,6 +4,7 @@ import (
 	"toktok-backend/internal/adapter/handler/fiber/catcher"
 	"toktok-backend/internal/adapter/handler/fiber/middleware"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
@@ -42,6 +43,21 @@ func NewRouter(controllerSet ControllerSet, serviceSet ServiceSet) *Router {
 	{
 		api := v1.Group("/api")
 		{
+
+			ws := api.Group("/ws")
+			{
+				ws.Use("/", func(ctx *fiber.Ctx) error {
+					if websocket.IsWebSocketUpgrade(ctx) {
+						ctx.Locals("websocketAllowed", true)
+						return ctx.Next()
+					}
+
+					return fiber.ErrUpgradeRequired
+				})
+
+				ws.Post("/rooms/:id", websocket.New(router.controllerSet.RoomController.ConnectRoom))
+			}
+
 			users := api.Group("/users")
 			{
 				users.Get("/", router.controllerSet.UserController.ListUser)
@@ -73,6 +89,11 @@ func NewRouter(controllerSet ControllerSet, serviceSet ServiceSet) *Router {
 
 				relations.Get("/:id/room", router.controllerSet.RelationController.GetRoomByRealtionID)
 			}
+
+			// rooms := api.Group("rooms")
+			// {
+			// 	rooms.Get("/:id/auth", router.controllerSet.RelationController.GetRelation)
+			// }
 
 			auth := api.Group("/auth")
 			{
