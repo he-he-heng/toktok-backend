@@ -20,13 +20,13 @@ func NewAuthService(userRepository port.UserRepository, jwtService port.JWTServi
 	}
 }
 
-func (s *AuthService) Login(ctx context.Context, uid, password string) (accessToken string, refreshToken string, err error) {
-	user, err := s.userRepository.GetUserByUID(ctx, uid)
+func (s *AuthService) Login(ctx context.Context, argUser *domain.User) (accessToken string, refreshToken string, err error) {
+	user, err := s.userRepository.GetUserByUID(ctx, argUser.UID)
 	if err != nil {
 		return "", "", err
 	}
 
-	err = utils.VerifyPassword(password, user.Password)
+	err = utils.VerifyPassword(argUser.Password, user.Password)
 	if err != nil {
 		return "", "", errors.Wrap(domain.ErrInvalidCredentials, err)
 	}
@@ -42,4 +42,27 @@ func (s *AuthService) Login(ctx context.Context, uid, password string) (accessTo
 	}
 
 	return accessToken, refreshToken, nil
+}
+
+func (s *AuthService) Refresh(ctx context.Context, token string) (accessToekn string, err error) {
+	tokenPayload, err := s.jwtService.VerifyToken(token)
+	if err != nil {
+		return "", err
+	}
+
+	if tokenPayload.TokenType != domain.RefreshToken {
+		return "", errors.Wrap(domain.ErrUnauthorized, "")
+	}
+
+	user := domain.User{
+		ID:   tokenPayload.Iss,
+		Role: tokenPayload.Role,
+	}
+
+	accessToken, err := s.jwtService.CreateToken(domain.AccessToken, &user)
+	if err != nil {
+		return "", err
+	}
+
+	return accessToken, nil
 }

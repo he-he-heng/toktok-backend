@@ -84,7 +84,7 @@ func (t *Token) VerifyToken(tokenString string) (*domain.TokenPayload, error) {
 	}
 
 	return &domain.TokenPayload{
-		Iss:       int(claims["id"].(float64)),
+		Iss:       int(claims["iss"].(float64)),
 		Exp:       int64(claims["exp"].(float64)),
 		Ita:       int64(claims["ita"].(float64)),
 		TokenType: domain.TokenType(claims["tokenType"].(string)),

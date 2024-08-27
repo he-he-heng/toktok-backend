@@ -52,13 +52,19 @@ func main() {
 	relationService := service.NewRelationService(relationRepository)
 	relationController := controller.NewRelationController(relationService)
 
-	r := router.NewRouter(router.ControllerSet{
-		UserController:     userController,
-		AvatarController:   avatarController,
-		RelationController: relationController,
+	r := router.NewRouter(
+		router.ControllerSet{
+			UserController:     userController,
+			AvatarController:   avatarController,
+			RelationController: relationController,
 
-		AuthController: authController,
-	})
+			AuthController: authController,
+		},
+
+		router.ServiceSet{
+			JWTService: jwtService,
+		},
+	)
 
 	if err := r.Listen(":8080"); err != nil {
 		log.Fatal(err)

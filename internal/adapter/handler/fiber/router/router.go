@@ -2,6 +2,7 @@ package router
 
 import (
 	"toktok-backend/internal/adapter/handler/fiber/catcher"
+	"toktok-backend/internal/adapter/handler/fiber/middleware"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -13,7 +14,7 @@ type Router struct {
 }
 
 // TODO: add arg config
-func NewRouter(controllerSet ControllerSet) *Router {
+func NewRouter(controllerSet ControllerSet, serviceSet ServiceSet) *Router {
 	router := Router{
 		controllerSet: controllerSet,
 	}
@@ -31,6 +32,8 @@ func NewRouter(controllerSet ControllerSet) *Router {
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
+
+	jwtValidationMiddleware := middleware.NewJWTValidationMiddleware(serviceSet.JWTService)
 
 	// set token setting
 
@@ -64,6 +67,13 @@ func NewRouter(controllerSet ControllerSet) *Router {
 				relations.Post("/", router.controllerSet.RelationController.CreateRelation)
 				relations.Put("/:id", router.controllerSet.RelationController.UpdateRelation)
 				relations.Delete("/:id", router.controllerSet.RelationController.DeleteRelation)
+			}
+
+			auth := api.Group("/auth")
+			{
+				auth.Post("/login", router.controllerSet.AuthController.Login)
+				auth.Post("/refresh", router.controllerSet.AuthController.Refresh)
+				auth.Post("/validation", jwtValidationMiddleware.ValidateToken, router.controllerSet.AuthController.Validation)
 			}
 		}
 	}

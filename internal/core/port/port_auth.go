@@ -15,5 +15,7 @@ type JWTService interface {
 }
 
 type AuthService interface {
-	Login(ctx context.Context, email, password string) (string, string, error)
+	Login(ctx context.Context, user *domain.User) (string, string, error)
+
+	Refresh(ctx context.Context, token string) (accessToken string, err error)
 }
